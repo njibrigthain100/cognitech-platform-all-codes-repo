@@ -1,0 +1,13 @@
+template-file-path: IAC/Cloudformation/Infrastructure/Nested-Stacks/main.yaml
+parameters:
+  pAwsAccountLC: /standard/AWSAccountLC
+  pBucketName: prod-nested-stack-us-east-1
+  pAvailabilityZones: us-east-1a,us-east-1b
+  pVPCCidr: 10.1.0.0/16
+  pPublicSubnet2CIDR: 10.1.255.0/24
+  pAwsAccount: /standard/AWSAccount
+  pPublicSubnet1CIDR: 10.1.254.0/24
+  pPrivateSubnet1CIDR: 10.1.126.0/24
+  pAppName: cognitech
+  pPrivateSubnet2CIDR: 10.1.127.0/24
+tags: {}
