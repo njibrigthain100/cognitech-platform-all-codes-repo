@@ -1,0 +1,11 @@
+{
+    "StackName": "BK-Shared-services-Instance-Profile",
+    "Parameters":[
+        {
+            "ParameterKey": "pAppName",
+            "ParameterValue": "Cicd"
+        }
+    ]
+
+}
+

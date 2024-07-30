@@ -1,0 +1,51 @@
+{
+    "StackName": "EffulgenceTech-EC2-Instances",
+    "Parameters":[
+        {
+            "ParameterKey": "pInstanceType",
+            "ParameterValue": "t2.medium"
+        },
+        {
+            "ParameterKey": "pAppName",
+            "ParameterValue": "MicroServices"  
+        },
+        {
+            "ParameterKey": "pOSsystem",
+            "ParameterValue": "Linux"
+        },
+        {
+            "ParameterKey": "pWindowsAMI",
+            "ParameterValue": "ami-0ea6a9ded5194e937"
+        },
+        {
+            "ParameterKey": "pLinuxAMI",
+            "ParameterValue": "ami-04823729c75214919"
+        },
+        {
+            "ParameterKey": "pAutoScalingGroupSubnetId",
+            "ParameterValue": "subnet-0d2b48844c079c877"
+        },
+        {
+            "ParameterKey": "pAutoScalingGroupName",
+            "ParameterValue": "EffulgenceTechAutoscalingGroup"
+        },
+        {
+            "ParameterKey": "pUseAutoScaling",
+            "ParameterValue": "No"
+        },
+        {
+            "ParameterKey": "pInstanceCount",
+            "ParameterValue": "4"
+        },
+        {
+            "ParameterKey": "pVPCID",
+            "ParameterValue": "vpc-03153f92d10855e73"
+        },
+        {
+            "ParameterKey": "KeyName",
+            "ParameterValue": "windowscomputer"
+        }
+    ]
+
+}
+

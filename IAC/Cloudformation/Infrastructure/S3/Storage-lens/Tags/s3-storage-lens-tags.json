@@ -1,0 +1,11 @@
+{
+    "StackName": "BK-Shared-services-S3-Storage-Lens",
+    "Parameters":[
+        {
+            "ParameterKey": "pAppName",
+            "ParameterValue": "Storage-lens"
+        }
+    ]
+
+}
+

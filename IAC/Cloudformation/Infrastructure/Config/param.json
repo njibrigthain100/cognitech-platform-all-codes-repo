@@ -1,0 +1,16 @@
+{
+    "StackName": "AWSConfigRule",
+    "Parameters":[
+        {
+            "ParameterKey": "pRuleName",
+            "ParameterValue": "approved-amis"
+        },
+        {
+            "ParameterKey": "pSecretARN",
+            "ParameterValue": "arn:aws:secretsmanager:us-east-1:485147667400:secret:BK-PROD-us-east-1-Daily-AMI-jJRcpQ"
+        }
+
+    ]
+
+}
+

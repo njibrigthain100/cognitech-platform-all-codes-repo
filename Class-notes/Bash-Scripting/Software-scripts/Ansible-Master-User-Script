@@ -1,0 +1,16 @@
+#!bin/bash
+Username=ansible
+Password=ansible
+echo "Add user and assign root privilege"
+sudo useradd "$Username"
+echo "Password" | sudo passwd "$Username" --stdin
+echo "$Username ALL=(ALL) NOPASSWD:ALL " | sudo tee /etc/sudoers.d/ansible 
+echo " user succesfully created"
+echo "Enable ssh password authentication"
+sudo -u ansible -H sh -c "sudo sed -i 's/^PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config"
+sudo -u ansible -H sh -c "sudo sed -i 's/PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
+sudo systemctl reload sshd"
+sudo -u ansible -H sh -c "sudo yum install python3 -y"
+sudo -u ansible -H sh -c "sudo alternatives --set python /usr/bin/python3"
+sudo -u ansible -H sh -c "sudo yum -y install python3-pip -y"
+sudo -u ansible -H sh -c "pip3 install ansible" 

@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates the IAM role to be used by the ec2 instance
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pBucketName:
+    Description: The name in which the codes are stored
+    Type: String
+    Default: prod-nested-stack-us-east-1
+Mappings: 
+
+Conditions: 
+
+Resources: 
+
+Outputs:

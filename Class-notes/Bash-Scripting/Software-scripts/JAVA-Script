@@ -1,0 +1,68 @@
+#!/bin/bash
+# Written by www.continualintegration.com
+
+distro=$(cat /etc/*-release | grep NAME)
+
+debflag=$(echo $distro | grep -i "ubuntu")
+if [ -z "$debflag" ]
+then   # If it is not Ubuntu, test if it is Debian.
+  debflag=$(echo $distro | grep -i "debian")
+  echo "determining Linux distribution..."
+else
+   echo "You have Ubuntu Linux!"
+fi
+
+rhflag=$(echo $distro | grep -i "red*hat")
+if [ -z "$rhflag" ]
+then   #If it is not RedHat, see if it is CentOS or Fedora.
+  rhflag=$(echo $distro | grep -i "centos")
+  if [ -z "$rhflag" ]
+    then    #If it is neither RedHat nor CentOS, see if it is Fedora.
+    echo "It does not appear to be CentOS or RHEL..."
+    rhflag=$(echo $distro | grep -i "fedora")
+    fi
+fi
+
+if [ -z "$rhflag" ]
+  then
+  echo "...still determining Linux distribution..."
+else
+  echo "You have a RedHat distribution (e.g., CentOS, RHEL, or Fedora)"
+  yum -y install java-1.8.0-openjdk*
+  JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk
+  echo 'export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk' >> ~/.bashrc
+  source ~/.bashrc
+  source /etc/environment
+fi
+
+if [ -z "$debflag" ]
+then
+  echo "...still determining Linux distribution..."
+else
+   echo "You are using either Ubuntu Linux or Debian Linux."
+   apt-get -y update # This is necessary on new AWS Ubuntu servers.
+   apt-get -yo Dpkg::Options::="--force-overwrite" install openjdk-11-jdk
+   apt-get -y install openjdk-11-source
+   echo 'JAVA_HOME=/usr/lib/jvm/java-11-openjdk' >> ~/.bashrc
+   echo 'PATH=$PATH:/usr/lib/jvm/java-11-openjdk/bin' >> ~/.bashrc
+   source ~/.bashrc
+   source /etc/environment
+fi
+
+suseflag=$(echo $distro | grep -i "suse")
+if [ -z "$suseflag" ]
+then
+  if [ -z "$debflag" ]
+  then
+    if [ -z "$rhflag" ]
+      then
+      echo "*******************************************"
+      echo "Could not determine the Linux distribution!"
+      echo "Installation aborted. Nothing was done."
+      echo "******************************************"
+      exit
+    fi
+  fi
+else
+   zypper -n install java-1_8_0-openjdk java-1_8_0-openjdk-devel
+fi

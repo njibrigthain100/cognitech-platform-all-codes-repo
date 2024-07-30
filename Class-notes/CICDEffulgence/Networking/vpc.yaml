@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This stack will create a VPC for INT, QA and PROD
+
+Parameters: 
+  pAWSAccount:
+    Description: This is the account name
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pVPCName:
+    Description: This is a name for the VPC 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pVPCName
+
+  pVPCCIDR:
+    Description: CIDR for VPC
+    Type: String
+  
+  pPublicSubnet1CIDR:
+    Description: CIDR for public subnet 1
+    Type: String
+    AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+    ConstraintDescription: Only 10. IPV4 address allowed 
+  
+  pPublicSubnet2CIDR:
+    Description: CIDR for public subnet 2 
+    Type: String
+    AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+    ConstraintDescription: Only 10. IPV4 address allowed
+  
+  pPrivateSubnet1CIDR:
+    Description: CIDR for private subnet 1
+    Type: String
+    AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+    ConstraintDescription: Only 10. IPV4 address allowed
+  
+  pPrivateSubnet2CIDR:
+    Description: CIDR for private subnet 2
+    Type: String
+    AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+    ConstraintDescription: Only 10. IPV4 address allowed
+
+  # pInternetCIDR:
+  # Description: CIDR for the entire internet 
+  # Type: String
+  # AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+  # ConstraintDescription: Only 0. IPV4 address allowed
+  # Default: 0.0.0.0/0
+
+  pSubnetCreationNumber:
+    Description: The number of subnets to be created 
+    Type: Number 
+    MinValue: 1
+    MaxValue: 2
+    ConstraintDescription: Must be a numeric value 1,2
+
+Mappings: 
+  mAZMapping:
+    us-east-1:
+      AZ1: 'us-east-1a'
+      AZ2: 'us-east-1b'
+      AZ3: 'us-east-1c'
+      AZ4: 'us-east-1d'
+    us-west-2:
+      AZ1: 'us-west-2a'
+      AZ2: 'us-west-2b'
+      AZ3: 'us-west-2c'
+      AZ4: 'us-west-2d'
+Conditions: 
+  cSubnetCreationNumber: !Equals [!Ref pSubnetCreationNumber, 1]
+  cSubnet2CreationNumber: !Equals [!Ref pSubnetCreationNumber, 2]
+Resources:
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc.html#cfn-aws-ec2-vpc-instancetenancy
+  rVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref pVPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      # dedicated | default | host
+      InstanceTenancy: default
+      Tags:
+        - Key: Name 
+          Value: !Sub ${pAWSAccount}-${pVPCName}-VPC
+  rPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !FindInMap [mAZMapping, !Ref AWS::Region, AZ1]
+      VpcId: !Ref rVPC
+      CidrBlock: !Ref pPublicSubnet1CIDR
+      Tags:
+        - Key: Name 
+          Value: !Sub ${pAWSAccount}-${pVPCName}-PublicSubnet1
+  rPublicSubnet2:
+    Condition: cSubnet2CreationNumber
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !FindInMap [mAZMapping, !Ref AWS::Region, AZ2]
+      VpcId: !Ref rVPC
+      CidrBlock: !Ref pPublicSubnet2CIDR
+      Tags:
+        - Key: Name 
+          Value: PublicSubnet2
+  rPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !FindInMap [mAZMapping, !Ref AWS::Region, AZ3]
+      VpcId: !Ref rVPC
+      CidrBlock: !Ref pPrivateSubnet1CIDR
+      Tags:
+        - Key: Name 
+          Value: !Sub ${pAWSAccount}-${pVPCName}-PrivateSubnet1
+  rPrivateSubnet2:
+    Condition: cSubnet2CreationNumber
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !FindInMap [mAZMapping, !Ref AWS::Region, AZ4]
+      VpcId: !Ref rVPC
+      CidrBlock: !Ref pPrivateSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet2 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html
+  rIGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: BK-IGW
+  rIGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref rVPC
+      InternetGatewayId: !Ref rIGW
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
+  rPublicRT:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref rVPC 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
+  rPublicRoute:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref rIGW
+      RouteTableId: !Ref rPublicRT
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rPublidSubnet1RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rPublicRT
+      SubnetId: !Ref rPublicSubnet1
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rPublidSubnet2RTAssociation:
+    Condition: cSubnet2CreationNumber
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rPublicRT
+      SubnetId: !Ref rPublicSubnet2
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-eip.html
+  rNatGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: rIGWAttachment
+    Properties: 
+      Domain: vpc
+  rNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt rNatGatewayEIP.AllocationId
+      SubnetId: !Ref rPublicSubnet1
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
+  rPrivateRT1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref rVPC
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
+  rPrivateRoute:
+    Type: AWS::EC2::Route
+    DependsOn: rIGWAttachment
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref rNATGateway
+      RouteTableId: !Ref rPrivateRT1
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rPrivateRT1Assciation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rPrivateRT1
+      SubnetId: !Ref rPrivateSubnet1
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rPrivateRT2Assciation:
+    Condition: cSubnet2CreationNumber
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rPrivateRT1
+      SubnetId: !Ref rPrivateSubnet2
+Outputs:
+  oVPCID:
+    Description: The ID of the VPC created
+    Value: !Ref rVPC
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-VPC
+  opublic1SN:
+    Description: Public 1 subnet
+    Value: !Ref rPublicSubnet1
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-Public-Subnet1
+  opublic2SN:
+    Condition: cSubnet2CreationNumber
+    Description: Public 2 subnet
+    Value: !Ref rPublicSubnet2
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-Public-Subnet2
+  oprivate1SN:
+    Description: Private 1 subnet
+    Value: !Ref rPrivateSubnet1
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-Private-Subnet1
+  oprivate2SN:
+    Condition: cSubnet2CreationNumber
+    Description: Private 2 subnet 
+    Value: !Ref rPrivateSubnet2
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-Private-Subnet2

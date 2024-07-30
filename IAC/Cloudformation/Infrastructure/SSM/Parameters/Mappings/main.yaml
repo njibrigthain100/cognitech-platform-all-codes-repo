@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys SSM stacks across all accounts within the organization
+
+Parameters: 
+  pSaml:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+  pPath:
+    Description: The path to create ahierachy for ssm 
+    Type: String
+    Default: /standard/
+  pAMI:
+    Description: The newly created ami to be used 
+    Type: String
+    Default: ami-09269b3bba68e4a13
+Mappings: 
+  mPerAccountMap:
+    "271457809232":
+      pAWSAccount: QA
+      pAWSAccountLC: qa
+    "388927731914":
+      pAWSAccount: DEVOPS
+      pAWSAccountLC: devops 
+    "882680178335":
+      pAWSAccount: AUDIT 
+      pAWSAccountLC: audit 
+    "485147667400":
+      pAWSAccount: PROD 
+      pAWSAccountLC: prod 
+    "526645041140":
+      pAWSAccount: LOG 
+      pAWSAccountLC: log 
+    "471112707322":
+      pAWSAccount: JJTECH-DEV
+      pAWSAccountLC: jjtech-dev 
+    "730335294148":
+      pAWSAccount: INT
+      pAWSAccountLC: int
+    "533267408704": 
+      pAWSAccount: DEV
+      pAWSAccountLC: dev
+    "637423478842":
+      pAWSAccount: APP-SBOX
+      pAWSAccountLC: app-sbox
+  mRegion:
+    us-east-1:
+      pRegion2: us-west-2 
+      pSharedServicesVPCName: shared-services-us-east-1 
+    us-west-2: 
+      pRegion2: us-east-1
+      pSharedServicesVPCName: shared-services-us-west-2
+Resources: 
+  rAWSAccount:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: Account name in uppercase 
+      Name: !Sub ${pPath}AWSAccount 
+      Type: String 
+      Value: !FindInMap 
+        - mPerAccountMap
+        - !Ref AWS::AccountId 
+        - pAWSAccount
+  rAWSAccountLC:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: Account name in lower case  
+      Name: !Sub ${pPath}AWSAccountLC 
+      Type: String 
+      Value: !FindInMap 
+        - mPerAccountMap
+        - !Ref AWS::AccountId 
+        - pAWSAccountLC 
+  rSAML:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: The saml used in all accounts  
+      Name: !Sub ${pPath}saml
+      Type: String 
+      Value: !Sub ${pSaml}
+  rRegion2:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: The second AWS region being used   
+      Name: !Sub ${pPath}Region2
+      Type: String 
+      Value: !FindInMap
+        - mRegion 
+        - !Ref AWS::Region
+        - pRegion2
+  rSharedServicesVPC:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: The shared services vpc name   
+      Name: !Sub ${pPath}SharedServicesVpc
+      Type: String 
+      Value: !FindInMap
+        - mRegion 
+        - !Ref AWS::Region
+        - pSharedServicesVPCName
+  rAmi:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: The newly released AMI  
+      Name: !Sub ${pPath}NewAmi
+      Type: String 
+      Value: !Sub ${pAMI}
+
+  

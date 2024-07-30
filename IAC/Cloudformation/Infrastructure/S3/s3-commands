@@ -1,0 +1,7 @@
+To copy a file from your computer to an S3 bucket you can use the command below
+aws s3 cp source_path s3://destination_path --sse where sse stands for 
+ aws s3 cp s3://datasync-112394763914-onprem-data/NFS . --recursive
+
+To download files from an s3 bucket to your local use the following commands
+Aws s3api get-object --bucket bucketvalidator --key Misc/angel.txt file.txt
+In which bucketvalidator is the name of the s3 bucket Misc is the folder in the bucket and angel.txt is the file you want to get from the bucket and file.txt is the name you want to give the file on your local

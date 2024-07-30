@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Stores daily built AMI '
+
+Parameters:
+  pAwsAccount:
+    Description: The account in which the AMI will be built
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pDescription:
+    Description: Description for which the AMI is used
+    Type: String
+    Default: This is used to store all your daily AMIs
+  
+  pKMSKey:
+    Description: KMS key used by the account 
+    Type: String
+
+Resources: 
+  #This is a Secret resource with a randomly generated password in its SecretString JSON.
+  rSecretsManagerCred:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub ${pAwsAccount}-${AWS::Region}-AMI-Daily
+      Description: !Ref pDescription
+      KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/${pKMSKey}"
+      GenerateSecretString:
+        # SecretStringTemplate: '{"Daily-ami": "test-user"}'
+        PasswordLength: 30
+      Tags:
+        - Key: Name
+          Value: !Sub ${pAwsAccount}-${AWS::Region}-AMI
+        - Key: AWS Region
+          Value: !Sub ${AWS::Region}
+
+  rSecretsManagerPolicy:
+    Type: AWS::SecretsManager::ResourcePolicy
+    Properties:
+      SecretId: !Ref rSecretsManagerCred
+      ResourcePolicy:
+           Version: "2012-10-17"
+           Statement:
+            - Action: 
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+                - secretsmanager:ListSecrets
+              Effect: Allow 
+              Principal: "*"
+              Resource: "*" 
+              Condition: 
+                StringEquals: 
+                  aws:PrincipalOrgID: "o-orvtyisdyc"
+Outputs:
+  oSecretsmanager:
+    Description: Output for secrets manager creds 
+    Value: !Ref rSecretsManagerCred
+    Export: 
+      Name: !Sub ${pAwsAccount}-${AWS::Region}-AMI-secret-arn

@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates the role for users
+Parameters: 
+  pSamlFederation:
+    Description: The saml federation name
+    Type: String
+    Default: okta_saml  
+  pEntityType:
+    Description: The name of the entity being created
+    Type: String
+    Default: User
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+  iamrole:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: !Sub aws-${pEntityType}-Role
+      MaxSessionDuration: 43200
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17 
+        Statement:
+          - Sid: Federation 
+            Effect: Allow 
+            Action: 
+              - sts:AssumeRoleWithSAML
+            Principal: 
+              Federated: !Sub arn:aws:iam::${AWS::AccountId}:saml-provider/${pSamlFederation}
+            Condition: 
+              StringEquals: 
+                SAML:aud": https://signin.aws.amazon.com/saml
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Tags:
+        - Key: role 
+          Value: aws_user_role
+

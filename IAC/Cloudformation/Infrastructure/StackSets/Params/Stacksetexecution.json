@@ -1,0 +1,12 @@
+{
+    "StackName": "BK-Shared-services-StackSet-Execution-Role",
+    "Parameters":[
+        {
+            "ParameterKey": "AdministratorAccountId",
+            "ParameterValue": "485147667400"
+        }
+
+    ]        
+}
+
+

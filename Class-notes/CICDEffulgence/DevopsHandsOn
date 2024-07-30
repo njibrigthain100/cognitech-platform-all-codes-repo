@@ -1,0 +1,3 @@
+The buildspec file has all the stages for the CICD pipeline. These are all the steps that the developer needs to know when building the application. 
+Amazon container registry is used to store images. This is the final version of your already compiled application. The most recent version is compiled into an image. From the image we move to a container which helps in the storage of images in the AWS platform. 
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 191566103092.dkr.ecr.us-west-2.amazonaws.com  helps us login into our ECR

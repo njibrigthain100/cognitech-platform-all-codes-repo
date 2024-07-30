@@ -1,0 +1,288 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This is used to create both Linux and windows servers based on your need
+
+Parameters: 
+  pAWSAccount:
+    Description: The account in which you want to launch this instance
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pVPCName:
+    Description: This is a name for the VPC 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pVPCName
+
+  pKeyName:
+    Description: A name for the key pair 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/keyname
+  
+  pInstanceType:
+    Description: This is the instance type for the ec2 instance 
+    Type: String 
+    AllowedValues:
+      - t2.micro
+      - t2.small 
+      - t2.medium 
+
+  pInstanceCount:
+    Description: The number of instances to be created
+    Type: String
+  
+  pUseAutoScaling:
+    Description: This is a parameter to create an autoscaling group or not
+    Type: String
+    # Default: "Yes"
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+
+  pAppName:
+    Description: This is a name for the application getting created
+    Type: String
+
+  pOSsystem:
+    Description: This is the operating system to be used 
+    Type: String
+    # Default: Windows
+    AllowedValues:
+      - Windows 
+      - Linux 
+
+  pWindowsAMI:
+    Description: This is the ami for windows instance 
+    Type: String
+
+  pLinuxAMI:
+    Description: This is the ami for Linux instance 
+    Type: String
+
+  pAutoScalingGroupName:
+    Description: The name of the autoscaling group
+    Type: String
+
+
+  pAutoScalingGroupSubnetId:
+    Description: The subnet ID to use for the autoscaling group
+    Type: String
+
+
+
+Conditions: 
+  cSelectOperatingSystem: !Equals [!Ref pOSsystem, 'Windows']
+  cUseStandaloneInstance: !Equals [!Ref pUseAutoScaling, "No"]
+  cUseAutoScalingGroup: !Equals [!Ref pUseAutoScaling, "Yes"]
+
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html
+  rEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: !Sub ${pAWSAccount}-${pVPCName}-${pAppName}
+      Path: /
+      Roles: [!Ref rInstanceRole]
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+  rInstanceRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      Description: This is the policy attached to the IAM role 
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AdministratorAccess
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Effect: Allow 
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole'] 
+      Path: /
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+  rEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Developers laptop security group 
+      VpcId: !ImportValue 
+        Fn::Sub: '${pAWSAccount}-${pVPCName}-VPC'
+      SecurityGroupIngress:
+      - IpProtocol: 'tcp'
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: '0.0.0.0/0' 
+      - IpProtocol: 'tcp'
+        FromPort: '443'
+        ToPort: '443'
+        CidrIp: '0.0.0.0/0' 
+      - IpProtocol: 'tcp'
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: '0.0.0.0/0'
+      - IpProtocol: '-1'
+        CidrIp: '0.0.0.0/0'
+      Tags: 
+        - Key: Name
+          Value: !Sub ${pAWSAccount}-${pVPCName}-Security-group
+      
+  rEC2Instance:
+    Type: AWS::EC2::Instance
+    Condition: cUseStandaloneInstance
+    Properties: 
+      KeyName: !Ref pKeyName
+      ImageId: !If [cSelectOperatingSystem, !Ref pWindowsAMI, !Ref pLinuxAMI]
+      InstanceType: !Ref pInstanceType
+      IamInstanceProfile: !Ref rEC2InstanceProfile     
+      #  !ImportValue Fn::Sub: '${pAWSAccount}-${pVPCName}-${pAppName}Instance-Profile'
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet:
+          - !Ref rEC2SecurityGroup
+        SubnetId: !ImportValue
+         Fn::Sub: '${pAWSAccount}-${pVPCName}-Public-Subnet1'
+      UserData: 
+        Fn::Base64: !If 
+        - cSelectOperatingSystem 
+        - !Sub |
+          <powershell>
+          # Set the execution policy to RemoteSigned
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          # Create a new directory at "C:\temp"
+          New-Item -Path "c:\temp" -ItemType "directory" -Force
+          # Download the file from the specified S3 bucket 
+          powershell.exe -Command Read-S3Object -BucketName aws-codedeploy-us-east-1 -Key latest/codedeploy-agent.msi -File c:\temp\codedeploy-agent.msi
+          #Run the deployment agent file 
+          c:\temp\codedeploy-agent.msi /quiet /l c:\temp\host-agent-install-log.txt
+          # Get the status of the "codedeployagent" service and save the output to "codedeploy.txt"
+          powershell.exe -Command "Get-Service -Name codedeployagent | Out-File -FilePath 'c:\temp\codedeploy.txt'"
+          </powershell>
+        - !Sub | 
+          #!/bin/bash 
+          # sudo yum update -y 
+          # sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          # sudo yum install -y ansible
+          # sudo yum install -y docker 
+          # sudo systemctl start docker 
+          # sudo amazon-linux-extras install java-openjdk11 -y
+          # cd /opt
+          # sudo wget https://dlcdn.apache.org/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz
+          # sudo tar -xvzf apache-maven-3.9.4-bin.tar.gz
+          # sudo echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.20.0.8-1.amzn2.0.1.x86_64" >> ~/.bashrc
+          # sudo echo "M2_HOME=/opt/apache-maven-3.9.4" >> ~/.bashrc
+          # sudo echo "M2=/opt/apache-maven-3.9.4/bin" >> ~/.bashrc
+          # sudo echo "export PATH=$PATH:$HOME/bin:$JAVA_HOME:$M2:$M2_HOME" >> ~/.bashrc
+          # source ~/.bashrc
+          # sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.zip
+          # sudo unzip apache-tomcat-9.0.78.zip 
+          # sudo rm -rf apache-tomcat-9.0.78.zip
+          # sudo mv apache-tomcat-9.0.78/ tomcat9
+          # sudo chown ec2-user:ec2-user /opt/tomcat9/*
+          # cd tomcat9/bin/
+          # sudo chmod +x *.sh
+          # sudo ln -s /opt/tomcat9/bin/startup.sh /usr/local/bin/startTomcat
+          # sudo ln -s /opt/tomcat9/bin/shutdown.sh /usr/local/bin/stopTomcat
+          startTomcat
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${pAWSAccount}-${pVPCName}-${pAppName}-Server 
+        - Key: AWS Account 
+          Value: !Sub ${pAWSAccount}
+        - Key: AWS Region 
+          Value: !Sub ${AWS::Region}
+  
+  rEC2InstanceAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Condition: cUseAutoScalingGroup
+    Properties:
+      MinSize: 1
+      MaxSize: 10
+      DesiredCapacity: !Ref pInstanceCount
+      VPCZoneIdentifier:
+        - !Ref pAutoScalingGroupSubnetId 
+        # - subnet-0d2b48844c079c877
+        # - subnet-def3aad0
+      LaunchConfigurationName:
+        Ref: rEC2LaunchConfig
+      Tags:
+        - Key: Name
+          Value: !Sub "${pAutoScalingGroupName}"
+          PropagateAtLaunch: true
+
+  rEC2LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Condition: cUseAutoScalingGroup
+    Properties:
+      ImageId: !If [cSelectOperatingSystem, !Ref pWindowsAMI, !Ref pLinuxAMI]  
+      InstanceType: !Ref pInstanceType    
+      KeyName: !Ref pKeyName
+      IamInstanceProfile: !Ref rEC2InstanceProfile  
+      SecurityGroups:
+           - !GetAtt rEC2SecurityGroup.GroupId
+          #  - sg-0dbeb51f712e34b40
+      # NetworkInterfaces:
+      AssociatePublicIpAddress: "true"
+        # DeviceIndex: "0"
+      UserData: 
+        Fn::Base64: !If 
+        - cSelectOperatingSystem 
+        - !Sub |
+          <powershell>
+          # Set the execution policy to RemoteSigned
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          # Create a new directory at "C:\temp"
+          New-Item -Path "c:\temp" -ItemType "directory" -Force
+          # Download the file from the specified S3 bucket 
+          powershell.exe -Command Read-S3Object -BucketName aws-codedeploy-us-east-1 -Key latest/codedeploy-agent.msi -File c:\temp\codedeploy-agent.msi
+          #Run the deployment agent file 
+          c:\temp\codedeploy-agent.msi /quiet /l c:\temp\host-agent-install-log.txt
+          # Get the status of the "codedeployagent" service and save the output to "codedeploy.txt"
+          powershell.exe -Command "Get-Service -Name codedeployagent | Out-File -FilePath 'c:\temp\codedeploy.txt'"
+          </powershell>
+        - !Sub | 
+          # #!/bin/bash 
+          # sudo yum update -y 
+          # sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          # sudo yum install -y ansible
+          # sudo yum install -y docker 
+          # sudo systemctl start docker 
+          # sudo amazon-linux-extras install java-openjdk11 -y
+          # cd /opt
+          # sudo wget https://dlcdn.apache.org/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz
+          # sudo tar -xvzf apache-maven-3.9.4-bin.tar.gz
+          # sudo echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.20.0.8-1.amzn2.0.1.x86_64" >> ~/.bashrc
+          # sudo echo "M2_HOME=/opt/apache-maven-3.9.4" >> ~/.bashrc
+          # sudo echo "M2=/opt/apache-maven-3.9.4/bin" >> ~/.bashrc
+          # sudo echo "export PATH=$PATH:$HOME/bin:$JAVA_HOME:$M2:$M2_HOME" >> ~/.bashrc
+          # source ~/.bashrc
+          # sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.zip
+          # sudo unzip apache-tomcat-9.0.78.zip 
+          # sudo rm -rf apache-tomcat-9.0.78.zip
+          # sudo mv apache-tomcat-9.0.78/ tomcat9
+          # sudo chown ec2-user:ec2-user /opt/tomcat9/*
+          # cd tomcat9/bin/
+          # sudo chmod +x *.sh
+          # sudo ln -s /opt/tomcat9/bin/startup.sh /usr/local/bin/startTomcat
+          # sudo ln -s /opt/tomcat9/bin/shutdown.sh /usr/local/bin/stopTomcat
+          # startTomcat  
+
+         
+Outputs: 
+  oInstanceID:
+    Condition: cUseStandaloneInstance
+    Description: The instance ID 
+    Value: !Ref rEC2Instance
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-${pOSsystem}-${pAppName}
+
+  oInstancePublicIp:
+    Condition: cUseStandaloneInstance
+    Description: The pulic IP of the instance 
+    Value: !GetAtt rEC2Instance.PublicIp 
+
+  # oInstanceProfile:
+  #   Description: The output for the instance profile 
+  #   Value:
+  #     Fn::GetAtt:
+  #       - rEC2InstanceProfile
+  #       - Arn
+  #   Export: 
+  #     Name: !Sub ${pAWSAccount}-${pVPCName}-Instance-Profile-tomcat

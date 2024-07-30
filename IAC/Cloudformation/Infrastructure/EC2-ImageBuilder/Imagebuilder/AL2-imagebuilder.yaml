@@ -1,0 +1,288 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: EC2 Image Builder (BK AMI's)
+
+Parameters: 
+pRegion2:
+  Description: Second AWS region for multi-region support
+  Type: AWS::SSM::Parameter::Value<String>
+  Default: /standard/pRegion2
+
+pAwsAccount:
+  Description: Uppercase Account Name
+  Type: AWS::SSM::Parameter::Value<String>
+  Default: /standard/pAWSAccount
+
+pAwsAccountLc:
+  Description: Lower case account Name
+  Type: AWS::SSM::Parameter::Value<String>
+  Default: /standard/pAWSAccountLc
+
+pSubnetID:
+  Description: Subnet for EC2 instance build
+  Type: String
+
+pInstanceType:
+  Description: Server instance type
+  Type: String
+  
+pVersion:
+  Description:  Pipeline version number
+  Type: String
+  
+pDistribution:
+  Description: AMI OS distribution
+  Type: String
+  
+pDescription:
+  Description: Description of the type of service
+  Type: String
+  
+pKeyPair:
+  Description: Key pair to create server
+  Type: String
+
+pWorkingDirectory:
+  Description: Working directory for server
+  Type: String
+
+pImageName:
+  Description: AMI image Name
+  Type: String
+
+pParentImageID:
+  Description: AMI image ID from console
+  Type: String
+
+pLogGroup:
+  Description: Log group for the server
+  Type: String
+  
+pKMSKey:
+  Description: KMS key for server build
+  Type: String
+
+pAnsiblePlaybook:
+  Description: 
+  Type: String
+
+pSnsSubscription:
+  Description: 
+  Type: String
+Mappings: 
+
+Conditions: 
+
+Resources: 
+# The cloudWatch loggroup for the image built 
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html
+rEC2ImageBuilderLogGroup:
+  Type: AWS::Logs::LogGroup
+  DeletionPolicy: Delete
+  UpdateReplacePolicy: Delete
+  Properties: 
+    LogGroupName: !Ref pLogGroup
+    RetentionInDays: 7
+
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+rEC2ImageBuilderInstanceRole:
+  Type: AWS::IAM::Role
+  Metadata:
+    Comment: This is the role to be used by the instance during the buid
+  Properties: 
+    AssumeRolePolicyDocument: 
+      Statement:
+        - Action:
+          - sts: AssumeRole
+          Effect: Allow
+          Principal: 
+            service:
+              - !Sub 'ec2.${AWS::URLSuffix}'
+      Version: '2012-10-17'
+    ManagedPolicyArns: 
+      - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
+    Path: /EC2ImageBuilder/
+
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html
+rEC2ImageBuilderInstanceProfile:
+  Type: AWS::IAM::InstanceProfile
+  Properties: 
+    Path: /EC2ImageBuilder/
+    Roles: 
+      - Ref: rEC2ImageBuilderInstanceRole:
+
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
+rEC2ImageBuilderInstanceRoleLoggingPolicy:
+  Type: AWS::IAM::Policy
+  Metadata:
+    Comment: This policy allows the instance to save log files to an s3 bucket
+  Properties: 
+    PolicyName: ImageBuilderLogBucketPolicy
+    Roles: 
+      - Ref: rEC2ImageBuilderInstanceRole:
+    PolicyDocument:
+      version: '2012-10-17'
+      Statement:
+        - Action:
+          - s3:PutObject
+          Effect: Allow
+          Resource:
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${BUCKET}/*
+              - BUCKET:
+                Ref: rEC2ImageBuilderLogBucket
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+S3Bucket:
+  Type: AWS::S3::Bucket
+  Properties: 
+    BucketEncryption: 
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+          SSEAlgorithm: AES256
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      IgnorePublicAcls: true
+      BlockPublicPolicy: true 
+      RestrictPublicBuckets: true 
+
+# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-codepipeline-pipeline.html
+rEC2ImageBuilderPipeline:
+  Type: AWS::ImageBuilder::ImagePipeline
+  Properties: 
+    Name: !Sub "${pAwsAccount}-ImageBuilder-Pipeline"
+    Description: !Ref pDescription
+    DistributionConfigurationArn: !Ref rEC2ImageBuilderDistributionConfiguration
+    EnhancedImageMetadataEnabled: true
+    ImageRecipeArn: !Ref rEC2ImageBuilderRecipe
+    InfrastructureConfigurationArn: !Ref rEC2ImageBuilderInfrastructureConfiguration
+    Schedule:
+      PipelineExecutionStartCondition: EXPRESSION_MATCH_ONLY
+      ScheduleExpression: "cron(0 24 * * ? *)" # 12:00AM UTC Daily
+      Status: ENABLED 
+
+rEC2ImageBuilderDistributionConfiguration:
+  Type: AWS::ImageBuilder::DistributionConfiguration
+  Properties:
+    Name: !Sub "${pAwsAccount}-ImageBuilder-DistributionConfiguration"
+    Description: !Ref pDescription
+    Distribution:
+      - Region: !Sub ${AWS:Region}
+        AmiDistributionConfiguration:
+          Name: "bk-amazonlinux2022--goldenimage-template-{{ imagebuilder:buildDate }}"
+          Description: 'BK Amazon Linux 2022 golden Template'
+          AmiTags:
+            Name: bk-amazonlinux2022-golden-template
+            OperatingSystem: !Ref pDistribution
+            Status: candidate
+            Region: !Sub ${AWS::Region}
+          kmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:{AWS::AccountId}:alias/${pKMSKey}"
+          LaunchPermissionConfiguration:
+            OrganizationArns:
+              - 'arn:aws:organizations::485147667400:organization/o-orvtyisdyc'
+      - Region: !Ref pRegion2
+        AmiDistributionConfiguration:
+          Name: "bk-amazonlinux2022--golden-template-{{ imagebuilder:buildDate }}"
+          Description: 'BK Amazon Linux 2022 golden Template'
+          AmiTags:
+            Name: bk-amazonlinux2022-golden-template
+            OperatingSystem: !Ref pDistribution
+            Status: candidate
+            Region: pRegion2
+        kmsKeyId: !Sub "arn:aws:kms:${pRegion2}:${AWS::AccountId}:alias/${pKMSKey}"
+        LaunchPermissionConfiguration:
+          OrganizationArns:
+            - !Sub 'arn:aws:organizations::485147667400:organization/${pOrganizationArn}'
+
+rEC2ImageBuilderInfrastructureConfiguration:
+  Type: AWS::ImageBuilder::InfrastructureConfiguration
+  Properties:
+    Name: !Sub "${pAwsAccount}-ImageBuilder-Infrastructure-Configuration"
+    Description: !Ref pDescription
+    InstanceProfileName: !Ref rEC2ImageBuilderInstanceProfile
+    InstanceTypes:
+      - !Ref pInstanceType
+    KeyPair: !Ref pKeyPair
+    TerminateInstanceOnFailure: true 
+    SecurityGroupIds:
+      - !Ref pSubnetID
+    SnsTopicArn: !Sub "arn:aws:sns:us-east-1:${AWS::AccountId}:${pAwsAccount}-${pSnsSubscription}"
+    Logging:
+      S3Logs:
+        S3BucketName: !Ref rEC2ImageBuilderLogBucket
+        S3KeyPrefix: !Sub "${pImageName}/logs"
+
+rEC2ImageBuilderComponent:
+  Type: AWS::ImageBuilder::Component
+  Properties:
+  Name: !Sub "${pAwsAccount}-ImageBuilder-Component"
+  Description: !Ref pDescription
+  ChangeDescription: "Install BK software and run playbook to harden the image as per CIS"
+  kmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/${pKMSKey}"
+  Platform: Linux
+  SupportedOsVersions:
+    - !Ref pDistribution
+  Version: !Ref pVersion
+  Data:
+    Fn::Sub: |
+      name: ImageHardening_with_AnsiblePlaybook
+      description: Download and run ansible role
+      schemaVersion: 1.0
+      phases:
+        - name: build 
+          steps: 
+            - name: InstallAnsible
+              action: ExecuteBash
+              inputs:
+                commands:
+                  - sudo amazon-linux-extras enable ansible2
+                  - sudo yum install ansible git pip -y
+                  - sudo pip install jinja2 --upgrade
+            - name: DownloadPlaybookFiles
+              action: WebDownload
+              maxAttempts: 3
+              inputs:
+                - source: https://git-scm.nlm.gov/projects/LINUX/repos/ansible-amzn-lnx-2-cis/raw/requirements.yml?at=refs%2Fheads%2Fmaster
+                  destination: requirements.yml
+                - source: https://git-scm.nlm.nih.gov/projects/LINUX/repos/ansible-amzn-lnx-2-cis/raw/site.yml?at=refs%2Fheads%2Fmaster
+                  destination: ${pAnsiblePlaybook}
+            - name: PullRoles
+              action: ExecuteBash
+              inputs:
+                commands:
+                  - ansible-galaxy install -r requirements.yml -p ./roles
+            - name: InvokeAnsible
+              action: ExecuteBinary
+              inputs:
+                path: ansible-playbook
+                arguments:
+                  - '{{ build.DownloadPlaybookFiles.input[1].destination }}'
+rEC2ImageBuilderRecipe:
+  Type: AWS::ImageBuilder::ImageRecipe
+  Properties:
+    Name: !Sub "{pAwsAccount}-ImageBuilder-Recipe"
+    Description: !Ref pDescription
+    Version: !Ref pVersion
+    WorkingDirectory: !Ref pWorkingDirectory
+    ParentImage: !Sub "arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/${pParentImageID}"
+    Components:
+      - ComponentArn: !Ref rEC2ImageBuilderComponent
+      - ComponentArn: !Sub "arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:component/amazon-cloudwatch-agent-linux/x.x.x"
+      - ComponentArn: !Sub "arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:component/aws-cli-version-2-linux/x.x.x"
+    AdditionalInstanceConfiguration:
+      UserDataOverride:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -x 
+            sudo yum install -y https://s3.${AWS::Region}.${AWS::URLSuffix}/amazon-ssm-${AWS::Region}/latest/linux_amd64/amazon-ssm-agent.rpm
+            mkdir -p ${pWorkingDirectory}
+    BlockDeviceMappings:
+      - DeviceName: '/dev/xvda'
+        Ebs:
+          DeleteOnTermination: true
+          Encrypted: true 
+          Iops: '3000'
+          kmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/${pKMSKey}"
+          VolumeSize: '25'
+          VolumeType: 'gp3'
+        NoDevice: ""

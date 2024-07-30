@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates and sets up Amazon s3 storage lens across multiple accounts and regions
+Parameters: 
+  pAWSAccount:
+    Description: The account in which you want to launch this instance
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pOrganizationId:
+    Description: The arn of the organization
+    Type: String 
+
+  pStorageLensConfigName:
+    Description: The name given to the storage lens configuration
+    Type: String
+  pDestinationBucket:
+    Description: The destination bucket to store the files daily 
+    Type: String
+Resources: 
+  rStorageLensConfiguration:
+    Type: AWS::S3::StorageLens 
+    Properties:
+      StorageLensConfiguration:
+           Id: "!Sub ${pAWSAccount}-${pStorageLensConfigName}"
+           AccountLevel:
+              ActivityMetrics:
+                IsEnabled: false
+          #   AdvancedCostOptimizationMetrics:
+          #     IsEnabled: false
+          #   AdvancedDataProtectionMetrics:
+          #     IsEnabled: false
+          #   DetailedStatusCodesMetrics:
+          #     IsEnabled: false
+              BucketLevel:
+                ActivityMetrics:
+                  IsEnabled: false
+          #     AdvancedCostOptimizationMetrics:
+          #       IsEnabled: false
+          #     AdvancedDataProtectionMetrics:
+          #       IsEnabled: false
+          #     DetailedStatusCodesMetrics:
+          #       IsEnabled: false 
+          #     PrefixLevel:
+          #       StorageMetrics:
+          #         IsEnabled: false 
+          #       SelectionCriteria:
+          #         MaxDepth: 5
+          #         MinStorageBytesPercentage: 1.23
+          #         Delimiter: "/"
+           IsEnabled: true
+          #  DataExport:
+          #   S3BucketDestination:
+          #     OutputSchemaVersion: "V_1"
+          #     Format: "CSV"
+          #     AccountId: "485147667400"
+          #     Arn: !Sub 'arn:aws:s3:::${pDestinationBucket}'
+          #     Prefix: "s3"
+          #   Encryption:
+          #     SSES3: {}
+          #  CloudWatchMetrics:
+          #   IsEnabled: false 
+           AwsOrg: 
+              Arn: !Ref pOrganizationId
+           Include:
+             Regions:
+                - us-east-1
+                - us-west-2
+# Outputs:
+#   oStorageLensConfigurationId:
+#     Description: The ID of the storage lens
+#     Value: !Ref pStorageLensConfigName
+#     Export: 
+#       Name: !Sub ${pAWSAccount}-${pStorageLensConfigName}

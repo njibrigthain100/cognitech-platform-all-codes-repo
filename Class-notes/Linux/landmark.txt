@@ -1,0 +1,407 @@
+hat is Linux? 
+	• Linux was using Solaris and was frustrated with it so he developed his own OS based on the Solaris kernel
+	• He came up with an open source OS. Meaning anybody can develop from this operating system. This is how Linux started
+	• The Linux OS supports multi users and multi-tasking as well
+	• Linux is a case sensitive OS
+	• The 2 major OS in the market are Linux and windows
+	• Red Hat, Centos, Ubuntus are all different distributions of Linux
+	• There's many more distros of Linux including AWS's Amazon Linux 2. This is a Linux distro from AWS
+	• The C drive contains the root file system
+ 
+THE LINUX FILE STRUCTURE
+	•  It starts from / which is the root file system
+	• The file structure always start from the /
+	• We have the home, var, opt, bin, sbin, etc, lib, opt etc.
+	•  The C drive is to windows as root or / is to Linux
+	• All of the above directories fall under the root file in Linux
+	• In windows we have folders and files whereas in Linux we have directories and files
+	• A directory is a folder in essence
+	• The / in linux is the root directory
+ 
+The difference directories in Linux
+	• Home: The first directory in Linux is the home directory which contains the users. This is where the users information in going to be found. Example peter, Paul etc.   
+	• BIN: This directory contains all our commands. It contains binary files which are executable. For example when we run ls (list), the binary files in the BIN directory help execute the command and displays all the files and directory that you've created. 
+	• Whoami: tells you who you are
+	• PWD: present working directory
+	• SBIN or system bin: This directory contains commands that should be executed by people with certain privileges. This contains stuff like passwd, shadow, sudoers file, SSH, useradd, sshd_config. To add a new user you type useradd plus user name.
+	• What's the difference between bin and sbin? Sbin are binary files that can only be accessible by users with admin privileges. Bin file can be executed by any user
+	• What are the 3 class of users we have in Linux? Admin, system and normal users.
+	• Admin users have sudo privileges. Whenever you create a linux server it automatically comes with an admin user by default. Normal users are created by the admin user.
+	• Etc: This directory contains configuration files. Files that we use to configure our systems. Example /etc/ssh/sshd_config, /etc/shadow, /etc/passwd. Configuration files are sensitive and cannot be changed by just any user
+	• Opt: Comes as an empty directory by default . This is the recommended directory where any third party software like Jenkins is installed
+	• Tmp: This is used to stored temporary files.  We can create a file here and any user can access it and either read or read and write.
+	• Var: contains log files
+	• Lib: Contains library files  
+	• Proc: contains process files. Whenever you run a command in Linux it gives you a process id. It contains cpu, memory or RAM info.    
+	• For us to execute linux commands we need to create a Linux server
+	• To connect to a server you run ssh -i keypair.pem ec2-user@serverIP   
+	• Here -I is to help me pass the key so the command reads as follows. I want to ssh into that particular IP address as ec2-user using that key pair
+	• EC2-user is the default user that appears when you create a new server in aws
+	• Mobaxterm is a windows based ssh client
+	• The httpd only appears after you have installed httpd in the server
+	• To create a directory in linux you type mkdir to create a directory
+	• To install netstat in linux2 is yum install net-tools then you can run the netstat -tulpn | grep -I listen to check for open ports
+	• To add another listener in the httpd file you have to first disable Selinux and you do so by vi /etc/selinux/config
+	• From there fin SELINUX=enforcing and change it to SELINUX=disabled then save and exit
+	• Now run setenforce 0 and restart the apache
+	• The TREE command list files and directories in a tree structure
+	• You have to be sudo to run yum cause yum is found in the sbin meaning it requires some privileges 
+	• If you want to move back you run cd .. To move one step back
+	• Run cd ../../ to run 2 steps back and so on and so forth
+	• Ssh is a secure protocol ( secure communication to your linux servers located in different locations) which we can use to connect to a server. To use ssh we need an ssh client like putty, mobaxterm, gitbash, terminal etc.
+	• To access the server you need the ssh client and user details. You also need authentication which is a key in this case.
+	• You can use private key or password for authentication. 
+	• Each server in an environment has an identifier that differentiated them from the others. These are called host names or the name of the server.
+	• The host information is the private and public ip addresses
+	• The host also has the public and private DNS
+	• Ec2-user is a default user created by AWS
+	• For you to connect to the server we are trying to establish a secure connection with that server. 
+	• We can run ssh ec2-user@ip address of server if the user has a password. In this case you can see that the pem key was not provided. 
+	• When you run the command with the key like ssh -I kargongb2.pem ec2-user@10.131.233.14 you get authenticated automatically since you are providing the key here
+	• Companies use VPN to protect their environment. Security is tantamount to their success.
+	• You always have to put / in front of directories created in the root directory. That’s why to cd into tmp or other directories in the root you have to put / in front of them
+	• Mkdir -v is verbose and it tells you what has been done after the command is run
+	• Verbose tells you if what you've done is successful
+	• Mkdir -p helps you create a directory in a tree format. It creates both the parent and the subdirectory
+	• It creates both parents and child directory
+	• Now you can add -pv in which the verbose tells us if what we did was successful
+	• To see all the directories within the directories you can run the tree command
+	• Yum is a package manager for red hat and centos while apt is a package manager for ubuntu
+	• Linux is case sensitive so be careful when running commands
+
+CLASSES OF USERS IN LINUX:
+	- Normal users
+	- Root/Superuser/admin
+	- System users
+	- To create a user run sudo adduser ade
+	- To switch users you run su - ade (su in this case stands for switch user)
+	- To exit from one user just type exit and it takes you back to the root user
+	- The admin can create a password for the user by running the command sudo passwd plus username
+	- It will prompt you to enter a password for that user
+	- Even when a user has been given the password they still cant run certain commands as they are not in the sudoers file
+	- System users are user created by the system. So users that we do not create. 
+	- You can see all the messages reported about the failed login attempts in the var/log/messages directory
+	- The sudoers file can be found in the /etc/sudoers directory
+
+3RD CLASS FOR LINUX:
+	- The remote host can be the public IP, the private IP or the host name
+	- To connect to a server we need the following: SSH client ( can be mobaxterm, putty, terminal, gitbash etc), the remote host ( public IP, private IP or hostname), the username (ec2-user, Paul etc), authentication ( password, SSH-key)
+	- We use the public IP because we are in a different network. 
+	- 2 ways to manage your servers: GUI (graphical user interface) or CLI (command line interface)
+	- Rmdir does not remove directories with files in them but rm -r force removes the directory no matter if it contains files or not
+	- Cd means change directory
+	- Pwd is present working directory
+FILE MANAGEMENT
+	- Anything that starts with a d is a directory and the others are files
+	- Touch command creates files
+	- Ls -l give you a long list of files and folders
+	- Ls just list the content of where you are unlike long list that gives you all the details
+	- The ls -l also tells you the number of links in the file or folder
+	- We can use echo command to create a file
+	- Echo is used to print commands. Its used to display information on your screen
+	- You can you the > to redirect the echo output to a file. So it will be echo my name is brigthain > file.txt
+	- This is how you are able to create a file with echo
+	- We can display the content of a file using the cat command
+	- We can also create a file using cat by redirecting the output to another file. So it will be cat > file.txt and type out content of the new file
+	- You can also create a file using vi. What are the options for vi? Vi has command mode and insert mode. Immediately you vi into a file you are in command mode and not in insert mode. You cant type anything in command mode so you have to go into insert mode. 
+	- To enter insert mode type the letter I and you will be entered into insert mode
+	- After you are done typing hit escape to go back to command mode and in this mode you can no longer type anything
+	- To escape vi run escape :wq! Or :wq and hit enter
+	- To escape without saving run escape :q! or :q and hit enter
+	- The -n flag gives you the number of lines required
+	- To deploy the conte t of a file with each number line you run the command with the -n option. So it looks like cat -n file.txt
+	- You can cat the content of a file inside a directory. So it will be cat -n Devops/bk.txt
+	- You can use the grep command to find a particular word in the a big log file. The command will be grep name Devops/file.txt. Name here is the word we are searching for, devops is the directory and file.txt is the file that contains all the logs
+	- | is a pipe and it is a temporary storage. The pipe stores the information that you are looking for at the moment
+	- The grep command is used to extract certain pattern from a file
+	- So the command cat BK.py/kah.txt | grep name produces the same result as grep name BK.py/kah.txt 
+	- You can use less or more to read the content of a file. So the command will be sudo less kah.txt or sudo more kah.txt
+	- The tail command gives you the last 10 lines and head will display the first 10 lines of the file. So command will be sudo tail kah.txt or sudo head kah.txt
+	- If I want only the last or first lines I run sudo tail -5 kah.txt or sudo head -5 kah.txt. This can be done with any numbers but if you only use tail or head it displays the last or first 10 lines in that file
+
+LINUX CLASS 4 LANDMARK:
+	- To create a hostname for the server you run hostname plus name you want
+	- The command hostname gives you the private Ip address for the server
+	- To change the hostname you must be root as the command is found in the SBIN
+	- To remove a file simply run rm filename
+	- The above command will delete the file
+What are the other options to list a file and directory?
+	- Ls will list the files and ls -l will produce a long list
+	- Ls -lt will list the files and when they were created
+	- Ls -ltr list the content created in order from the oldest to the newest
+	- Ls -la list all files including the hidden files
+	- Why are hidden files important?  These are created to prevent anybody from seeing them and deleting them
+	- .bash and .bash_profile when we create a new user and they are created to be hidden. These files are very important and contain info that if deleted you might not be able to recover
+Permissions:
+	- Whenever a file is created certain permissions are assigned to that file
+	- drwxr-xr-x  means read write and execute for the user, write and execute for the group and 
+	- Read( r) is 4, write(w) is 2 and execute(x) is 1
+	- Anything starting with a d is a directory and - is a file in your ls output. This is the first field in your ls output. This is the type of document. File or folder
+	- The second field is the number of links that the file has
+	- The 3rd field is the permission as in the form drwxr-xr-x. the permission value is 7 as seen above. Read is 4, write is 2 and execute is 1
+	- drwxr-xr-x 2 ssm-user ssm-user    6 Aug 29 01:44 shiloh here the owner is ssm-user
+	- The 4th field is the owner as ssm-user above
+	- The fifth field is the group. Above ssm-user is the group
+	- The 6th field is size of the file
+	- 7th field is the date and 8th is the name 
+	- Its important that not everybody should have access to certain documents so this is where permissions come into place
+	- Linux is a very secure OS so it doesn’t allow access where access is not needed
+	- See below for permissions for different entities 
+	- Rw-rw-r here the owner has read and write permissions. Ie 4 + 2 which is 6. the group also has read and write which is 6. other (any other person) can only read the file which is 4
+	- The default file setting comes with permissions 644 but the expectations are that each file should have permissions 666. 
+	- What is the umask value of a user in Linux? This determines the value of the permissions that your created files will get
+	- Just run umask in the CLI and you should see what it is for you. Mine was 0022 which means that any created files for me will have permissions of 0666-0222 which is 644
+	- The default value for a folder is 755  based on the server I am using
+	- The expectations for a directory is 777 but based on your umask is becomes 
+	- The umask value for a normal user is 0002 and for the root user is 0022
+	- So normal users will have a permission of 0664 for files and 0775 for folders and for the root user the permission for files will be 0644 and 0755 for folders
+	- How do you change the umask value?  Run sudo umask 0021
+	- To change the permissions of a file you use the chmod command. So it will be chmod xxx filename where xxx is the new permission for the file. 
+	- To change the default permissions for any file creation for a user change the umask value so any files or folder created by the user will automatically inherit the permissions based on the umask value
+	- When a filke has executable permissions it becomes a script
+	- To change the owner of a file run the command chown new owner:new group plus file name
+	- Changing the ownership is important for automation
+	- You need to be in sudo to be able to run this command
+	- For example adding Jenkins to the docker group helps Jenkins be able to access the docker servers. The Jenkins user here did not have the right to run docker scripts will kept on breaking the pipeline. 
+	- You can also run the command sudo chgrp plus new group name plus file name to change the group name
+	- To create a directory and it childs directory at the same time run mkdir -pv kah/angel
+	- The above creates the directory kah and the child directory angel
+	- -R means that the change will be done recursively for both parent and child
+	- The sudoers file stand for super doers file
+Copying files from one directory to another
+	- To add content to a file you can either vi or echo info into the file
+	- To list all files that have a certain suffix you can run the command ls -l pom*. This list all the pom files regardless of what their suffixes are.
+	- The wildcard(*) in linux is a way of saying everything
+	- Copying a file is necessary when you want to make changes to an important file such as the configuration files. This can also be used to change the name of a file
+	- To copy a file run cp file1.txt new file name.txt
+	- So the first file is the original file and the second is the copy of the original
+Moving a file
+	- The move command renames a file
+	- To move a file run mv file name new file name
+	- This moves the file from one location to another or simply changes the name of the file within the same location
+Finding out the type of file you are creating
+	- To find out the type of file you are creating run file filename
+	- The above command tells you what type of file you created
+Word count in Linux
+	- To find the number of lines in a file run wc -l filename
+	- To find out the number of characters in a file run wc -c filename
+	- To move a file from one directory to another run the command mv file.txt ~/Directory2 filename
+	- Or to move from one directory to another while being in the home directory run mv ~/directory1 file1.sh ~/Directory2 file2.sh
+	- This moves the file from directory 1 to directory 2
+Creating a link to a file
+	- How do you create a link to a file?
+	- There are 2 types of links. Soft links and hard links
+	- Soft links are symbolic links while hard links are just that
+	- Soft links are short cuts while hard link is a copy
+	- A link is created using the ln command
+	- For hard links command is ln monitor.sh /tmp/alert.sh
+	- For soft links command is ln -s monitor.sh /tmp/alert.sh
+	- A hard link is simply a copy of the file whatever that means
+	- A hard link is a copy of the file (always remember this) while a soft link is a short cut to the file. If you delete the file you can access it from the hard link but not from the soft link
+	-  The soft link does not use system resources like the hard link
+	- The problem with hard link is that it utilizes system resources but also good for backups as it stays even after the original file is deleted
+The find command
+	- Used to search for any file or directory
+	- To use the find command run sudo find / -name filename
+	- The file command will search everything with the name you provided
+	- You can also use the wild card here so the system searches all the directory with the particular word you are looking for
+	- opt is used for package management
+	- You need to have your privileges elevated before you have any file created in opt as it deals with package management
+
+LINUX CLASS 5 LANDMARK:
+	- Your private key is found in your download folders
+	- So to see your private key you have to cd to your downloads folder to see the key
+
+RELATIVE AND ABSOLUTE PATHS IN LINUX
+	- Generally absolute path starts from the root directory
+	- Relative path starts from pwd
+	- Users in Linux are root, normal and system users
+	- In Linux there will always be a root user who has administrative privileges
+	- He can do anything
+	- Normal users are those that the admin user will be creating. These users can be granted admin privileges
+	- The system users are those created when installing applications/software like Jenkins
+
+CREATING USERS IN LINUX
+	- You add a user with the command useradd or adduser. To do so you have to have admin privileges
+	- When a user is created there are some files that are impacted. To info about this user go to the home directory. I.e. ls /home. You can also find the user in the /etc/group because when the user is created it gets added to a group
+	- The files impacted after you create a user are the /etc/group, etc/passwd, etc/shadow
+	- Sudo su means switch user to change to a different user. To switch to a different user run su - user name. this will ask you for a password. To avoid being asked for a password run the command as sudo. So it will be sudo su - user name
+	- The difference between sudo su - and su - is that su - will ask you for a password
+	- It is not a good practice to run commands as the root user
+	- How do you escalate the privileges of a particular user?
+	- To assign a password for a user run passwd username. You can only do this as root
+
+GRANTING SUDO PRIVILGES TO USERS
+	- This grants normal users admin privileges
+	- To do so you have to vi into the sudoers file and add the user into it
+	- So vi into /etc/sudoers and add user details
+	- To do so you have to become the root user first
+	- The root user has a # sign while a normal user has the $ sign
+	- This is how you add the user in the sudoers file. You can add them under the wheel group or sudoers.d group
+	- Kah                ALL=(ALL)             NOPASSWD:ALL
+	- You save and quit after this
+	- The above means that user kah can run all commands and does not require a password to do so
+
+CREATING A GROUP
+	- To create a group you run the command groupadd plus groupname
+	- You have to be root to do this
+	- To add a user to a group you run the command usermod - aG groupname username
+	- Usermod here means modify a user
+	- Small a stands for add and G stand for the group
+	- This is very important for automation
+	- To integrate Jenkins and dockers on your pipeline you have to ensure that jenkins user is added to your pipeline
+	- Id username tells me about the user
+	- This command tells me about the user id the group id and what group he belongs to
+
+DELETING A USER AND A GROUP
+	- To delete a user run userdel username
+	- To delete a group run groupdel groupname
+	- To list the last groups in the etc file run tail -5 /etc/group
+	- The su without the - lets you change user to the same directory but with the - it lands you in the home directory of the new user
+
+CONNECTING TO A SERVER USING WITH PASSWORD AUTHENTICATION
+	- Run the command  ssh username@ip-address
+	- To configure password authentication you assume ethe root user role and vi /etc/ssh/sshd_config and set password authentication to yes
+	- Restart the sshd after allowing password authentication by running systemctl restart sshd
+	- Assign a passwd to the ec2-user after that
+	- The command  who tells you how many people are logged into a particular server at a particular time
+	- The w command tells you who is logged into a server and what they are doing in that server
+	- To find out where any Linux command is found run whereis plus command name and it will give you the directory where the command is found
+	- The date command gives you the date. You have to run date -s " 16 sep 2022 21:19:00". You have to be sudo to run this command
+	- To set the timezone you run timedatectl set-timezone America/New_York to set the timezone
+	- The df -h  reports file system disk space. This tells you how much space you have in your file system
+	- Du -h tells you how much space each file is using 
+	- The hostname command can be used to set the hostname for your server. You need to be root to set the hostname
+	- Hostname -I or ip a gives you the private ip of the instance and curl ifconfig.co gives you the public ip
+	- To view users passwords go to /etc/shadow by running sudo tail -5 /etc/shadow. You cannot see the actual password here as it is encrypted
+
+LINUX CLASS 6 LANDMARK
+	- Text editors (IDEs): sublime text, VS code, Eclipse, atom, Bracket
+	- CLI: PowerShell and command prompt all for windows, git bash and 
+	- Command line gives you more room for automation
+	- Man is the command to help you with other commands. For example if I want info on the ls command I just run man ls and it tells me all about the ls command. So man is the manual
+	- The info command also gives you info on commonly used commands. Info gives you more content to read. So its info ls
+	- The help command also gives you info on your commands. So its ls --help if I need help on any particular command. 
+	- The whatis command also gives you info on particular commands. So its run as whatis pwd
+	- Sysetmctl list-unit- file shows you different services running in the server
+	- We connect to server using ssh protocol and its powered by the sshd service where d stands for daemon
+	- To check the processes that are running run the command ps -ef. This will list all the running commands
+	- Sshd will only be active if you allow password authentication
+	- DFOREGROUND means that the process is running in the foreground
+	- Systemctl is called the service command
+	- Yum is a package manager for red hat. So to install a package you run sudo yum install plus package name
+	- To install run yum install and to remove run yum remove plus package name
+	- Packages in this case are softwares
+	- The directory /var/www/html is created upon installing Apache
+	- Uptime command will tell you how long the server has been up and running
+	- Uptime is important in performance monitoring. Performance is required to improve on uptime. 
+	- Systemctl enable ensures that the service restarts at boot time ( i.e. when the server is restarted). As long as your server is running the Apache will be running too
+	- The last command tells you the list of who logged into your server and who is still logged in
+	- Ssh is a protocol we use to login to our servers and sshd is a service
+	- You can display the calendar by running the cal command. So to display the calendar for 2020 we run cal 2020
+	- Wget is the non-interactive network downloader
+	- Wget helps you download packages from the internet
+	- The tee command is to store and view ( both at the same time) the output of any command. Example cat index.html | tee app.html. In this command the cat enables us to see the content of the file and then the tee command saves this content is a new file called app.html
+	- The script command will create a session. This command records your login session in a typescript in the current directory
+	- The ping command sends icmp echo request to the network hosts
+	- How do you make sure that your servers in the environment are running? To do so you run ping xxxx where xxxx is the hosts Ip address
+	- You can also ping a website
+	- The ping command will only work if the ICMP protocol is open in the security group
+	- Telnet command listens on port 80. To telnet to another server you run telnet xxxx where xxxx is the ip address you are trying to listen on 
+	- DNS is domain name service. It is used to create records and resolve hostnames
+	- Record where hostname is pointed to the IP address is called pointer record (PTR)
+	- Pointing the IP to hostname is called an A record. This is the most used as it easier for people to remember the name than the IP address
+	- Cname record is the alias name
+	- This is done in AWS through route 53. to create an A record go to route 53 and under the dashboard select the domain you have registered and create a record in that domain. Now input the name you want for that record and the IP you want for the record. This resolves to the html file in that server
+	- The curl command displays the content of a website. So to run you type curl web.myafriquefashion.com
+	- You can ping internally cause the servers are within the same network. However you use public IP to ping servers OUTSIDE of your network
+	- Curl gives you more information on the application. Telnet by default only listens on port 80
+	- You can also ssh into the server that you created the A record with. So in my case to ssh a server with a known A record I run ssh kali@web.myafriquefashion.com and provide my password
+
+LINUX LANDMARK CLASS 7
+	- The history commands displays all recently executed commands
+	- The uname command tells you what platform you are currently working on. This works for both windows and Linux
+	- Uname -r and uname -a give you more info on the OS
+	- To get more info on the OS you can run the command cat /etc/os-relaese
+	- Cat /etc/os-release gives the most information
+	- This command is important so you know which package to install for your machine
+	- Port management is very important when it comes to securing your server
+	- The source in the security group is who can access the server via the port? Anywhere means anybody including hackers can access the server
+	- The port for Jenkins, JBOSS and tomcat is 8080
+	- Port binding is when there's a port already in use and you are trying to use the same port to run your application
+	- The command netstat -tunlp gives you the port that are already in use, it gives you the network statistics. 
+	- To install netstat you run yum install net-tools
+	- RDP listens on port 3389. 
+	- We can always change the ports for any applications such as Jenkins, Tomcat etc to avoid port binding
+	- Watch ls tells us how many files we have
+	- The watch command helps us see how our application is scaling out. Watch command is also good for monitoring
+	- To shutdown your server run sudo init 0: This shuts down your server
+	- To restart the server you run sudo init 6
+	- To display the current running processes run ps. Every process has a process ID so to kill the process you can run 
+	- To see all processes run ps -ef where e stands for all processes. And f stands for format listing
+	- Echo $$ gives you the process ID for the last process you used
+	- The top command displays the process which are currently running in the following format
+	- A zombie process uses your system resources but does not add any value 
+	- If your computer is slow you can run the top command to find out which processes are taking up memory so you can kill them
+	- The top command gives you information in real time
+	- Top -n 5 gives you the info for only 5 cycles and stops
+	- Why do you have to kill a process? Some processes take up a lot of cpu and memory hence you need to kill them to free up more space
+	- To kill a process run kill -9 plus process ID: This kills a specified process
+	- Kill-3 javaprocess ID: Generates the core dump for java processes
+	- Kill all -u  username will kill all the processes under a specified user
+	- Sar is the system activity report helps to monitor performance in Linux and can be installed by running sudo yum install sysstat
+	- The free command tells us how much memory is available
+	- If your computer is slow check the memory. Every time you type a document it is being saved in the memory. All processes running in real time affect the memory
+	- ROM (Read only memory or hard drive) VS RAM (random access memory)
+	- Anything you do in real time as typing a document without saving it is stored in the RAM. Once saved the document moves from memory to the hard drive (ROM). When you start a computer it starts in the memory. The speed of the computer reboot depends on how much information was cached in the memory. 
+	- We can get information about the hard drive by running df -h or cat /proc/cpuinfo or cat /proc/meminfo
+
+ARCHIVE/DATA BACKUP COMMANDS
+	- Zip files are packaged and compressed (archive) files and unzip files extract compresses files in a zip archive
+	- To create a backup for my file I can use the tar command to compress the file. To do so run tar -cvf new filename.tar.gz filename ex tar -cvf note.tar.gz note.yaml. This is to create a tar file
+	- To extract a tar file you run tar -xvf plus tar file
+	- To zip the file you run the same way as before. So you run zip note.zip note.yaml
+	- To install zip we run yum install zip
+	- The zip command compresses the file to an archive so we can save it without it taking too much space
+	- You don’t unzip a file in the same location as the original file
+	- To unzip a file run unzip filename.zip
+	- 1:28:14
+
+LINUX LANDMARK CLASS 8
+	- 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+

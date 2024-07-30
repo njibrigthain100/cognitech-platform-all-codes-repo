@@ -1,0 +1,7 @@
+#!/bin/bash
+sudo yum install java-1.8.0-openjdk.x86_64 -y
+sudo yum install wget unzip -y
+sudo wget -O /etc/yum.repos.d/sonar.repo http://downloads.sourceforge.net/project/sonar-pkg/rpm/sonar.repo
+sudo yum install sonar -y
+sudo service sonar start
+sudo service sonar status

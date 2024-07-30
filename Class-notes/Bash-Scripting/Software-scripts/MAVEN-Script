@@ -1,0 +1,19 @@
+#!bin/bash
+# Cd into the /opt/ directory
+echo "cd into opt directory"
+cd /opt
+#Install git, tree, wget, nano and java for maven
+echo "Install wget, nano, tree, git and java for maven"
+sudo yum install wget nano tree unzip git-all -y
+sudo yum install java-11-openjdk-devel java-1.8.0-openjdk-devel -y
+sudo wget https://dlcdn.apache.org/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.zip
+sudo unzip apache-maven-3.8.7-bin.zip
+sudo rm -rf apache-maven-3.8.7-bin.zip
+sudo mv apache-maven-3.8.7 maven
+echo "Set environmental variables for java"
+
+This part has to be done manually
+#vi ~/.bash_profile  # and add the lines below
+export M2_HOME=/opt/maven >>.bash_profile
+export PATH=$PATH:$M2_HOME/bin
+source ~/.bash_profile

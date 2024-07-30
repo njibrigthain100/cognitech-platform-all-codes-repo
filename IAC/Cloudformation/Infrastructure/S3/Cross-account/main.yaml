@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates an s3 bucket that can be shared accross the entire organization
+Parameters: 
+  pAccountName:
+    Description: The name of the account in which the policy is being created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount  
+  pAccountNameLC:
+    Description: The name of the account in which the policy is being created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+  pBucketUserName:
+    Description: The name of the entity being created
+    Type: String
+    Default: nested-stacks
+  pPrimaryRegion:
+    Description: The primary region to deploy the s3 bucket
+    Type: String
+    Default: us-east-1
+  pSecondaryRegion:
+    Description: The secondary region to deploy the s3 bucket
+    Type: String
+    Default: us-west-2
+Conditions:
+  cIss3primaryRegion: !Equals [ !Ref 'AWS::Region', !Ref pPrimaryRegion ]
+  cIss3secondaryRegion: !Equals [ !Ref 'AWS::Region', !Ref pSecondaryRegion ] 
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+  rPrimaryRegionBucket:
+    Type: AWS::S3::Bucket
+    Condition: cIss3primaryRegion
+    # DeletionPolicy: Retain 
+    Properties: 
+      BucketName: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}
+      # Granting public access to the bucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false 
+        BlockPublicPolicy: false 
+        IgnorePublicAcls: false 
+        RestrictPublicBuckets: false 
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}
+        - Key: AWS-Account 
+          Value: !Sub ${ pAccountName }
+  rSecondaryRegionBucket:
+    Type: AWS::S3::Bucket
+    Condition: cIss3secondaryRegion
+    DeletionPolicy: Retain 
+    Properties: 
+      BucketName: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region }
+       # Granting public access to the bucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false 
+        BlockPublicPolicy: false 
+        IgnorePublicAcls: false 
+        RestrictPublicBuckets: false
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region }
+        - Key: AWS-Account 
+          Value: !Sub ${ pAccountName }
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-s3-policy.html
+  rS3CrossAccountSharingBucket:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: 
+        !If [cIss3primaryRegion, !Ref rPrimaryRegionBucket, !Ref rSecondaryRegionBucket]
+      PolicyDocument: 
+        Version: '2012-10-17'
+        Statement: 
+          - Sid: "AllowPublicReadAccess"
+            Effect: Allow 
+            Action: 
+              - "s3:GetObject"
+            Resource: 
+              - !Join ['/', [!If [cIss3primaryRegion, !GetAtt rPrimaryRegionBucket.Arn, !GetAtt rSecondaryRegionBucket.Arn], '*']]
+            Principal: '*'
+            Condition:
+              Bool:
+                aws:SecureTransport: 'true'
+          - Sid: "Allow users access to the bucket"
+            Effect: Allow 
+            Principal: '*'
+            Action: 's3:*'
+            Resource: 
+              - !Sub arn:${AWS::Partition}:s3:::${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}/*
+              - !Sub arn:${AWS::Partition}:s3:::${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}
+          - Sid: Allow Cross account access to the bucket 
+            Effect: Allow 
+            Principal: "*" 
+            Action: 
+              - s3:GetObject 
+              - s3:GetObjectVersion 
+              - s3:GetBucketVersioning
+              - s3:ListBucket 
+              - s3:PutBucketPolicy
+            Resource: 
+              - !Join ['', [ 'arn:aws:s3:::', !Ref pAccountNameLC, '-', !Ref pBucketUserName, '-', !Ref AWS::Region, '/*' ] ]
+              - !Join ['', [ 'arn:aws:s3:::', !Ref pAccountNameLC, '-', !Ref pBucketUserName, '-', !Ref AWS::Region ] ]
+            Condition:
+              StringEquals: 
+                aws:PrincipalOrgID: "o-orvtyisdyc"
+Outputs:
+  oPrimaryRegionBucket:
+    Condition: cIss3primaryRegion
+    Description: The name of the bucket in the primary region
+    Value: !Ref rPrimaryRegionBucket
+    Export: 
+      Name: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}
+  oSecondaryRegionBucket:
+    Condition: cIss3secondaryRegion
+    Description: The name of the bucket in the secondary region
+    Value: !Ref rSecondaryRegionBucket
+    Export: 
+      Name: !Sub ${ pAccountNameLC }-${ pBucketUserName }-${ AWS::Region}

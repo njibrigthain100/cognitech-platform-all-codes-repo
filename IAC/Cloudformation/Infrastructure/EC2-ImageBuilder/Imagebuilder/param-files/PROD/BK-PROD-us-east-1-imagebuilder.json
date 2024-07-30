@@ -1,0 +1,57 @@
+{
+    "StackName": "BK-PROD-us-east-1-imagebuilder",
+    "Parameters": [
+        {
+            "ParameterKey": "pSubnetID",
+            "ParameterValue": "subnet-37ff9851"
+        },
+        {
+            "ParameterKey": "pInstanceType",
+            "ParameterValue": "t3.medium"
+        },
+        {
+            "ParameterKey": "pVersion",
+            "ParameterValue": "0.0.1"
+        },
+        {
+            "ParameterKey": "pDistribution",
+            "ParameterValue": "Amazon Linux 2022"
+        },
+        {
+            "ParameterKey": "pDescription",
+            "ParameterValue": "EC2 Image builder to create AMI for Amazon Linux 2" 
+        },
+        { 
+            "ParameterKey": "pKeyPair",
+            "ParameterValue": "gainwellkeypair.pem"
+        },
+        {
+            "ParameterKey": "pWorkingDirectory",
+            "ParameterValue": "/root/ec2builder"
+        },
+        {
+            "ParameterKey": "pImageName",
+            "ParameterValue": "BK-amazon-linux2022"
+        },
+        {
+            "ParameterKey": "pParentImageID",
+            "ParameterValue": "ami-0b851c6e419f53bf5"   
+        },
+        {
+            "ParameterKey": "pLogGroup",
+            "ParameterValue": "/aws/imagebuilder/ImageBuilderAL2022"  
+        },
+        {
+            "ParameterKey": "pKMSKey",
+            "ParameterValue": "Packer-kms-key"    
+        },
+        {
+            "ParameterKey": "pAnsiblePlaybook",
+            "ParameterValue": "setup.yml"  
+        },
+        {
+            "ParameterKey": "pSnsSubscription",
+            "ParameterValue": "SSM-SSN-Topic"  
+        }
+    ]
+}

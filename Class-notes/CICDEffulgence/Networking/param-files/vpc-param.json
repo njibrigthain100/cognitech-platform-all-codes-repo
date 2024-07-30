@@ -1,0 +1,30 @@
+{
+    "StackName": "BK-Shared-services-VPC",
+    "Parameters":[
+        {
+            "ParameterKey": "pVPCCIDR",
+            "ParameterValue": "10.1.0.0/24"
+        },
+        {
+            "ParameterKey": "pPublicSubnet1CIDR",
+            "ParameterValue": "10.1.0.0/27"  
+        },
+        {
+            "ParameterKey": "pPublicSubnet2CIDR",
+            "ParameterValue": "10.1.0.32/27"
+        },
+        {
+            "ParameterKey": "pPrivateSubnet1CIDR",
+            "ParameterValue": "10.1.0.64/27"
+        },
+        {
+            "ParameterKey": "pPrivateSubnet2CIDR",
+            "ParameterValue": "10.1.0.96/27"
+        },
+        {
+            "ParameterKey": "pSubnetCreationNumber",
+            "ParameterValue": "1"
+        }
+    ]
+
+}

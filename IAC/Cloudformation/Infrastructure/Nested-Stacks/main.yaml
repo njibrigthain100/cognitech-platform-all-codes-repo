@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an aws 3 tier arcitecture with nested stacks
+
+Parameters: 
+# General parameter for all stacks
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pBucketName:
+    Description: The name in which the codes are stored
+    Type: String
+    Default: prod-nested-stack-us-east-1
+# VPC parameters
+  pVPCCidr:
+    Description: The cidr block of the vpc being created
+    Type: String
+    Default: 10.1.0.0/16
+  
+  pPrivateSubnet1CIDR:
+    Description: The cidr block for the first private subnet
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.126.0/24
+  
+  pPrivateSubnet2CIDR:
+    Description: The cidr block for the second private subnet
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.127.0/24
+  
+  pPublicSubnet1CIDR:
+    Description: The cidr block for the first public subnet
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.254.0/24
+  
+  pPublicSubnet2CIDR:
+    Description: The cidr block for the second public subnet
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.255.0/24
+  
+  pAvailabilityZones:
+    Description: The availability zones on which to create the resources
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
+  
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech
+
+Resources: 
+  rVpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/vpc.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pVPCCidr: !Ref pVPCCidr 
+        pPrivateSubnet1CIDR: !Ref pPrivateSubnet1CIDR 
+        pPrivateSubnet2CIDR: !Ref pPrivateSubnet2CIDR 
+        pPublicSubnet1CIDR: !Ref pPublicSubnet1CIDR 
+        pPublicSubnet2CIDR: !Ref pPublicSubnet2CIDR 
+        pAppName: !Ref pAppName
+        pAvailabilityZones:
+          Fn::Join:
+            - ','
+            - !Ref pAvailabilityZones

@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: 2010-09-09
+# This creates a config compliance for the instance
+Description: Configures AWS config for approved amis by id
+Parameters:
+  pRuleName:
+    Description: Rule name for the config compliance
+    Type: String
+    # Default: approved-amis
+    # MinLength: '1'
+    # ConstraintDescription: This parameter is required
+
+  pSecretARN:
+    Description: ARN of the updated secret in Secrets Manager
+    Type: String
+    # Default: "arn:aws:secretsmanager:us-east-1:485147667400:secret:BK-PROD-us-east-1-Daily-AMI-jJRcpQ"
+
+  pAwsAccount:
+    Description: The account in which the AMI will be built
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pAppName:
+    Description: The application to be used
+    Type: String
+    Default: Common-services
+
+Resources: 
+  rSecretsManagerEventRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: Event rule for Secrets Manager updates
+      EventPattern:
+        source:
+          - aws.secretsmanager
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - secretsmanager.amazonaws.com
+          eventName:
+            - PutSecretValue
+            - UpdateSecret
+  rAWSConfigRule:
+    Type: 'AWS::Config::ConfigRule'
+    Properties:
+      ConfigRuleName: !Sub "${pAwsAccount}-${pAppName}-configrule-${pRuleName}"
+      Description: Checks whether running instances are using the right AMI 
+      InputParameters:
+        amiIds: 
+          !Join 
+          - ','
+          - - '{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:485147667400:secret:BK-PROD-us-east-1-Daily-AMI-jJRcpQ:SecretString:Daily-ami}}'
+            # - !Ref pSecretARN
+            # - SecretString:Daily-ami}}'
+      Source: 
+        Owner: AWS 
+        SourceIdentifier: APPROVED_AMIS_BY_ID 
+Outputs:
+  oConfigRuleARN:
+    Description: The ARN of the config rule cloudformation template 
+    Value: !Sub ${AWS::StackId}
+    Export: 
+      Name: !Sub "${pAwsAccount}-${pAppName}-configrule-${pRuleName}-cfn-arn"  
+  oAWSConfigRuleCFName:
+    Description: config Rule cloudformation name 
+    Value: !Sub ${AWS::StackName}
+    Export: 
+      Name: !Sub "${pAwsAccount}-${pAppName}-configrule-${pRuleName}-cfn-name"
+  oAWSConfigRuleArn:
+    Description: Config Rule ARN
+    Value: !GetAtt rAWSConfigRule.Arn
+    Export: 
+      Name: !Sub "${pAwsAccount}-${pAppName}-configrule-${pRuleName}-arn"

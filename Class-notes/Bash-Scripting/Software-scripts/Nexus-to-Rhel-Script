@@ -1,0 +1,21 @@
+#!/bin/bash
+username=nexus
+Password=nexus
+sudo adduser  $username
+echo "password" | sudo passwd "$username" --stdin
+echo "$username  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$username
+sudo yum update -y
+sudo yum install wget -y
+sudo yum install java-1.8.0-openjdk.x86_64 -y
+sudo mkdir /app
+cd /app
+sudo wget -O nexus.tar.gz https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+sudo tar -xvf nexus.tar.gz
+sudo mv nexus-3* nexus
+sudo chmod -R 775 /app/nexus
+sudo chmod -R 775 /app/sonatype-work 
+sudo chown -R nexus:nexus /app/nexus
+sudo chown -R nexus:nexus /app/sonatype-work
+sudo ln -s /app/nexus/bin/nexus /etc/init.d/nexus
+sudo systemctl start nexus
+sudo systemctl enable nexus 

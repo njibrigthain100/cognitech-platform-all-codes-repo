@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates the policy for the user role
+Parameters: 
+  pEntityType:
+    Description: The name of the entity being created
+    Type: String
+    Default: User
+
+Resources: 
+  rUserPolicy:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      PolicyName: !Sub aws-${pEntityType}-policy
+      RoleName: !Sub aws-${pEntityType}-Role
+      PolicyDocument: 
+        Version: 2012-10-17 
+        Statement:
+          - Action:
+                - ec2:DescribeAddresses
+                - ec2:DescribeAddressesAttribute
+                - ec2:DescribeAggregateIdFormat
+                - ec2:DescribeAddressTransfers
+                - ssm:*
+                - s3:ListAccessGrants
+                - s3:ListAccessGrantsInstances
+                - s3:ListAccessGrantsLocations
+                - sns:Publish
+                - ssmmessages:*
+                - sns:Subscribe
+                - sns:Unsubscribe
+            Effect: Allow 
+            Resource: "*" 
+          - Action:
+                - cloudwatch:*
+                - config:*
+            Effect: Allow 
+            Resource: "*"
+Outputs:
+  oUserPolicy:
+    Description: The name of the policy to output 
+    Value: !Ref rUserPolicy
+    Export: 
+      Name: !Sub aws-${pEntityType}-policy

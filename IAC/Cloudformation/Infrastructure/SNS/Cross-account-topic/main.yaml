@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates an sns notification for each account in the entire organization
+
+Parameters: 
+  pAccountName:
+    Description: The name of the account in which the policy is being created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount  
+  pAccountNameLC:
+    Description: The name of the account in which the policy is being created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+  pAppName:
+    Description: Creates an sns topic for each application 
+    Type: String
+    Default: RunRite
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-sns-topic.html
+  rCrossAccountTopic:
+    Type: AWS::SNS::Topic
+    Properties: 
+      TopicName: !Sub ${pAccountNameLC}-${pAppName}-topic
+      DisplayName: !Sub ${pAccountNameLC}-${pAppName}-topic
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${pAccountNameLC}-${pAppName}-topic
+
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-sns-subscription.html
+  rCrossAccountSubscription:
+    Type: AWS::SNS::Subscription
+    Properties: 
+      Endpoint: kbrigthain@gmail.com
+      Protocol: email
+      TopicArn: !Ref rCrossAccountTopic
+
+Outputs:
+  oTopicName:
+    Description: The name of the sns topic
+    Value: !GetAtt rCrossAccountTopic.TopicName
+    Export: 
+      Name: !Sub ${pAccountNameLC}-${pAppName}-topic
+  
+  oTopicArn:
+    Description: The Arn of the sns topic
+    Value: !GetAtt rCrossAccountTopic.TopicArn
+    Export: 
+      Name: !Sub ${pAccountNameLC}-${pAppName}-arn

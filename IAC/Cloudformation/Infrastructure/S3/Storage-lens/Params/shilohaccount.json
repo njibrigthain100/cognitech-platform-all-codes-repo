@@ -1,0 +1,19 @@
+{
+    "StackName": "BK-Shared-services-S3-Storage-Lens",
+    "Parameters":[
+        {
+            "ParameterKey": "pStorageLensConfigName",
+            "ParameterValue": "BK-Shared-Services-Storage-lens"
+        },
+        {
+            "ParameterKey": "pOrganizationId",
+            "ParameterValue": "arn:aws:organizations::485147667400:organization/o-orvtyisdyc"
+        },
+        {
+            "ParameterKey": "pDestinationBucket",
+            "ParameterValue": "bk-s3-storage-lens"
+        }
+    ]
+
+}
+

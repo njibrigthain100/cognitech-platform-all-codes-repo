@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates a parameter store for all accounts across the organization
+
+Parameters: 
+  pAccountId1:
+    Description: The account id for the audit account 
+    Type: String
+    Default: 882680178335
+  
+  pAccountId2:
+    Description: The account id for the devops account 
+    Type: String
+    Default: 388927731914
+  
+  pAccountId3:
+    Description: The account id for the shiloh account 
+    Type: String
+    Default: 485147667400
+
+  pAccountId4:
+    Description: The account id for the log account 
+    Type: String
+    Default: 526645041140
+  
+  pAccountId5:
+    Description: The account id for the qa account 
+    Type: String
+    Default: 271457809232
+
+  pSamlForAccountname1:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+  
+  pSamlForAccountname2:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+   
+  pSamlForAccountname3:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+
+  pSamlForAccountname4:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+
+  pSamlForAccountname5:
+    Description: The name of the account
+    Type: String
+    Default: okta_saml
+
+Conditions: 
+  cAccount1: !Equals [!Ref AWS::AccountId, !Ref pAccountId1]
+  cAccount2: !Equals [!Ref AWS::AccountId, !Ref pAccountId2]
+  cAccount3: !Equals [!Ref AWS::AccountId, !Ref pAccountId3]
+  cAccount4: !Equals [!Ref AWS::AccountId, !Ref pAccountId4]
+  cAccount5: !Equals [!Ref AWS::AccountId, !Ref pAccountId5]
+
+Resources: 
+   rSAMLFederationName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/standard/Federation'
+      Description: 'The name of the saml federation'
+      Type: String
+      Value: !If
+        - cAccount1
+        - !Ref pSamlForAccountname1
+        - !If
+          - cAccount2
+          - !Ref pSamlForAccountname2
+          - !If
+             - cAccount3
+             - !Ref pSamlForAccountname3
+             - !If 
+               - cAccount4
+               - !Ref pSamlForAccountname4
+               - !If 
+                 - cAccount5
+                 - !Ref pSamlForAccountname5
+                 - 'DefaultValue'
+
+Outputs:
+  oParameterName:
+    Description: The name of the parameter in Parameter Store
+    Value: !Ref rSAMLFederationName
+  oParameterValue:
+    Description: The value of the account name in Parameter Store
+    Value: !GetAtt rSAMLFederationName.Value

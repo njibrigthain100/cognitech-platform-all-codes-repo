@@ -1,0 +1,63 @@
+{
+    "StackName": "NewTech-Imagebuilder-Pipeline",
+    "Parameters":[
+        {
+            "ParameterKey": "pSubnetID",
+            "ParameterValue": "subnet-def3aad0"
+        },
+        {
+            "ParameterKey": "pInstanceType",
+            "ParameterValue": "t2.micro"  
+        },
+        {
+            "ParameterKey": "pDistribution",
+            "ParameterValue": "Amazon Linux 2"
+        },
+        {
+            "ParameterKey": "pDescription",
+            "ParameterValue": "Pipeline to create Amazon linux 2 golden AMIs"
+        },
+        {
+            "ParameterKey": "pKeypair",
+            "ParameterValue": "windowscomputer"
+        },
+        {
+            "ParameterKey": "pWorkingDirectory",
+            "ParameterValue": "/root"
+        },
+        {
+            "ParameterKey": "pParentImageID",
+            "ParameterValue": "amazon-linux-2-x86/x.x.x"
+        },
+        {
+            "ParameterKey": "pImageName",
+            "ParameterValue": "amazon linux 2 hardened"  
+        },
+        {
+            "ParameterKey": "pLogGroup",
+            "ParameterValue": "/aws/imagebuilder/ImagebuilderAL2"
+        },
+        {
+            "ParameterKey": "pKMSKey",
+            "ParameterValue": "ImagebuilderKey"
+        },
+        {
+            "ParameterKey": "pSNSSubscription",
+            "ParameterValue": "BKTech-validation-topic"
+        },
+        {
+            "ParameterKey": "pSecurityGroup",
+            "ParameterValue": "sg-0dbeb51f712e34b40"
+        },
+        {
+            "ParameterKey": "pAnsiblePlaybook",
+            "ParameterValue": "setup.yml"
+        },
+        {
+            "ParameterKey": "pVersion",
+            "ParameterValue": "0.0.1"
+        }
+    ]
+
+}
+

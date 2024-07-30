@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This Cloudformation template creates an IAM role
+
+Parameters: 
+  pAWSAccount:
+    Description: The account in which you want to launch this instance
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pAwsAccount
+
+  pVPCName:
+    Description: This is a name for the VPC 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/pVPCName
+
+  pAppName:
+    Description: This is the app name 
+    Type: String
+
+Resources: 
+ # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html
+  rEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: !Sub ${pAWSAccount}-${pVPCName}-${pAppName}-Instance-Profile
+      Path: /
+      Roles: [!Ref rInstanceRole]
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+  rInstanceRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      Description: This is the policy attached to the IAM role 
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AdministratorAccess
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Effect: Allow 
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole'] 
+      Path: /
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+
+Outputs:
+  oInstanceProfile:
+    Description: The output for the instance profile 
+    Value:
+      Fn::GetAtt:
+        - rEC2InstanceProfile
+        - Arn
+    Export: 
+      Name: !Sub ${pAWSAccount}-${pVPCName}-${pAppName}-Instance-Profile
