@@ -57,6 +57,11 @@ Parameters:
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
   
+  # Security Group parameters
+  pVpcid:
+    Description: The id of the vpc in which to create the security group 
+    Type: String 
+  
 
 
 Resources: 
