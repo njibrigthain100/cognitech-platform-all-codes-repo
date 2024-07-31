@@ -17,6 +17,11 @@ Parameters:
     Description: The name in which the codes are stored
     Type: String
     Default: prod-nested-stack-us-east-1
+  
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech
 # VPC parameters
   pVPCCidr:
     Description: The cidr block of the vpc being created
@@ -52,10 +57,7 @@ Parameters:
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
   
-  pAppName:
-    Description: The app cosuming these resources
-    Type: String
-    Default: cognitech
+
 
 Resources: 
   rVpcStack:
@@ -74,3 +76,25 @@ Resources:
           Fn::Join:
             - ','
             - !Ref pAvailabilityZones
+
+  rIAMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+
+  rSecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pVpcid: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+
+
+  

@@ -240,6 +240,12 @@ Resources:
       SubnetId: !Ref rNestedPublicSubnet2
    
 Outputs:
+  oVPC:
+    Description: The ID of the vpc
+    Value: !Ref rNestedVPC
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
+      
   oPrivateSubnet1:
     Description: The ID of the private subnet
     Value: !Ref rNestedPrivateSubnet1

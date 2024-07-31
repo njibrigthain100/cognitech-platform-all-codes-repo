@@ -8,6 +8,6 @@ parameters:
   pAwsAccount: /standard/AWSAccount
   pPublicSubnet1CIDR: 10.1.254.0/24
   pPrivateSubnet1CIDR: 10.1.126.0/24
-  pAppName: cognitechv2
+  pAppName: cognitech
   pPrivateSubnet2CIDR: 10.1.127.0/24
 tags: {}

@@ -1,0 +1,221 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the security groups for all the ec2 instances
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech
+  
+  # vpc parameters 
+  pVpcid:
+    Description: The id of the vpc in which to create the security group 
+    Type: String 
+
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+  rNestedsshbastionsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: ssh bastion security group
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+        - FromPort: 22
+        - ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
+      VpcId: !Ref pVpcid
+
+  rNestedrdpbastionsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: rdp bastion security group
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+        - FromPort: 3389
+        - ToPort: 3389
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
+      VpcId: !Ref pVpcid
+
+  rNestedalbsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The alb security group 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
+      VpcId: !Ref pVpcid 
+  
+  rNestednlbsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The nlb security group 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
+      VpcId: !Ref pVpcid
+  
+  rNestedwindowswebserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the windows web server 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedrdpbastionsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedalbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedalbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestednlbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestednlbsg
+              - GroupId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
+      VpcId: !Ref pVpcid
+  
+  rNestedlinuxwebserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the linux web server 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedsshbastionsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedalbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedalbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestednlbsg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestednlbsg
+              - GroupId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+      VpcId: !Ref pVpcid
+Outputs:
+  oNestedsshbastionsg:
+    Description: Information about the value
+    Value: !Ref rNestedsshbastionsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-sg
+  
+  oNestedrdpbastionsg:
+    Description: Information about the value
+    Value: !Ref rNestedrdpbastionsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-sg
+
+  oNestedalbsg:
+    Description: Information about the value
+    Value: !Ref rNestedalbsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
+  
+  oNestednlbsg:
+    Description: Information about the value
+    Value: !Ref rNestednlbsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
+  
+  oNestedwindowswebsg:
+    Description: Information about the value
+    Value: !Ref rNestedwindowswebserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
+
+  oNestedlinuxwebsg:
+    Description: Information about the value
+    Value: !Ref rNestedlinuxwebserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
