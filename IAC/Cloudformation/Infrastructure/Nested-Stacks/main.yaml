@@ -93,9 +93,10 @@ Resources:
   rSecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/security-group.yaml
       TimeoutInMinutes: 20
       Parameters: 
+        pAppName: !Ref pAppName
         pVpcid: 
           Fn::GetAtt: 
             - rVpcStack

@@ -31,8 +31,8 @@ Resources:
       GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
       SecurityGroupIngress: 
         - IpProtocol: tcp
-        - FromPort: 22
-        - ToPort: 22
+          FromPort: 22
+          ToPort: 22
           CidrIp: 0.0.0.0/0
       Tags: 
         - Key: Name 
@@ -46,8 +46,8 @@ Resources:
       GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
       SecurityGroupIngress: 
         - IpProtocol: tcp
-        - FromPort: 3389
-        - ToPort: 3389
+          FromPort: 3389
+          ToPort: 3389
           CidrIp: 0.0.0.0/0
       Tags: 
         - Key: Name 
