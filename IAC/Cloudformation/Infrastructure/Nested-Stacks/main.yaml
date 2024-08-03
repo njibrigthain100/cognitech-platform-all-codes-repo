@@ -1,68 +1,153 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Creates an aws 3 tier arcitecture with nested stacks
+Metadata: # This is putr in an s3 bucket
+  AWS::CloudFormation::Interface:
+    ParameterGroups: # This groups all the parameter acording to resources created
+    - Label:
+        default: "Account values"
+      Parameters: 
+        - pAwsAccount
+        - pAwsAccountLC
+        - pBucketName
+        - pAppName
+    - Label: 
+        default: "Network configurations" 
+      Parameters:
+        - pVPCCidr
+        - pPrivateSubnet1CIDR
+        - pPrivateSubnet2CIDR
+        - pPublicSubnet1CIDR
+        - pPublicSubnet2CIDR
+        - pAvailabilityZones
+        - pSharedServicesVPCCidr
+        - pSharedServicesPrivateSubnet1CIDR
+        - pSharedServicesPrivateSubnet2CIDR
+        - pSharedServicesPublicSubnet1CIDR
+        - pSharedServicesPublicSubnet2CIDR
+        - pSharedServicesAvailabilityZones
+    - Label:
+        default: "security group configurations" 
+      Parameters: 
+        - pVpcid
 
+    ParameterLabels: # The default values will be presented on the console 
+      pAwsAccount: 
+        default: The account name in upper case. 
+      pAwsAccountLC: 
+        default: The account name in lower case 
+      pBucketName: 
+        default: The name of the bucket storing all the children stacks 
+      pAppName: 
+        default: The appplication being created 
+      pVPCCidr: 
+        default: The vpc cidr range 
+      pPrivateSubnet1CIDR: 
+        default: The first private subnet cidr range.
+      pPrivateSubnet2CIDR: 
+        default: The second private subnet cidr range 
+      pPublicSubnet1CIDR: 
+        default: The first public subnet cidr range
+      pPublicSubnet2CIDR: 
+        default: The second public subnet cidr range 
+      pAvailabilityZones: 
+        default: The availability zones on which the resource will be created 
+      pSharedServicesAccount: 
+        default: The vpc name for shared services 
+      pSharedServicesVPCCidr: 
+        default: The vpc cidr range for shared services vpc
+      pSharedServicesPrivateSubnet1CIDR: 
+        default: The first private subnet cidr range for shared services
+      pSharedServicesPrivateSubnet2CIDR: 
+        default: The second private subnet cidr range for shared services 
+      pSharedServicesPublicSubnet1CIDR: 
+        default: The first public subnet cidr range for shared services
+      pSharedServicesPublicSubnet2CIDR: 
+        default: The second public subnet cidr range for shared services
+      pSharedServicesAvailabilityZones: 
+        default: The availability zones on which the resource will be created for shared services
+      pVpcid: 
+        default: The vpc id on which the resources will be created 
 Parameters: 
-# General parameter for all stacks
+####################### General parameter for all stacks #######################
   pAwsAccount:
-    Description: The account in which the resources will be created
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccount
   
   pAwsAccountLC:
-    Description: The account in which the resources will be created
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccountLC
 
   pBucketName:
-    Description: The name in which the codes are stored
     Type: String
     Default: prod-nested-stack-us-east-1
   
   pAppName:
-    Description: The app cosuming these resources
     Type: String
     Default: cognitech
-# VPC parameters
+########################## VPC parameters ######################################
   pVPCCidr:
-    Description: The cidr block of the vpc being created
     Type: String
     Default: 10.1.0.0/16
   
   pPrivateSubnet1CIDR:
-    Description: The cidr block for the first private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.126.0/24
   
   pPrivateSubnet2CIDR:
-    Description: The cidr block for the second private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.127.0/24
   
   pPublicSubnet1CIDR:
-    Description: The cidr block for the first public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.254.0/24
   
   pPublicSubnet2CIDR:
-    Description: The cidr block for the second public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.255.0/24
   
   pAvailabilityZones:
-    Description: The availability zones on which to create the resources
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
+
+########################## Shared services VPC parameters ######################################
+  pSharedServicesAccount:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/SharedServicesVpc
   
+  pSharedServicesVPCCidr:
+    Type: String
+    Default: 10.1.2.0/24
+  
+  pSharedServicesPrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.0/27
+  
+  pSharedServicesPrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.32/27
+  
+  pSharedServicesPublicSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.64/27
+  
+  pSharedServicesPublicSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.96/27
+  
+  pSharedServicesAvailabilityZones:
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
   # Security Group parameters
   pVpcid:
-    Description: The id of the vpc in which to create the security group 
     Type: String 
-  
-
 
 Resources: 
   rVpcStack:
@@ -81,6 +166,23 @@ Resources:
           Fn::Join:
             - ','
             - !Ref pAvailabilityZones
+  
+  rSharedServicesVpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/sharedvpc.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pSharedServicesAccount: !Ref pSharedServicesAccount
+        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr 
+        pSharedServicesPrivateSubnet1CIDR: !Ref pSharedServicesPrivateSubnet1CIDR 
+        pSharedServicesPrivateSubnet2CIDR: !Ref pSharedServicesPrivateSubnet2CIDR 
+        pSharedServicesPublicSubnet1CIDR: !Ref pSharedServicesPublicSubnet1CIDR 
+        pSharedServicesPublicSubnet2CIDR: !Ref pSharedServicesPublicSubnet2CIDR 
+        pSharedServicesAvailabilityZones:
+          Fn::Join:
+            - ','
+            - !Ref pSharedServicesAvailabilityZones
 
   rIAMStack:
     Type: AWS::CloudFormation::Stack

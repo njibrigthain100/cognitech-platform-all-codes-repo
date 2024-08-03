@@ -1,46 +1,41 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Creates vpc and subnets for compute resources on app subnet       
+Description: Creates vpc and subnets for shared services       
 Parameters: 
-  pAwsAccount:
+  pSharedServicesAccount:
     Description: The account in which the resources will be created
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /standard/AWSAccount
+    Default: /standard/SharedServicesVpc
   
-  pAwsAccountLC:
-    Description: The account in which the resources will be created
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /standard/AWSAccountLC
-  
-  pVPCCidr:
+  pSharedServicesVPCCidr:
     Description: The cidr block of the vpc being created
     Type: String
-    Default: 10.1.1.0/24
+    Default: 10.1.2.0/24
   
-  pPrivateSubnet1CIDR:
+  pSharedServicesPrivateSubnet1CIDR:
     Description: The cidr block for the first private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.0/27
+    Default: 10.1.2.0/27
   
-  pPrivateSubnet2CIDR:
+  pSharedServicesPrivateSubnet2CIDR:
     Description: The cidr block for the second private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.32/27
+    Default: 10.1.2.32/27
   
-  pPublicSubnet1CIDR:
+  pSharedServicesPublicSubnet1CIDR:
     Description: The cidr block for the first public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.64/27
+    Default: 10.1.2.64/27
   
-  pPublicSubnet2CIDR:
+  pSharedServicesPublicSubnet2CIDR:
     Description: The cidr block for the second public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.96/27
+    Default: 10.1.2.96/27
   
-  pAvailabilityZones:
+  pSharedServicesAvailabilityZones:
     Description: The availability zones on which to create the resources
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
@@ -55,14 +50,14 @@ Resources:
   rNestedVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref pVPCCidr
+      CidrBlock: !Ref pSharedServicesVPCCidr
       EnableDnsSupport: true
       EnableDnsHostnames: true
       # dedicated | default | host
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-vpc
 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html
@@ -71,7 +66,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-InternetGateway
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-InternetGateway
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -85,7 +80,7 @@ Resources:
       SubnetId: !Ref rNestedPublicSubnet1
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw1
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-ngw1
   
   rNestedElasticIP1:
     Type: AWS::EC2::EIP
@@ -99,7 +94,7 @@ Resources:
       SubnetId: !Ref rNestedPublicSubnet2
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw2
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-ngw2
 
   rNestedElasticIP2:
     Type: AWS::EC2::EIP
@@ -109,22 +104,22 @@ Resources:
   rNestedPrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties: 
-      AvailabilityZone: !Select [0, !Ref pAvailabilityZones]
-      CidrBlock: !Ref pPrivateSubnet1CIDR
+      AvailabilityZone: !Select [0, !Ref pSharedServicesAvailabilityZones]
+      CidrBlock: !Ref pSharedServicesPrivateSubnet1CIDR
       VpcId: !Ref rNestedVPC
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet-1
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet-1
 
   rNestedPrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties: 
-      AvailabilityZone: !Select [1, !Ref pAvailabilityZones]
-      CidrBlock: !Ref pPrivateSubnet2CIDR
+      AvailabilityZone: !Select [1, !Ref pSharedServicesAvailabilityZones]
+      CidrBlock: !Ref pSharedServicesPrivateSubnet2CIDR
       VpcId: !Ref rNestedVPC
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet-2
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet-2
 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
   rNestedPrivateSubnet1RouteTable:
@@ -133,7 +128,7 @@ Resources:
       VpcId: !Ref rNestedVPC 
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
 
   rNestedPrivateSubnet2RouteTable:
     Type: AWS::EC2::RouteTable
@@ -141,7 +136,7 @@ Resources:
       VpcId: !Ref rNestedVPC 
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
   
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
   rNestedPrivetSubnet1Route:
@@ -174,24 +169,24 @@ Resources:
   rNestedPublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties: 
-      AvailabilityZone: !Select [0, !Ref pAvailabilityZones]
-      CidrBlock: !Ref pPublicSubnet1CIDR
+      AvailabilityZone: !Select [0, !Ref pSharedServicesAvailabilityZones]
+      CidrBlock: !Ref pSharedServicesPublicSubnet1CIDR
       VpcId: !Ref rNestedVPC
       MapPublicIpOnLaunch: true
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet-1
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet-1
 
   rNestedPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties: 
-      AvailabilityZone: !Select [1, !Ref pAvailabilityZones]
-      CidrBlock: !Ref pPublicSubnet2CIDR
+      AvailabilityZone: !Select [1, !Ref pSharedServicesAvailabilityZones]
+      CidrBlock: !Ref pSharedServicesPublicSubnet2CIDR
       VpcId: !Ref rNestedVPC
       MapPublicIpOnLaunch: true
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet-2
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet-2
 
    # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
   rNestedPublicSubnet1RouteTable:
@@ -200,7 +195,7 @@ Resources:
       VpcId: !Ref rNestedVPC 
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet1-rt
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet1-rt
 
   rNestedPublicSubnet2RouteTable:
     Type: AWS::EC2::RouteTable
@@ -208,7 +203,7 @@ Resources:
       VpcId: !Ref rNestedVPC 
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet2-rt
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet2-rt
   
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
   rNestedPublicSubnet1Route:
@@ -243,46 +238,46 @@ Outputs:
     Description: The ID of the vpc
     Value: !Ref rNestedVPC
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-vpc
       
   oPrivateSubnet1:
     Description: The ID of the private subnet
     Value: !Ref rNestedPrivateSubnet1
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
   
   oPrivateSubnet2:
     Description: The ID of the private subnet
     Value: !Ref rNestedPrivateSubnet2
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
 
   oPublicSubnet1:
     Description: The ID of the private subnet
     Value: !Ref rNestedPublicSubnet1
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet1
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet1
 
   oPublicSubnet2:
     Description: The ID of the private subnet
     Value: !Ref rNestedPublicSubnet2
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet2
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-public-subnet2
 
   oInternetGateway:
     Description: The ID of the internetgateway
     Value: !Ref rNestedInternetGateway
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-igw
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-igw
 
   oNatGateway1:
     Description: The ID of the Natgateway
     Value: !Ref rNestedNatGateway1
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw1
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-ngw1
 
   oNatGateway2:
     Description: The ID of the Natgateway
     Value: !Ref rNestedNatGateway2
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw2
+      Name: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-ngw2
