@@ -14,41 +14,39 @@ Parameters:
   pVPCCidr:
     Description: The cidr block of the vpc being created
     Type: String
-    Default: 10.1.1.0/24
+ 
   
   pPrivateSubnet1CIDR:
     Description: The cidr block for the first private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.0/27
+    
   
   pPrivateSubnet2CIDR:
     Description: The cidr block for the second private subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.32/27
+    
   
   pPublicSubnet1CIDR:
     Description: The cidr block for the first public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.64/27
+    
   
   pPublicSubnet2CIDR:
     Description: The cidr block for the second public subnet
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.96/27
+    
   
   pAvailabilityZones:
     Description: The availability zones on which to create the resources
     Type: CommaDelimitedList
-    Default: us-east-1a, us-east-1b
   
   pAppName:
     Description: The app cosuming these resources
     Type: String
-    Default: cognitech
 
 Resources: 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc.html#cfn-aws-ec2-vpc-instancetenancy
@@ -256,6 +254,18 @@ Outputs:
     Value: !Ref rNestedPrivateSubnet2
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
+  
+  oPrivateSubnet1RT:
+    Description: The ID of the first private subnet route table
+    Value: !Ref rNestedPrivateSubnet1RouteTable
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-RT
+  
+  oPrivateSubnet2RT:
+    Description: The ID of the second private subnet route table
+    Value: !Ref rNestedPrivateSubnet2RouteTable
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-RT
 
   oPublicSubnet1:
     Description: The ID of the private subnet

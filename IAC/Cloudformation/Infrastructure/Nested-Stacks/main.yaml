@@ -19,6 +19,7 @@ Metadata: # This is putr in an s3 bucket
         - pPublicSubnet1CIDR
         - pPublicSubnet2CIDR
         - pAvailabilityZones
+        - pSharedServicesAccount
         - pSharedServicesVPCCidr
         - pSharedServicesPrivateSubnet1CIDR
         - pSharedServicesPrivateSubnet2CIDR
@@ -29,7 +30,26 @@ Metadata: # This is putr in an s3 bucket
         default: "security group configurations" 
       Parameters: 
         - pVpcid
-
+    - Label:
+        default: "Transit Gateway configurations" 
+      Parameters: 
+        - pAmazonAsn
+        - pAutoAcceptAttachment
+        - pRouteTablePropagation
+        - pRouteTableAssociation
+        - pDNSSupport
+        - pVPNSupport
+        - pSharedServicesPrivateSubnet1Id
+        - pSharedServicesPrivateSubnet2Id
+        - pSharedServicesVPCId
+        - pApp1PrivateSubnet1Id
+        - pApp1PrivateSubnet2Id
+        - pApp1VPCId
+        - pTransitGatewayCIDR
+        - pSharedServicesPrivateSubnet1RT
+        - pSharedServicesPrivateSubnet2RT
+        - pApp1PrivateSubnet1RT
+        - pApp1PrivateSubnet2RT
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: The account name in upper case. 
@@ -39,6 +59,7 @@ Metadata: # This is putr in an s3 bucket
         default: The name of the bucket storing all the children stacks 
       pAppName: 
         default: The appplication being created 
+  ###########################App vpc parameter labels############################################
       pVPCCidr: 
         default: The vpc cidr range 
       pPrivateSubnet1CIDR: 
@@ -51,6 +72,7 @@ Metadata: # This is putr in an s3 bucket
         default: The second public subnet cidr range 
       pAvailabilityZones: 
         default: The availability zones on which the resource will be created 
+  ###########################App shared services parameter labels#################################
       pSharedServicesAccount: 
         default: The vpc name for shared services 
       pSharedServicesVPCCidr: 
@@ -67,6 +89,42 @@ Metadata: # This is putr in an s3 bucket
         default: The availability zones on which the resource will be created for shared services
       pVpcid: 
         default: The vpc id on which the resources will be created 
+#############################Transit gateway parameter labels######################################
+      pAmazonAsn: 
+        default: The Amazon side Autonomous System Number (ASN)
+      pAutoAcceptAttachment: 
+        default: Do you want to auto accept the tgw attachments?
+      pRouteTablePropagation: 
+        default: Do you want to automatically propagate the routes to the default route table?
+      pRouteTableAssociation: 
+        default: Do you want to automatically associate the routes to the default route table?
+      pDNSSupport: 
+        default:  Do you want to enable DNS suuport?
+      pVPNSupport: 
+        default: Do you want to enable VPN suuport? 
+      pSharedServicesPrivateSubnet1Id: 
+        default: The Id of the first shared services private subnet
+      pSharedServicesPrivateSubnet2Id: 
+        default: The Id of the second shared services private subnet
+      pSharedServicesVPCId: 
+        default: The Id of the shared services VPC
+      pApp1PrivateSubnet1Id: 
+        default: The Id of the first App1 private subnet 
+      pApp1PrivateSubnet2Id: 
+        default: The Id of the second App1 private subnet 
+      pApp1VPCId: 
+        default: The Id of the App1 VPC
+      pTransitGatewayCIDR:
+        default: The CIDR range for the transit gateway. Most likely /16 
+      pSharedServicesPrivateSubnet1RT: 
+        default: The route table for shared services private subnet 1 
+      pSharedServicesPrivateSubnet2RT: 
+        default: The route table for shared services private subnet 2 
+      pApp1PrivateSubnet1RT: 
+        default: The route table for App1 vpc private subnet 1 
+      pApp1PrivateSubnet2RT: 
+        default: The route table for App1 vpc private subnet 2
+      
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -87,27 +145,27 @@ Parameters:
 ########################## VPC parameters ######################################
   pVPCCidr:
     Type: String
-    Default: 10.1.0.0/16
+    Default: 10.1.1.0/24
   
   pPrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.126.0/24
+    Default: 10.1.1.0/27
   
   pPrivateSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.127.0/24
+    Default: 10.1.1.32/27
   
   pPublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.254.0/24
+    Default: 10.1.1.64/27
   
   pPublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.255.0/24
+    Default: 10.1.1.96/27
   
   pAvailabilityZones:
     Type: CommaDelimitedList
@@ -115,7 +173,7 @@ Parameters:
 
 ########################## Shared services VPC parameters ######################################
   pSharedServicesAccount:
-    Type: AWS::SSM::Parameter::Value<String>
+    Type: String
     Default: /standard/SharedServicesVpc
   
   pSharedServicesVPCCidr:
@@ -148,6 +206,82 @@ Parameters:
   # Security Group parameters
   pVpcid:
     Type: String 
+  
+  ################################ Transit Gateway ###############################################
+  pAmazonAsn:
+    Type: String
+    Default: 65000
+    MinLength: 5
+    MaxLength: 10
+    ConstraintDescription: The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+  
+  pAutoAcceptAttachment:
+    Type: String
+    Default: "enable"
+    AllowedValues:
+      - "enable"
+      - "disable"
+  
+  pRouteTablePropagation:
+    Type: String
+    Default: "enable"
+    AllowedValues:
+      - "enable"
+      - "disable"
+  
+  pRouteTableAssociation: 
+    Type: String
+    Default: "enable"
+    AllowedValues:
+      - "enable"
+      - "disable"
+
+  pDNSSupport:
+    Type: String
+    Default: "enable"
+    AllowedValues:
+      - "enable"
+      - "disable"
+  
+  pVPNSupport:
+    Type: String
+    Default: "enable"
+    AllowedValues:
+      - "enable"
+      - "disable"
+  
+  pSharedServicesPrivateSubnet1Id:
+    Type: String
+
+  pSharedServicesPrivateSubnet2Id:
+    Type: String
+
+  pSharedServicesVPCId:
+    Type: String
+
+  pApp1PrivateSubnet1Id:
+    Type: String
+
+  pApp1PrivateSubnet2Id:
+    Type: String
+
+  pApp1VPCId:
+    Type: String
+      
+  pTransitGatewayCIDR:
+    Type: 10.1.0.0/16
+  
+  pSharedServicesPrivateSubnet1RT:
+    Type: String
+
+  pSharedServicesPrivateSubnet2RT:
+    Type: String
+
+  pApp1PrivateSubnet1RT:
+    Type: String
+
+  pApp1PrivateSubnet2RT:
+    Type: String
 
 Resources: 
   rVpcStack:
@@ -183,6 +317,7 @@ Resources:
           Fn::Join:
             - ','
             - !Ref pSharedServicesAvailabilityZones
+        pAppName: !Ref pAppName
 
   rIAMStack:
     Type: AWS::CloudFormation::Stack
@@ -203,6 +338,67 @@ Resources:
           Fn::GetAtt: 
             - rVpcStack
             - Outputs.oVPC
+  
+  rTransitGatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/TransitGateway.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmazonAsn: !Ref pAmazonAsn
+        pAutoAcceptAttachment: !Ref pAutoAcceptAttachment 
+        pRouteTablePropagation: !Ref pRouteTablePropagation 
+        pRouteTableAssociation: !Ref pRouteTableAssociation 
+        pDNSSupport: !Ref pDNSSupport 
+        pVPNSupport: !Ref pVPNSupport 
+        pTransitGatewayCIDR: !Ref pTransitGatewayCIDR
+        pSharedServicesPrivateSubnet1Id: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet1
+        pSharedServicesPrivateSubnet2Id: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet2 
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oVPC 
+        pApp1PrivateSubnet1Id: 
+          Fn::GetAtt: 
+            - rVpcStack 
+            - Outputs.oPrivateSubnet1
+        pApp1PrivateSubnet2Id: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet2
+        pApp1VPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pSharedServicesPrivateSubnet1RT: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet1RT
+        pSharedServicesPrivateSubnet2RT: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet2RT
+        pApp1PrivateSubnet1RT:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1RT
+        pApp1PrivateSubnet2RT:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet2RT
+        
+    DependsOn: 
+    - rSharedServicesVpcStack
+    - rVpcStack
+        
+          
 
 
   
