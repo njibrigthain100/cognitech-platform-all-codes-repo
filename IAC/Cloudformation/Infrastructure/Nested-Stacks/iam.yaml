@@ -94,13 +94,19 @@ Outputs:
     Description: The arn of the IAM role 
     Value: !GetAtt rNestedInstanceRole.Arn
     Export: 
-      Name: Nested-IAM-Role-Arn
+      Name: Nested-iam-Role-Arn
     
   oNestedIAMRoleName:
     Description: The name of the IAM role
     Value: !Ref rNestedInstanceRole
     Export: 
-      Name: Nested-IAM-Role-Name
+      Name: Nested-iam-Role-Name
+  
+  oNestedIAMInstanceProfileName:
+    Description: The name of the instance profile 
+    Value: !Ref rNestedIAMProfile
+    Export: 
+      Name: Nested-iam-Instance-pfofile-Name
   
   oNestedBastionIAMRoleArn:
     Description: The arn of the IAM role 
@@ -113,3 +119,9 @@ Outputs:
     Value: !Ref rNestedBastionInstanceRole
     Export: 
       Name: Nested-Bastion-iam-Role-Name
+  
+  oNestedBastionInstanceProfileName:
+    Description: The name of the bastion instance profile 
+    Value: !Ref rBastionIAMProfile
+    Export: 
+      Name: Nested-Bastion-Instance-profile-Name

@@ -50,6 +50,19 @@ Metadata: # This is putr in an s3 bucket
         - pSharedServicesPrivateSubnet2RT
         - pApp1PrivateSubnet1RT
         - pApp1PrivateSubnet2RT
+        - pApp1NatGateway1Id
+        - pApp1NatGateway2Id
+        - pSSNatGateway1Id
+        - pSSNatGateway2Id
+    - Label:
+        default: "Bastion hosts configurations" 
+      Parameters: 
+        - pAmznLnx2LatestAmiId
+        - PWindows2019LatestAmiId
+        - pBastionInstanceProfile
+        - pBastionRDPSecurityGroup
+        - pBastionSSHSecurityGroup
+        - pSharedSeervicesPublicSubnetId
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: The account name in upper case. 
@@ -124,6 +137,28 @@ Metadata: # This is putr in an s3 bucket
         default: The route table for App1 vpc private subnet 1 
       pApp1PrivateSubnet2RT: 
         default: The route table for App1 vpc private subnet 2
+      pApp1NatGateway1Id:
+        default: The Id of the first Nat gateway
+      pApp1NatGateway2Id:
+        default: The Id of the second Nat gateway
+      pSSNatGateway1Id: 
+        default: The Id of the first shared services Nat gateway
+      pSSNatGateway2Id: 
+        default: The Id of the second shared services Nat gateway
+
+#######################Bastion hosts parameters ############################### 
+      pAmznLnx2LatestAmiId: 
+        default: The latest ami Id for amazon linux 2 
+      pWindows2019LatestAmiId: 
+        default: The latest ami Id for windows 2019
+      pBastionInstanceProfile: 
+        default: The instance profile for the bastions
+      pBastionRDPSecurityGroup: 
+        default: The security group for the rdp bastion 
+      pBastionSSHSecurityGroup: 
+        default: The security group for the ssh bastion
+      pSharedSeervicesPublicSubnetId: 
+        default: The subnet Id for the shared services public subnet
       
 Parameters: 
 ####################### General parameter for all stacks #######################
@@ -269,7 +304,8 @@ Parameters:
     Type: String
       
   pTransitGatewayCIDR:
-    Type: 10.1.0.0/16
+    Type: String 
+    Default: 10.1.0.0/16
   
   pSharedServicesPrivateSubnet1RT:
     Type: String
@@ -281,6 +317,39 @@ Parameters:
     Type: String
 
   pApp1PrivateSubnet2RT:
+    Type: String
+  
+  pApp1NatGateway1Id:
+    Type: String
+  
+  pApp1NatGateway2Id:
+    Type: String 
+  
+  pSSNatGateway1Id:
+    Type: String 
+
+  pSSNatGateway2Id:
+    Type: String 
+
+  ################################### Bastion hosts #####################################
+  pAmznLnx2LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  pWindows2019LatestAmiId:
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pBastionInstanceProfile:
+    Type: String
+  
+  pBastionRDPSecurityGroup: 
+    Type: String
+  
+  pBastionSSHSecurityGroup:
+    Type: String
+  
+  pSharedSeervicesPublicSubnetId:
     Type: String
 
 Resources: 
@@ -393,10 +462,53 @@ Resources:
           Fn::GetAtt: 
             - rVpcStack
             - Outputs.oPrivateSubnet2RT
+        pApp1NatGateway1Id:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oNatGateway1
+        pApp1NatGateway2Id:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oNatGateway2
+        pSSNatGateway1Id:
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oNatGateway1
+        pSSNatGateway2Id:
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oNatGateway2
         
     DependsOn: 
     - rSharedServicesVpcStack
     - rVpcStack
+
+  rBastionHost:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/bastions.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
+        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pBastionInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedBastionInstanceProfileName
+        pBastionRDPSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedrdpbastionsg
+        pBastionSSHSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedsshbastionsg
+        pSharedSeervicesPublicSubnetId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oPublicSubnet1
+  
         
           
 

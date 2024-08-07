@@ -185,37 +185,37 @@ Resources:
       VpcId: !Ref pVpcid
 Outputs:
   oNestedsshbastionsg:
-    Description: Information about the value
+    Description: The ssh bastion security group Id
     Value: !Ref rNestedsshbastionsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-sg
   
   oNestedrdpbastionsg:
-    Description: Information about the value
+    Description: The rdp bastion security group Id 
     Value: !Ref rNestedrdpbastionsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-sg
 
   oNestedalbsg:
-    Description: Information about the value
+    Description: The alb security group Id
     Value: !Ref rNestedalbsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
   
   oNestednlbsg:
-    Description: Information about the value
+    Description: The nlb security group Id 
     Value: !Ref rNestednlbsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
   
   oNestedwindowswebsg:
-    Description: Information about the value
+    Description: The windows webserver security group Id 
     Value: !Ref rNestedwindowswebserversg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
 
   oNestedlinuxwebsg:
-    Description: Information about the value
+    Description: The linux webserver security group Id 
     Value: !Ref rNestedlinuxwebserversg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg

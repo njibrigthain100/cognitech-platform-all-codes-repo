@@ -124,50 +124,50 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet-2
 
-  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
-  rNestedPrivateSubnet1RouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref rNestedVPC 
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
+  # # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
+  # rNestedPrivateSubnet1RouteTable:
+  #   Type: AWS::EC2::RouteTable
+  #   Properties:
+  #     VpcId: !Ref rNestedVPC 
+  #     Tags: 
+  #       - Key: Name 
+  #         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
 
-  rNestedPrivateSubnet2RouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref rNestedVPC 
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
+  # rNestedPrivateSubnet2RouteTable:
+  #   Type: AWS::EC2::RouteTable
+  #   Properties:
+  #     VpcId: !Ref rNestedVPC 
+  #     Tags: 
+  #       - Key: Name 
+  #         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
   
-  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
-  rNestedPrivetSubnet1Route:
-    Type: AWS::EC2::Route
-    Properties: 
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref rNestedNatGateway1
-      RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
+  # # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
+  # rNestedPrivetSubnet1Route:
+  #   Type: AWS::EC2::Route
+  #   Properties: 
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId: !Ref rNestedNatGateway1
+  #     RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
 
-  rNestedPrivetSubnet2Route:
-    Type: AWS::EC2::Route
-    Properties: 
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref rNestedNatGateway2
-      RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
+  # rNestedPrivetSubnet2Route:
+  #   Type: AWS::EC2::Route
+  #   Properties: 
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId: !Ref rNestedNatGateway2
+  #     RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
 
-  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
-  rNestedPrivateSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
-      RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
-      SubnetId: !Ref rNestedPrivateSubnet1
+  # # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  # rNestedPrivateSubnet1RouteTableAssociation:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties: 
+  #     RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
+  #     SubnetId: !Ref rNestedPrivateSubnet1
 
-  rNestedPrivateSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
-      RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
-      SubnetId: !Ref rNestedPrivateSubnet2
+  # rNestedPrivateSubnet2RouteTableAssociation:
+  #   Type: AWS::EC2::SubnetRouteTableAssociation
+  #   Properties: 
+  #     RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
+  #     SubnetId: !Ref rNestedPrivateSubnet2
   
   rNestedPublicSubnet1:
     Type: AWS::EC2::Subnet
@@ -255,17 +255,17 @@ Outputs:
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
   
-  oPrivateSubnet1RT:
-    Description: The ID of the first private subnet route table
-    Value: !Ref rNestedPrivateSubnet1RouteTable
-    Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-RT
+  # oPrivateSubnet1RT:
+  #   Description: The ID of the first private subnet route table
+  #   Value: !Ref rNestedPrivateSubnet1RouteTable
+  #   # Export: 
+  #   #   Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-RT
   
-  oPrivateSubnet2RT:
-    Description: The ID of the second private subnet route table
-    Value: !Ref rNestedPrivateSubnet2RouteTable
-    Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-RT
+  # oPrivateSubnet2RT:
+  #   Description: The ID of the second private subnet route table
+  #   Value: !Ref rNestedPrivateSubnet2RouteTable
+  #   # Export: 
+  #   #   Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-RT
 
   oPublicSubnet1:
     Description: The ID of the private subnet
@@ -286,13 +286,13 @@ Outputs:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-igw
 
   oNatGateway1:
-    Description: The ID of the Natgateway
+    Description: The ID of the first Natgateway
     Value: !Ref rNestedNatGateway1
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw1
 
   oNatGateway2:
-    Description: The ID of the Natgateway
+    Description: The ID of the second Natgateway
     Value: !Ref rNestedNatGateway2
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw2

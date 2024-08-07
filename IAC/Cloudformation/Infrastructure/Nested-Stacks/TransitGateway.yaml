@@ -91,21 +91,39 @@ Parameters:
     Description: The CIDR range for the transit gateway. Mostlikely /16 
     Type: String
   
-  pSharedServicesPrivateSubnet1RT:
-    Description: The route table for shared services private subnet 1
+  pApp1NatGateway1Id:
+    Description: The Id of the first Nat gateway 
     Type: String
+  
+  pApp1NatGateway2Id:
+    Description: The Id of the second Nat gateway 
+    Type: String 
+  
+  pSSNatGateway1Id:
+    Description: The Id of the first shared services Nat gateway 
+    Type: String 
 
-  pSharedServicesPrivateSubnet2RT:
-    Description: The route table for shared services private subnet 1
-    Type: String
+  pSSNatGateway2Id:
+    Description: The Id of the second shared services Nat gateway 
+    Type: String 
+  
+  
 
-  pApp1PrivateSubnet1RT:
-    Description: The route table for App1 vpc private subnet 1
-    Type: String
+  # pSharedServicesPrivateSubnet1RT:
+  #   Description: The route table for shared services private subnet 1
+  #   Type: String
 
-  pApp1PrivateSubnet2RT:
-    Description: The route table for App1 vpc private subnet 1
-    Type: String
+  # pSharedServicesPrivateSubnet2RT:
+  #   Description: The route table for shared services private subnet 1
+  #   Type: String
+
+  # pApp1PrivateSubnet1RT:
+  #   Description: The route table for App1 vpc private subnet 1
+  #   Type: String
+
+  # pApp1PrivateSubnet2RT:
+  #   Description: The route table for App1 vpc private subnet 1
+  #   Type: String
 
 
 
@@ -149,36 +167,136 @@ Resources:
       TransitGatewayId: !Ref rNestedTransitGateway
       VpcId: !Ref pApp1VPCId
   
+  #####################App1 Private subnets routes & route tables#################################
+    # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
+  rNestedPrivateSubnet1RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref pApp1VPCId 
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
+
+  rNestedPrivateSubnet2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref pApp1VPCId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
+  
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
-  rSharedServicesPrivateSubnet1Route:
+  rNestedPrivetSubnet1Route:
     Type: AWS::EC2::Route
     Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref pApp1NatGateway1Id
+      RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
+
+  rNestedPrivetSubnet2Route:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref pApp1NatGateway2Id
+      RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
+    
+  rNestedPrivetSubnet1TGWRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+         - rApp1VpcTransitGatewayAttachment
+    Properties: 
       DestinationCidrBlock: !Ref pTransitGatewayCIDR
-      RouteTableId: !Ref pSharedServicesPrivateSubnet2RT
+      RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
-  rSharedServicesPrivateSubnet2Route:
+
+  rNestedPrivetSubnet2TGWRoute:
     Type: AWS::EC2::Route
+    DependsOn:
+         - rApp1VpcTransitGatewayAttachment
     Properties: 
       DestinationCidrBlock: !Ref pTransitGatewayCIDR
-      RouteTableId: !Ref pSharedServicesPrivateSubnet1RT
+      RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
-  rApp1PrivateSubnet1Route:
-    Type: AWS::EC2::Route
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rNestedPrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
-      RouteTableId: !Ref pApp1PrivateSubnet1RT
-      TransitGatewayId: !Ref rNestedTransitGateway
+      RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
+      SubnetId: !Ref pApp1PrivateSubnet1Id
 
-  rApp1PrivateSubnet2Route:
-    Type: AWS::EC2::Route
+  rNestedPrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
-      RouteTableId: !Ref pApp1PrivateSubnet2RT
-      TransitGatewayId: !Ref rNestedTransitGateway
+      RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
+      SubnetId: !Ref pApp1PrivateSubnet2Id
+
+#############################Shared services routes & route tables #######################################
+
+  rNestedSSPrivateSubnet1RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref pSharedServicesVPCId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet1-rt
+
+  rNestedSSPrivateSubnet2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref pSharedServicesVPCId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-private-subnet2-rt
   
-  
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
+  rNestedSSPrivetSubnet1Route:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref pSSNatGateway1Id
+      RouteTableId: !Ref rNestedSSPrivateSubnet1RouteTable
+
+  rNestedSSPrivetSubnet2Route:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref pSSNatGateway2Id
+      RouteTableId: !Ref rNestedSSPrivateSubnet2RouteTable
+
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html
+  rNestedSSPrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rNestedSSPrivateSubnet1RouteTable
+      SubnetId: !Ref pSharedServicesPrivateSubnet1Id
+
+  rNestedSSPrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref rNestedSSPrivateSubnet2RouteTable
+      SubnetId: !Ref pSharedServicesPrivateSubnet2Id
+
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
+  rNestedSSPrivateSubnet1TGWRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+         - rSharedServicesVpcTransitGatewayAttachment
+    Properties: 
+      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      RouteTableId: !Ref rNestedSSPrivateSubnet1RouteTable
+      TransitGatewayId: !Ref rNestedTransitGateway
+
+  rNestedSSPrivateSubnet2TGWRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+         - rSharedServicesVpcTransitGatewayAttachment
+    Properties: 
+      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      RouteTableId: !Ref rNestedSSPrivateSubnet2RouteTable
+      TransitGatewayId: !Ref rNestedTransitGateway
+ 
 Outputs:
   oTransitGatewayId:
     Description: The Nested stack transit gateway 
