@@ -12,6 +12,11 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccountLC
   
+  pSharedServicesAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/SharedServicesVpc
+  
   pAmazonAsn:
     Description: The Amazon side Autonomous System Number (ASN)
     Type: String

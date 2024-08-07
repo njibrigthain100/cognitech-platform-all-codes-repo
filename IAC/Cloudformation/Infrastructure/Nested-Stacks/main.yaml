@@ -30,6 +30,7 @@ Metadata: # This is putr in an s3 bucket
         default: "security group configurations" 
       Parameters: 
         - pVpcid
+        - pSharedServicesVPCId
     - Label:
         default: "Transit Gateway configurations" 
       Parameters: 
@@ -46,10 +47,6 @@ Metadata: # This is putr in an s3 bucket
         - pApp1PrivateSubnet2Id
         - pApp1VPCId
         - pTransitGatewayCIDR
-        - pSharedServicesPrivateSubnet1RT
-        - pSharedServicesPrivateSubnet2RT
-        - pApp1PrivateSubnet1RT
-        - pApp1PrivateSubnet2RT
         - pApp1NatGateway1Id
         - pApp1NatGateway2Id
         - pSSNatGateway1Id
@@ -58,7 +55,7 @@ Metadata: # This is putr in an s3 bucket
         default: "Bastion hosts configurations" 
       Parameters: 
         - pAmznLnx2LatestAmiId
-        - PWindows2019LatestAmiId
+        - pWindows2019LatestAmiId
         - pBastionInstanceProfile
         - pBastionRDPSecurityGroup
         - pBastionSSHSecurityGroup
@@ -129,14 +126,6 @@ Metadata: # This is putr in an s3 bucket
         default: The Id of the App1 VPC
       pTransitGatewayCIDR:
         default: The CIDR range for the transit gateway. Most likely /16 
-      pSharedServicesPrivateSubnet1RT: 
-        default: The route table for shared services private subnet 1 
-      pSharedServicesPrivateSubnet2RT: 
-        default: The route table for shared services private subnet 2 
-      pApp1PrivateSubnet1RT: 
-        default: The route table for App1 vpc private subnet 1 
-      pApp1PrivateSubnet2RT: 
-        default: The route table for App1 vpc private subnet 2
       pApp1NatGateway1Id:
         default: The Id of the first Nat gateway
       pApp1NatGateway2Id:
@@ -307,18 +296,6 @@ Parameters:
     Type: String 
     Default: 10.1.0.0/16
   
-  pSharedServicesPrivateSubnet1RT:
-    Type: String
-
-  pSharedServicesPrivateSubnet2RT:
-    Type: String
-
-  pApp1PrivateSubnet1RT:
-    Type: String
-
-  pApp1PrivateSubnet2RT:
-    Type: String
-  
   pApp1NatGateway1Id:
     Type: String
   
@@ -333,11 +310,11 @@ Parameters:
 
   ################################### Bastion hosts #####################################
   pAmznLnx2LatestAmiId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Type: String 
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   
   pWindows2019LatestAmiId:
-    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Type : String 
     Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
   
   pBastionInstanceProfile:
@@ -403,10 +380,16 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
         pVpcid: 
           Fn::GetAtt: 
             - rVpcStack
             - Outputs.oVPC
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oVPC
+
   
   rTransitGatewayStack:
     Type: AWS::CloudFormation::Stack
@@ -415,6 +398,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pSharedServicesAccount: !Ref pSharedServicesAccount
         pAmazonAsn: !Ref pAmazonAsn
         pAutoAcceptAttachment: !Ref pAutoAcceptAttachment 
         pRouteTablePropagation: !Ref pRouteTablePropagation 
@@ -446,22 +430,6 @@ Resources:
           Fn::GetAtt: 
             - rVpcStack
             - Outputs.oVPC
-        pSharedServicesPrivateSubnet1RT: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oPrivateSubnet1RT
-        pSharedServicesPrivateSubnet2RT: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oPrivateSubnet2RT
-        pApp1PrivateSubnet1RT:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet1RT
-        pApp1PrivateSubnet2RT:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet2RT
         pApp1NatGateway1Id:
           Fn::GetAtt: 
             - rVpcStack

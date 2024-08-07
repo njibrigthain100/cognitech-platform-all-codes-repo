@@ -21,6 +21,16 @@ Parameters:
   pVpcid:
     Description: The id of the vpc in which to create the security group 
     Type: String 
+  
+  pSharedServicesVPCId:
+    Description: The Id of the shared services VPC in which to create the secuity group
+    Type: String
+  
+  pSharedServicesVPCCidr:
+    Type: String
+    Default: 10.1.2.0/24
+
+
 
 Resources: 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
@@ -37,7 +47,7 @@ Resources:
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
-      VpcId: !Ref pVpcid
+      VpcId: !Ref pSharedServicesVPCId
 
   rNestedrdpbastionsg:
     Type: AWS::EC2::SecurityGroup
@@ -52,7 +62,7 @@ Resources:
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
-      VpcId: !Ref pVpcid
+      VpcId: !Ref pSharedServicesVPCId
 
   rNestedalbsg:
     Type: AWS::EC2::SecurityGroup
@@ -101,10 +111,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 3389
           ToPort: 3389
-          SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedrdpbastionsg
-              - GroupId
+          CidrIp: !Ref pSharedServicesVPCCidr
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -145,12 +152,9 @@ Resources:
       GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
       SecurityGroupIngress: 
         - IpProtocol: tcp
-          FromPort: 3389
-          ToPort: 3389
-          SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedsshbastionsg
-              - GroupId
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref pSharedServicesVPCCidr
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
