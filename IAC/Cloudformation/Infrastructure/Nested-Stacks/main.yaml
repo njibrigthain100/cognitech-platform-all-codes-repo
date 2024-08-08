@@ -410,7 +410,7 @@ Parameters:
     Type: String
     Default: '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-SQL_2019_Standard'
   
-   pDBServerInstanceProfile:
+  pDBServerInstanceProfile:
     Type: String
   
   pWindowsDBServerSecurityGroup:
