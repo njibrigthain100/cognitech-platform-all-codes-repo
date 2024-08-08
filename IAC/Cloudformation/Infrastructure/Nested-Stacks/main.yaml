@@ -602,7 +602,7 @@ Resources:
         pAppName: !Ref pAppName
         pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
         pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
-        pAppServerInstanceProfile: 
+        pWebServerInstanceProfile]: 
           Fn::GetAtt: 
             - rIAMStack
             - Outputs.oNestedIAMInstanceProfileName
@@ -631,10 +631,6 @@ Resources:
           Fn::GetAtt: 
             - rIAMStack
             - Outputs.oNestedIAMInstanceProfileName
-        pWindowsWebServerSecurityGroup: 
-          Fn::GetAtt: 
-            - rSecurityGroupStack
-            - Outputs.oNestedwindowswebsg
         pWindowsDBServerSecurityGroup: 
           Fn::GetAtt: 
             - rSecurityGroupStack
