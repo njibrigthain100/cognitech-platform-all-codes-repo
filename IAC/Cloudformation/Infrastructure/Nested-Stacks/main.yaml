@@ -60,6 +60,27 @@ Metadata: # This is putr in an s3 bucket
         - pBastionRDPSecurityGroup
         - pBastionSSHSecurityGroup
         - pSharedSeervicesPublicSubnetId
+    - Label:
+        default: "App Servers configurations" 
+      Parameters: 
+        - pAppServerInstanceProfile
+        - pWindowsAppServerSecurityGroup
+        - pLinuxAppServerSecurityGroup
+        - pAppServerPrivateSubnetId
+    - Label:
+        default: "Web Servers configurations" 
+      Parameters: 
+        - pWebServerInstanceProfile
+        - pWindowsWebServerSecurityGroup
+        - pLinuxWebServerSecurityGroup
+        - pWebServerPrivateSubnetId
+    - Label:
+        default: "DB Servers configurations" 
+      Parameters: 
+        - pWindowsDBLatestAmiId
+        - pDBServerInstanceProfile
+        - pWindowsDBServerSecurityGroup
+        - pDBServerPrivateSubnetId
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: The account name in upper case. 
@@ -148,7 +169,36 @@ Metadata: # This is putr in an s3 bucket
         default: The security group for the ssh bastion
       pSharedSeervicesPublicSubnetId: 
         default: The subnet Id for the shared services public subnet
-      
+
+#######################App servers parameters ############################### 
+      pAppServerInstanceProfile: 
+        default: The instance profile for the App server
+      pWindowsAppServerSecurityGroup:
+        default: The windows app server security group 
+      pLinuxAppServerSecurityGroup:
+        default: The linux app server security group
+      pAppServerPrivateSubnetId:
+        default: The subnet Id for the app server
+
+#######################Web servers parameters ############################### 
+      pWebServerInstanceProfile: 
+        default: The instance profile for the web server
+      pWindowsWebServerSecurityGroup:
+        default: The windows web server security group 
+      pLinuxWebServerSecurityGroup:
+        default: The linux web server security group
+      pWebServerPrivateSubnetId:
+        default: The subnet Id for the web server
+
+#######################DB servers parameters ############################### 
+      ppWindowsDBLatestAmiId: 
+        default: The latest ami Id for windows & SQL
+      pDBServerInstanceProfile:
+        default: The instance profile for the DB server 
+      pWindowsDBServerSecurityGroup:
+        default: The windows DB server security group
+      pDBServerPrivateSubnetId:
+        default: The subnet Id for the DB server
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -329,6 +379,46 @@ Parameters:
   pSharedSeervicesPublicSubnetId:
     Type: String
 
+  ################################### App servers #####################################
+  pAppServerInstanceProfile:
+    Type: String
+  
+  pWindowsAppServerSecurityGroup:
+    Type: String
+  
+  pLinuxAppServerSecurityGroup:
+    Type: String
+  
+  pAppServerPrivateSubnetId:
+    Type: String
+
+  ################################### Web servers #####################################
+  pWebServerInstanceProfile:
+    Type: String
+  
+  pWindowsWebServerSecurityGroup:
+    Type: String
+  
+  pLinuxWebServerSecurityGroup:
+    Type: String
+  
+  pWebServerPrivateSubnetId:
+    Type: String
+
+  ################################### DB servers #####################################
+  pWindowsDBLatestAmiId:
+    Type: String
+    Default: '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-SQL_2019_Standard'
+  
+   pDBServerInstanceProfile:
+    Type: String
+  
+  pWindowsDBServerSecurityGroup:
+    Type: String
+  
+  pDBServerPrivateSubnetId:
+    Type: String
+
 Resources: 
   rVpcStack:
     Type: AWS::CloudFormation::Stack
@@ -476,6 +566,83 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oPublicSubnet1
+  
+  rAppServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Appservers.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
+        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pAppServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsAppServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedWindowsAppsg
+        pLinuxAppServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedlinuxAppsg
+        pAppServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
+
+  rWebServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Webserevers.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
+        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pAppServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsWebServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedwindowswebsg
+        pLinuxWebServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedlinuxwebsg
+        pWebServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
+
+  rDBServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/database.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pWindowsDBLatestAmiId: !Ref pWindowsDBLatestAmiId
+        pDBServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsWebServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedwindowswebsg
+        pWindowsDBServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedWindowsDBsg
+        pDBServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
   
         
           

@@ -63,7 +63,7 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
       VpcId: !Ref pSharedServicesVPCId
-
+############################ALB Security group################################
   rNestedalbsg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -82,7 +82,7 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
       VpcId: !Ref pVpcid 
-  
+ ############################NLB Security group################################## 
   rNestednlbsg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -101,7 +101,67 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
       VpcId: !Ref pVpcid
-  
+  #########################Linux App server Security group######################
+  rNestedlinuxAppserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the linux App server 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref pSharedServicesVPCCidr
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedlinuxwebserversg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedlinuxwebserversg
+              - GroupId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
+      VpcId: !Ref pVpcid
+
+  #########################Windows App server Security group######################
+  rNestedWindowsAppserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the Windows App server 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: !Ref pSharedServicesVPCCidr
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedwindowswebserversg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedwindowswebserversg
+              - GroupId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
+      VpcId: !Ref pVpcid
+   
+  ###########################Windows Web server Security group######################
   rNestedwindowswebserversg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -144,7 +204,8 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
       VpcId: !Ref pVpcid
-  
+      
+###########################Linux Web server Security group######################
   rNestedlinuxwebserversg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -187,6 +248,46 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
       VpcId: !Ref pVpcid
+  
+  ###########################Windows database Security group######################
+  rNestedwindowsdatabaseserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the windows database 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 50000
+          ToPort: 50100
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedWindowsAppserversg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 50000
+          ToPort: 50100
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedlinuxAppserversg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 445
+          ToPort: 445
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedlinuxAppserversg
+              - GroupId
+        - IpProtocol: tcp
+          FromPort: 445
+          ToPort: 445
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedWindowsAppserversg
+              - GroupId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB
+      VpcId: !Ref pVpcid
 Outputs:
   oNestedsshbastionsg:
     Description: The ssh bastion security group Id
@@ -223,3 +324,21 @@ Outputs:
     Value: !Ref rNestedlinuxwebserversg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+
+  oNestedlinuxAppsg:
+    Description: The linux Appserver security group Id 
+    Value: !Ref rNestedlinuxAppserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
+
+  oNestedWindowsAppsg:
+    Description: The Windows Appserver security group Id 
+    Value: !Ref rNestedWindowsAppserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
+
+  oNestedWindowsDBsg:
+    Description: The Windows Database security group Id 
+    Value: !Ref rNestedwindowsdatabaseserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB

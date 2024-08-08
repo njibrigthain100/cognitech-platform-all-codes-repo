@@ -1,0 +1,250 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates both the windows and linux Web servers 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Type: String
+    Default: cognitech
+  
+  pAmznLnx2LatestAmiId:
+    Description: The latest ami Id for amazon linux 2
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  pWindows2019LatestAmiId:
+    Description: The latest ami Id for windows 2019 
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pWebServerInstanceProfile:
+    Description: The instance profile for the webserver
+    Type: String
+  
+  pWindowsWebServerSecurityGroup:
+    Description: The windows webserver security group 
+    Type: String
+  
+  pLinuxWebServerSecurityGroup:
+    Description: The linux webserver security group
+    Type: String
+  
+  pWebServerPrivateSubnetId:
+    Description: The subnet Id for the webserver 
+    Type: String
+
+Mappings:
+  mAccountVariables:
+    "271457809232":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "388927731914":
+      pKeyPair: TBD
+      pInstanceType: t2.micro 
+    "882680178335":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "485147667400":
+      pKeyPair: windowscomputer 
+      pInstanceType: t2.small 
+    "526645041140":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "471112707322":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "730335294148":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "533267408704": 
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "637423478842":
+      pKeyPair: TBD 
+      pInstanceType: t2.micro
+     
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+  rLinuxWebserver01:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pWebServerInstanceProfile
+      ImageId: !Ref pAmznLnx2LatestAmiId
+      UserData:  
+        Fn::Base64: !Sub | 
+          Webserver_path="home"
+          Url="https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
+          Home_path="/var/www/html/$Webserver_path"
+          #Update and install apache
+          yum update -y
+          yum install -y httpd
+          #Create the directory
+          mkdir "$Home_path"
+          mkdir temp
+          cd temp
+          # Download and unzip the url
+          wget "$Url"
+          # Extract the filename from the URL
+          zipped_file=$(basename "$Url")
+          # Unzip the zipped file
+          unzip "$zipped_file"
+          # unzip cobsine.zip
+          # Capture the name of the unzipped directory 
+          Unzipped_directory=$(ls -d */)
+          mv "$Unzipped_directory"/* "$Home_path"
+          sed -i "s|DocumentRoot \"/var/www/html\"|DocumentRoot \"/var/www/html/\"|" /etc/httpd/conf/httpd.conf
+          #Start and enable apache 
+          systemctl enable httpd
+          systemctl restart httpd
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pLinuxWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      Tags: 
+       - Key: Name 
+         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-01
+
+  rLinuxWebserver02:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pWebServerInstanceProfile
+      ImageId: !Ref pAmznLnx2LatestAmiId
+      UserData:  
+        Fn::Base64: !Sub | 
+            Webserver_path="market"
+            Url="https://www.free-css.com/assets/files/free-css-templates/download/page281/dotnet.zip"
+            Home_path="/var/www/html/$Webserver_path"
+            #Update and install apache
+            yum update -y
+            yum install -y httpd
+            #Create the directory
+            mkdir "$Home_path"
+            mkdir temp
+            cd temp
+            # Download and unzip the url
+            wget "$Url"
+            # Extract the filename from the URL
+            zipped_file=$(basename "$Url")
+            # Unzip the zipped file
+            unzip "$zipped_file"
+            # unzip dotnet.zip
+            Unzipped_directory=$(ls -d */)
+            mv "$Unzipped_directory"/* "$Home_path"
+            sed -i "s|DocumentRoot \"/var/www/html\"|DocumentRoot \"/var/www/html/\"|" /etc/httpd/conf/httpd.conf
+            #Start and enable apache 
+            systemctl enable httpd
+            systemctl restart httpd
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pLinuxWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      Tags: 
+       - Key: Name 
+         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
+
+  rWindowsWebserver01:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pWebServerInstanceProfile
+      ImageId: !Ref pWindows2019LatestAmiId
+      UserData:  
+        Fn::Base64: !Sub | 
+          <powershell>
+          # Install Web-Server feature with management tools
+          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+          #Restart machine
+          shutdown -r -t 10;
+          </powershell>
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pWindowsWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      Tags: 
+       - Key: Name 
+         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01
+  
+  rWindowsWebserver02:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pWebServerInstanceProfile
+      ImageId: !Ref pWindows2019LatestAmiId
+      UserData:  
+        Fn::Base64: !Sub | 
+          <powershell>
+          # Install Web-Server feature with management tools
+          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+          #Restart machine
+          shutdown -r -t 10;
+          </powershell>
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pWindowsWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      Tags: 
+       - Key: Name 
+         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-02
+
+Outputs:
+  oLinuxWebServerInstanceId01:
+    Description: The Id of the linux Web server 
+    Value: !Ref rLinuxWebserver01
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-01
+    
+  oLinuxWebServerInstanceId02:
+    Description: The Id of the linux Web server 
+    Value: !Ref rLinuxWebserver02
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-02
+
+  oWindowsWebServerInstanceId01:
+    Description: The Id of the windows Web server
+    Value: !Ref rWindowsWebserver01
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-Id-01
+  
+  oWindowsWebServerInstanceId02:
+    Description: The Id of the windows Web server
+    Value: !Ref rWindowsWebserver02
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-Id-02
+  
+
+    

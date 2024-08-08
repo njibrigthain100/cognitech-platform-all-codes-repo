@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates both the windows and linux app servers 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Type: String
+    Default: cognitech
+    
+  pWindowsDBLatestAmiId:
+    Description: The latest ami Id for windows & SQL ami
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-SQL_2019_Standard
+  
+  pDBServerInstanceProfile:
+    Description: The instance profile for the DB server
+    Type: String
+  
+  pWindowsDBServerSecurityGroup:
+    Description: The windows DB server security group 
+    Type: String
+  
+  pDBServerPrivateSubnetId:
+    Description: The subnet Id for the DB server 
+    Type: String
+
+Mappings:
+  mAccountVariables:
+    "271457809232":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "388927731914":
+      pKeyPair: TBD
+      pInstanceType: t2.micro 
+    "882680178335":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "485147667400":
+      pKeyPair: windowscomputer 
+      pInstanceType: m5.large 
+    "526645041140":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "471112707322":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "730335294148":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "533267408704": 
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "637423478842":
+      pKeyPair: TBD 
+      pInstanceType: t2.micro
+     
+Resources: 
+  rWindowsDBserver:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pDBServerInstanceProfile
+      ImageId: !Ref pWindowsDBLatestAmiId
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pWindowsDBServerSecurityGroup
+      SubnetId: !Ref pDBServerPrivateSubnetId
+      Tags: 
+       - Key: Name 
+         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-DB
+
+Outputs:
+  oLinuxAppServerInstanceId:
+    Description: The Id of the windows DB server
+    Value: !Ref rWindowsDBserver
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-DB
+
+  
+
+    

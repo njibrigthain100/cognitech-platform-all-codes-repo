@@ -112,26 +112,6 @@ Parameters:
     Description: The Id of the second shared services Nat gateway 
     Type: String 
   
-  
-
-  # pSharedServicesPrivateSubnet1RT:
-  #   Description: The route table for shared services private subnet 1
-  #   Type: String
-
-  # pSharedServicesPrivateSubnet2RT:
-  #   Description: The route table for shared services private subnet 1
-  #   Type: String
-
-  # pApp1PrivateSubnet1RT:
-  #   Description: The route table for App1 vpc private subnet 1
-  #   Type: String
-
-  # pApp1PrivateSubnet2RT:
-  #   Description: The route table for App1 vpc private subnet 1
-  #   Type: String
-
-
-
 Resources:
 ############################Transit gateway######################################
   rNestedTransitGateway:
