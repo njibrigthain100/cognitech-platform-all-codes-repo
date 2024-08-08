@@ -602,7 +602,7 @@ Resources:
         pAppName: !Ref pAppName
         pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
         pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
-        pWebServerInstanceProfile]: 
+        pWebServerInstanceProfile: 
           Fn::GetAtt: 
             - rIAMStack
             - Outputs.oNestedIAMInstanceProfileName
