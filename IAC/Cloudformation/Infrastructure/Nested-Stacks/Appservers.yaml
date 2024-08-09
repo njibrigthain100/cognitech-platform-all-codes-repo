@@ -91,8 +91,20 @@ Resources:
         - !Ref pLinuxAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-App
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-App
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: App
 
   rWindowsAppserver:
     Type: AWS::EC2::Instance
@@ -111,8 +123,21 @@ Resources:
         - !Ref pWindowsAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-App
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-App
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wapp 
+        - Key: Type  
+          Value: App
+        
 
 Outputs:
   oLinuxAppServerInstanceId:

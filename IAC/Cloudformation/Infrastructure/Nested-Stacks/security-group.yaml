@@ -44,6 +44,7 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
+          Description: "Allow SSH access from the internet"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
@@ -59,6 +60,7 @@ Resources:
           FromPort: 3389
           ToPort: 3389
           CidrIp: 0.0.0.0/0
+          Description: "Allow RDP access from the internet"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
@@ -74,10 +76,12 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+          Description: "Allow HTTPS access from the internet"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+          Description: "Allow HTTP access from the internet"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
@@ -93,10 +97,12 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+          Description: "Allow HTTPS access from the internet"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+          Description: "Allow HTTP access from the internet"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
@@ -112,6 +118,7 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref pSharedServicesVPCCidr
+          Description: "Allow SSH access from the Bastion"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -119,6 +126,7 @@ Resources:
             Fn::GetAtt:
               - rNestedlinuxwebserversg
               - GroupId
+          Description: "Allow HTTPS access from the Web server"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -126,6 +134,7 @@ Resources:
             Fn::GetAtt:
               - rNestedlinuxwebserversg
               - GroupId
+          Description: "Allow HTTP access from the Web server"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
@@ -142,6 +151,7 @@ Resources:
           FromPort: 3389
           ToPort: 3389
           CidrIp: !Ref pSharedServicesVPCCidr
+          Description: "Allow RDP access from the Web Bastion"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -149,6 +159,7 @@ Resources:
             Fn::GetAtt:
               - rNestedwindowswebserversg
               - GroupId
+          Description: "Allow HTTPS access from the Web server"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -156,6 +167,7 @@ Resources:
             Fn::GetAtt:
               - rNestedwindowswebserversg
               - GroupId
+          Description: "Allow HTTP access from the Web server"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
@@ -172,13 +184,15 @@ Resources:
           FromPort: 3389
           ToPort: 3389
           CidrIp: !Ref pSharedServicesVPCCidr
+          Description: "Allow RDP access from the Bastion"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: 
             Fn::GetAtt:
               - rNestedalbsg
-              - GroupId
+              - GroupId 
+          Description: "Allow HTTPS access from the ALB"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -186,6 +200,7 @@ Resources:
             Fn::GetAtt:
               - rNestedalbsg
               - GroupId
+          Description: "Allow HTTP access from the ALB"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -193,6 +208,7 @@ Resources:
             Fn::GetAtt:
               - rNestednlbsg
               - GroupId
+          Description: "Allow HTTPS access from the NLB"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -200,6 +216,7 @@ Resources:
             Fn::GetAtt:
               - rNestednlbsg
               - GroupId
+          Description: "Allow HTTP access from the NLB"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
@@ -216,6 +233,7 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref pSharedServicesVPCCidr
+          Description: "Allow SSH access from the Bastion"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -223,6 +241,7 @@ Resources:
             Fn::GetAtt:
               - rNestedalbsg
               - GroupId
+          Description: "Allow HTTPS access from the ALB"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -230,13 +249,15 @@ Resources:
             Fn::GetAtt:
               - rNestedalbsg
               - GroupId
+          Description: "Allow HTTP access from the ALB"
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: 
             Fn::GetAtt:
               - rNestednlbsg
-              - GroupId
+              - GroupId 
+          Description: "Allow HTTP access from the NLB"
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -244,6 +265,7 @@ Resources:
             Fn::GetAtt:
               - rNestednlbsg
               - GroupId
+          Description: "Allow HTTP access from the NLB"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
@@ -263,6 +285,7 @@ Resources:
             Fn::GetAtt:
               - rNestedWindowsAppserversg
               - GroupId
+          Description: "Allow range 50000-50100 access from the Windows Appserver"
         - IpProtocol: tcp
           FromPort: 50000
           ToPort: 50100
@@ -270,6 +293,7 @@ Resources:
             Fn::GetAtt:
               - rNestedlinuxAppserversg
               - GroupId
+          Description: "Allow range 50000-50100 access from the Linux Appserver"
         - IpProtocol: tcp
           FromPort: 445
           ToPort: 445
@@ -277,6 +301,7 @@ Resources:
             Fn::GetAtt:
               - rNestedlinuxAppserversg
               - GroupId
+          Description: "Allow HTTP access from Linux Appserver"
         - IpProtocol: tcp
           FromPort: 445
           ToPort: 445
@@ -284,6 +309,7 @@ Resources:
             Fn::GetAtt:
               - rNestedWindowsAppserversg
               - GroupId
+          Description: "Allow HTTP access from Windows Appserver"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB

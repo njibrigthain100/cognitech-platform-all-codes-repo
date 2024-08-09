@@ -117,8 +117,21 @@ Resources:
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-01
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-01
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux 
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: Web
+
 
   rLinuxWebserver02:
     Type: AWS::EC2::Instance
@@ -162,8 +175,21 @@ Resources:
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux 
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: Web
+
 
   rWindowsWebserver01:
     Type: AWS::EC2::Instance
@@ -190,8 +216,21 @@ Resources:
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wapp 
+        - Key: Type  
+          Value: Web 
+
   
   rWindowsWebserver02:
     Type: AWS::EC2::Instance
@@ -218,8 +257,20 @@ Resources:
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-02
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-02
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wapp 
+        - Key: Type  
+          Value: App
 
 Outputs:
   oLinuxWebServerInstanceId01:

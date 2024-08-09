@@ -81,8 +81,21 @@ Resources:
         - !Ref pWindowsDBServerSecurityGroup
       SubnetId: !Ref pDBServerPrivateSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-DB
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-DB
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wdb 
+        - Key: Type  
+          Value: DB
+      
 
 Outputs:
   oLinuxAppServerInstanceId:

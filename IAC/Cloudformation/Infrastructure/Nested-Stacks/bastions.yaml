@@ -91,8 +91,21 @@ Resources:
         - !Ref pBastionSSHSecurityGroup
       SubnetId: !Ref pSharedSeervicesPublicSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-SSH-bastion
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-SSH-bastion 
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-monthly 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: Bastion
+      
 
   rRDPBastion:
     Type: AWS::EC2::Instance
@@ -111,8 +124,20 @@ Resources:
         - !Ref pBastionRDPSecurityGroup
       SubnetId: !Ref pSharedSeervicesPublicSubnetId
       Tags: 
-       - Key: Name 
-         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-RDP-bastion
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-RDP-bastion
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-monthly 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wb
+        - Key: Type  
+          Value: Bastion
 
 Outputs:
   oSSHBastionInstanceId:
