@@ -51,6 +51,9 @@ Metadata: # This is putr in an s3 bucket
         - pApp1NatGateway2Id
         - pSSNatGateway1Id
         - pSSNatGateway2Id
+        - pSharedServicesInternetGateway
+        - pSharedServicesPublicSubnet1Id
+        - pSharedServicesPublicSubnet2Id
     - Label:
         default: "Bastion hosts configurations" 
       Parameters: 
@@ -155,6 +158,12 @@ Metadata: # This is putr in an s3 bucket
         default: The Id of the first shared services Nat gateway
       pSSNatGateway2Id: 
         default: The Id of the second shared services Nat gateway
+      pSharedServicesInternetGateway: 
+        default: The Internet gateway id for the shared services vpc
+      pSharedServicesPublicSubnet1Id: 
+        default: The Id of the first shared services public subnet
+      pSharedServicesPublicSubnet2Id: 
+        default: The Id of the second shared services public subnet
 
 #######################Bastion hosts parameters ############################### 
       pAmznLnx2LatestAmiId: 
@@ -536,6 +545,18 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oNatGateway2
+        pSharedServicesInternetGateway:
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oInternetGateway
+        pSharedServicesPublicSubnet1Id:
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oPublicSubnet1
+        pSharedServicesPublicSubnet2Id:
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oPublicSubnet2
         
     DependsOn: 
     - rSharedServicesVpcStack

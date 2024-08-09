@@ -60,6 +60,10 @@ Resources:
               - ec2:Describe*
               - ec2:Get*
             Resource: "*"
+          - Effect: Deny
+            Action: 
+              - ssm:StartSession
+            Resource: "*"
       Roles: 
         - Ref: "rNestedInstanceRole"
   rNestedBastionInstanceRole:
@@ -80,6 +84,19 @@ Resources:
       ManagedPolicyArns: 
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
       Path: /
+  rNestedBastionRoleMiscPolicy:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-bastion-misc-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Action: 
+              - ssm:StartSession
+            Resource: "*"
+      Roles: 
+        - Ref: "rNestedBastionInstanceRole"
 
 # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html
   rBastionIAMProfile:
