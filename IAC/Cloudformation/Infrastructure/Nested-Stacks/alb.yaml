@@ -149,7 +149,7 @@ Resources:
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
         HttpCode: '200'
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-dotnet-alb-tg
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-dotnet-alb-tg
       Port: !Ref pPort
       Protocol: !Ref pProtocol
       TargetGroupAttributes: 
@@ -161,7 +161,7 @@ Resources:
       VpcId: !Ref pApp1VPCId
       Tags: 
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-dotnet-alb-tg
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-dotnet-alb-tg
   
   rNestedCobsineTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -174,7 +174,7 @@ Resources:
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
         HttpCode: '200'
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-cobsine-alb-tg
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-cobsine-alb-tg
       Port: !Ref pPort
       Protocol: !Ref pProtocol
       TargetGroupAttributes: 
@@ -186,7 +186,7 @@ Resources:
       VpcId: !Ref pApp1VPCId
       Tags: 
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-cobsine-alb-tg
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-cobsine-alb-tg
   
   rNestedWindowsALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -199,7 +199,7 @@ Resources:
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
         HttpCode: '200'
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-alb-tg
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-W-alb-tg
       Port: !Ref pPort
       Protocol: !Ref pProtocol
       TargetGroupAttributes: 
@@ -212,7 +212,7 @@ Resources:
       VpcId: !Ref pApp1VPCId
       Tags: 
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-alb-tg
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-W-alb-tg
   
   rNestedALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -228,7 +228,7 @@ Resources:
         - Key: access_logs.s3.bucket
           Value: !Ref paccesslogss3bucket
 
-       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-alb
+       Name: !Sub ${ pAwsAccount }-${ pAppName }-L-alb
        Scheme: !Ref palbscheme
        Type: application
        SecurityGroups: 
@@ -238,7 +238,7 @@ Resources:
          - !Ref palbsubnet2
        Tags: 
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-alb 
   rNestedALBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties: 
@@ -302,34 +302,34 @@ Outputs:
     Description: The alb name
     Value: !Ref rNestedALB
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-name 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-alb-name 
   
   oalbarn:
     Description: The alb arn
     Value: !GetAtt rNestedALB.LoadBalancerArn
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-arn 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-alb-arn 
 
   oalbdnsname:
     Description: The alb dns name 
     Value: !GetAtt rNestedALB.DNSName
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-dns
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-alb-dns
   
   ocobsinetgname:
     Description: The cobsine target group name
     Value: !Ref rNestedCobsineTargetGroup
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-cobsine-tg-name 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-cobsine-tg-name 
   
   odotnettgname:
     Description: The dotnet target group name
     Value: !Ref rNesteddotnetALBTargetGroup
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-dotnet-tg-name
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-dotnet-tg-name
 
   owindowstgname:
     Description: The windows target group name
     Value: !Ref rNestedWindowsALBTargetGroup
     Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-windows-tg-name
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-windows-tg-name
