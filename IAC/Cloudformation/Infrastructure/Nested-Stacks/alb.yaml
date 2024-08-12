@@ -49,7 +49,7 @@ Parameters:
   pPort:
     Description: The port on which the targets receive traffic
     Type: String
-    Default: 80
+    Default: 443
       
   pProtocol:
     Description: The protocol to use for routing traffic to the targets

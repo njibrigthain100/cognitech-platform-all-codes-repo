@@ -567,7 +567,7 @@ Parameters:
   
   pPort:
     Type: String
-    Default: 80
+    Default: 443
       
   pProtocol:
     Type: String
