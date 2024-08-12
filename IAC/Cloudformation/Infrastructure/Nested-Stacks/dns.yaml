@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: The DNS record for the servers, alb and nlb 
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Type: String
+    Default: cognitech
+   
+  pHostedZoneId:
+    Description: The DNS hosted zone 
+    Type: String
+    Default: Z0334718LG87PKPVYABM
+  
+  pLinuxip01:
+    Description: The ip of the first linux server
+    Type: String
+
+  plinuxip02:
+    Description: The ip of the second linux server 
+    Type: String
+   
+  pWindowsip01:
+    Description: The ip of the first windows server
+    Type: String
+
+  pWindowsip02:
+    Description: The ip of the second windows server 
+    Type: String
+
+  pDomainName1:
+    Description: The domain name 
+    Type: String 
+    Default: cobsine.kahbrigthllc.com
+  
+  pDomainName2:
+    Description: The domain name 
+    Type: String 
+    Default: dotnet.kahbrigthllc.com
+
+  pDomainIISName:
+    Description: The domain name 
+    Type: String 
+    Default: iis.kahbrigthllc.com
+
+  palbDNSName:
+    Description: The alb dns name
+    Type: String 
+
+
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-route53-recordset.html
+  rNestedlinux01record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref pHostedZoneId
+      Name: linux01.kahbrigthllc.com
+      ResourceRecords:
+      - !Ref pLinuxip01
+      TTL: '900'
+      Type: A
+
+  rNestedlinux02record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref pHostedZoneId
+      Name: linux02.kahbrigthllc.com
+      ResourceRecords:
+      - !Ref pLinuxip02
+      TTL: '900'
+      Type: A
+
+  rNestedwindows01record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref pHostedZoneId
+      Name: windows01.kahbrigthllc.com
+      ResourceRecords:
+      - !Ref pWindowsip01
+      TTL: '900'
+      Type: A
+
+  rNestedwindows02record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref pHostedZoneId
+      Name: windows02.kahbrigthllc.com
+      ResourceRecords:
+      - !Ref pWindowsip02
+      TTL: '900'
+      Type: A
+  
+  rNestedcobsinerecord:
+      Type: 'AWS::Route53::RecordSet'
+      Properties:
+        HostedZoneName: !Ref pHostedZoneId
+        Comment: The ALB CNAME Record
+        Name: !Ref pDomainName1
+        Type: CNAME
+        TTL: '900'
+        ResourceRecords:
+          - !Ref palbDNSName
+  
+  rNesteddotnetrecord:
+      Type: 'AWS::Route53::RecordSet'
+      Properties:
+        HostedZoneName: !Ref pHostedZoneId
+        Comment: The ALB CNAME Record
+        Name: !Ref pDomainName2
+        Type: CNAME
+        TTL: '900'
+        ResourceRecords:
+          - !Ref palbDNSName
+
+  rNestedwindowsrecord:
+      Type: 'AWS::Route53::RecordSet'
+      Properties:
+        HostedZoneName: !Ref pHostedZoneId
+        Comment: The ALB CNAME Record
+        Name: !Ref pDomainIISName
+        Type: CNAME
+        TTL: '900'
+        ResourceRecords:
+          - !Ref palbDNSName
+Outputs: 
+  oCobsinerecordName:
+    Description: The name of the first record
+    Value: cobsine.kahbrigthllc.com 
+    
+  oDotnetrecordName:
+    Description: The name of the second record
+    Value: dotnet.kahbrigthllc.com 

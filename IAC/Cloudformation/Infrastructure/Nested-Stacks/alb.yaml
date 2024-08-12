@@ -306,9 +306,15 @@ Outputs:
   
   oalbarn:
     Description: The alb arn
-    Value: !GetAtt rNestedALB.arn
+    Value: !GetAtt rNestedALB.LoadBalancerArn
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-arn 
+
+  oalbdnsname:
+    Description: The alb dns name 
+    Value: !GetAtt rNestedALB.DNSName
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-dns
   
   ocobsinetgname:
     Description: The cobsine target group name

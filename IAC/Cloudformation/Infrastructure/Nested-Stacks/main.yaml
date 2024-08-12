@@ -113,6 +113,18 @@ Metadata: # This is putr in an s3 bucket
         - pSslPolicy
         - palbport
         - palbprotocol
+    - Label:
+        default: "DNS configuration" 
+      Parameters: 
+        - pHostedZoneId
+        - pLinuxip01
+        - plinuxip02
+        - pWindowsip01
+        - pWindowsip02
+        - pDomainName1
+        - pDomainName2
+        - pDomainIISName
+        - palbDNSName
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -288,6 +300,26 @@ Metadata: # This is putr in an s3 bucket
         default: The port on which the load balancer is listening
       palbprotocol: 
         default: The protocol for connections from clients to the load balancer
+
+#########################################DNS######################################
+      pHostedZoneId: 
+        default: The DNS hosted zone
+      pLinuxip01:
+        default: The ip of the first linux server
+      plinuxip02:
+        default: The ip of the second linux server
+      pWindowsip01:
+        default: The ip of the first windows server
+      pWindowsip02: 
+        default: The ip of the second windows server
+      pDomainName1:
+        default: The domain 1st name
+      pDomainName2:
+        default: The domain 2nd name
+      pDomainIISName:
+        default: The domain 3rd name 
+      palbDNSName: 
+        default: The alb dns name
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -601,6 +633,39 @@ Parameters:
   palbprotocol:
     Type: String
 
+#############################################DNS######################################################
+  pHostedZoneId:
+    Type: String
+    Default: Z0334718LG87PKPVYABM
+  
+  pLinuxip01:
+    Type: String
+
+  plinuxip02:
+    Type: String
+   
+  pWindowsip01:
+    Type: String
+
+  pWindowsip02:
+    Type: String
+
+  pDomainName1:
+    Type: String 
+    Default: cobsine.kahbrigthllc.com
+  
+  pDomainName2:
+    Type: String 
+    Default: dotnet.kahbrigthllc.com
+
+  pDomainIISName:
+    Type: String 
+    Default: iis.kahbrigthllc.com
+
+  palbDNSName:
+    Type: String 
+
+
 
 Resources: 
   rVpcStack:
@@ -888,6 +953,43 @@ Resources:
         pSslPolicy: !Ref pSslPolicy
         palbport: !Ref palbport 
         palbprotocol: !Ref palbprotocol 
+    DependsOn: 
+      - rWebServers
+
+  rDNS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/dns.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pHostedZoneId: !Ref pHostedZoneId 
+        pLinuxip01: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerIP01
+        plinuxip02: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerIP02
+        pWindowsip01: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerIP01
+        pWindowsip02:
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerIP02 
+        pDomainName1: !Ref pDomainName1 
+        pDomainName2: !Ref pDomainName2 
+        pDomainIISName: !Ref pDomainIISName 
+        palbDNSName:
+          Fn::GetAtt: 
+            - rALB
+            - Outputs.oalbdnsname
+      DependsOn: 
+        - rWebServers
+        - rALB
   
         
           

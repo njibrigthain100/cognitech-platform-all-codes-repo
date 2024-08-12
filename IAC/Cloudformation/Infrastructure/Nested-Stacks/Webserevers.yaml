@@ -299,5 +299,26 @@ Outputs:
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-Id-02
   
+  oLinuxWebServerIP01:
+    Description: The instance IP of the first linux webserver 
+    Value: !GetAtt  rLinuxWebserver01.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-01
 
-    
+  oLinuxWebServerIP02:
+    Description: The instance IP of the second linux webserver
+    Value: !GetAtt  rLinuxWebserver01.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-01
+
+  oWindowsWebServerIP01:
+    Description: The instance IP of the first windows webserver
+    Value: !GetAtt  rWindowsWebserver01.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-Id-01
+  
+  oWindowsWebServerIP02:
+    Description: The instance IP of the second windows webserver
+    Value: !GetAtt  rWindowsWebserver02.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-Id-02 
