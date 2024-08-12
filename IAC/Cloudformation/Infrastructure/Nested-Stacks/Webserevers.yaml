@@ -81,6 +81,7 @@ Resources:
       ImageId: !Ref pAmznLnx2LatestAmiId
       UserData:  
         Fn::Base64: !Sub | 
+          #!/bin/bash -xe
           Webserver_path="home"
           Url="https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
           Home_path="/var/www/html/$Webserver_path"
@@ -138,8 +139,20 @@ Resources:
     Properties: 
       IamInstanceProfile: !Ref pWebServerInstanceProfile
       ImageId: !Ref pAmznLnx2LatestAmiId
-      UserData:  
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pLinuxWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      UserData: 
         Fn::Base64: !Sub | 
+            #!/bin/bash -xe
             Webserver_path="market"
             Url="https://www.free-css.com/assets/files/free-css-templates/download/page281/dotnet.zip"
             Home_path="/var/www/html/$Webserver_path"
@@ -162,18 +175,7 @@ Resources:
             sed -i "s|DocumentRoot \"/var/www/html\"|DocumentRoot \"/var/www/html/\"|" /etc/httpd/conf/httpd.conf
             #Start and enable apache 
             systemctl enable httpd
-            systemctl restart httpd
-      InstanceType: !FindInMap 
-        - mAccountVariables
-        - !Ref AWS::AccountId 
-        - pInstanceType
-      KeyName: !FindInMap 
-        - mAccountVariables
-        - !Ref AWS::AccountId 
-        - pKeyPair
-      SecurityGroupIds: 
-        - !Ref pLinuxWebServerSecurityGroup
-      SubnetId: !Ref pWebServerPrivateSubnetId
+            systemctl restart httpd 
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
@@ -196,14 +198,6 @@ Resources:
     Properties: 
       IamInstanceProfile: !Ref pWebServerInstanceProfile
       ImageId: !Ref pWindows2019LatestAmiId
-      UserData:  
-        Fn::Base64: !Sub | 
-          <powershell>
-          # Install Web-Server feature with management tools
-          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
-          #Restart machine
-          shutdown -r -t 10;
-          </powershell>
       InstanceType: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
@@ -215,6 +209,14 @@ Resources:
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
+      UserData:  
+        Fn::Base64: !Sub | 
+          <powershell>
+          # Install Web-Server feature with management tools
+          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+          #Restart machine
+          shutdown -r -t 10;
+          </powershell>
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01

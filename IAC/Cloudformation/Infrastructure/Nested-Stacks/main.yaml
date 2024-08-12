@@ -83,7 +83,37 @@ Metadata: # This is putr in an s3 bucket
         - pWindowsDBLatestAmiId
         - pDBServerInstanceProfile
         - pWindowsDBServerSecurityGroup
-        - pDBServerPrivateSubnetId
+        - pDBServerPrivateSubnetId 
+    
+    - Label:
+        default: "ALB configuration" 
+      Parameters: 
+        - pHealthCheckIntervalSeconds
+        - pHealthCheckProtocol
+        - pHealthCheckPath
+        - pHealthCheckPort
+        - pHealthCheckTimeoutSeconds
+        - pHealthyThresholdCount
+        - pPort
+        - pProtocol
+        - pLinuxTarget1
+        - pLinuxTarget2
+        - pWindowsTarget1
+        - pWindowsTarget2
+        - pTargetType
+        - pApp1VPCId
+        - pdeletionprotectionenabled
+        - paccesslogss3enabled
+        - paccesslogss3bucket
+        - palbscheme
+        - palbsubnet1
+        - palbsubnet2
+        - palbsecuritygroup
+        - palbcertificate
+        - pSslPolicy
+        - palbport
+        - palbprotocol
+
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: The account name in upper case. 
@@ -208,6 +238,56 @@ Metadata: # This is putr in an s3 bucket
         default: The windows DB server security group
       pDBServerPrivateSubnetId:
         default: The subnet Id for the DB server
+
+#############################ALB parameters#####################################
+      pHealthCheckIntervalSeconds: 
+        default: The intervals for health checks
+      pHealthCheckProtocol:
+        default: The health check protocol 
+      pHealthCheckPath:
+        default: The path for the alb health check
+      pHealthCheckPort:
+        default: The health check protocol
+      pHealthCheckTimeoutSeconds: 
+        default: The amount of time, in seconds, during which no response from a target means a failed health
+      pHealthyThresholdCount:
+        default: The number of consecutive health check successes required before considering a target healthy
+      pPort:
+        default: The port on which the targets receive traffic
+      pProtocol:
+        default: The protocol to use for routing traffic to the targets
+      pLinuxTarget1: 
+        default: The first linux instance ID behind the target group
+      pLinuxTarget2:
+        default: The second linux instance ID behind the target group
+      pWindowsTarget1:
+        default: The first windows instance ID behind the target group
+      pWindowsTarget2:
+        default: The second windows instance ID behind the target group
+      pTargetType: 
+        default: The type of target that you must specify when registering targets with this target group
+      pdeletionprotectionenabled:
+        default: Indicates whether deletion protection is enabled
+      paccesslogss3enabled:
+        default: Indicates whether access logs are enabled
+      paccesslogss3bucket: 
+        default: The name of the S3 bucket for the access logs
+      palbscheme:
+        default: The alb scheme
+      palbsubnet1:
+        default: The first alb subnet
+      palbsubnet2:
+        default: The second alb subnet
+      palbsecuritygroup: 
+        default: The alb security group
+      palbcertificate:
+        default: The alb certificate
+      pSslPolicy:
+        default: Security policy to negotiate SSL connections between a client and the load balancer
+      palbport:
+        default: The port on which the load balancer is listening
+      palbprotocol: 
+        default: The protocol for connections from clients to the load balancer
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -427,6 +507,100 @@ Parameters:
   
   pDBServerPrivateSubnetId:
     Type: String
+
+##########################################ALB################################################
+  pHealthCheckIntervalSeconds:
+    Type: String
+    Default: 30
+  
+  pHealthCheckProtocol:
+    Type: String
+    Default: HTTPS
+  
+  pHealthCheckPath:
+    Type: String
+    Default: /
+  
+  pHealthCheckPort:
+    Type: String
+    Default: 443
+  
+  pHealthCheckTimeoutSeconds:
+    Type: String
+    Default: 15 
+
+  pHealthyThresholdCount:
+    Type: String
+    Default: 5
+  
+  pPort:
+    Type: String
+    Default: 80
+      
+  pProtocol:
+    Type: String
+    Default: HTTPS
+  
+  pLinuxTarget1:
+    Type: String
+ 
+  pLinuxTarget2:
+    Type: String
+
+  pWindowsTarget1:
+    Type: String
+ 
+  pWindowsTarget2:
+    Type: String
+  
+  pTargetType:
+    Type: String
+    Default: instance
+  
+  pdeletionprotectionenabled:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+  paccesslogss3enabled:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+  
+  paccesslogss3bucket:
+    Type: String
+    Default: nestedalbbucket
+  
+  palbscheme:
+    Type: String
+    Default: internet-facing
+  
+  palbsubnet1:
+    Type: String
+
+  palbsubnet2:
+    Type: String
+  
+  palbsecuritygroup:
+    Type: String
+  
+  palbcertificate:
+    Type: String
+    Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
+ 
+  pSslPolicy:
+    Type: String
+    Default: ELBSecurityPolicy-2016-08
+
+  palbport:
+    Type: String
+
+  palbprotocol:
+    Type: String
+
 
 Resources: 
   rVpcStack:
@@ -660,6 +834,60 @@ Resources:
           Fn::GetAtt: 
             - rVpcStack
             - Outputs.oPrivateSubnet1
+  
+  rALB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/alb.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pHealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
+        pHealthCheckProtocol: !Ref pHealthCheckProtocol
+        pHealthCheckPath: !Ref pHealthCheckPath 
+        pHealthCheckPort: !Ref pHealthCheckPort 
+        pHealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds 
+        pHealthyThresholdCount: !Ref pHealthyThresholdCount 
+        pPort: !Ref pPort 
+        pProtocol: !Ref pProtocol
+        pLinuxTarget1: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerInstanceId02
+        pLinuxTarget2: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerInstanceId01
+        pWindowsTarget1: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerInstanceId01
+        pWindowsTarget2: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerInstanceId02
+        pTargetType: !Ref pTargetType 
+        pApp1VPCId: !Ref pApp1VPCId 
+        pdeletionprotectionenabled: !Ref pdeletionprotectionenabled 
+        paccesslogss3enabled: !Ref paccesslogss3enabled
+        paccesslogss3bucket: !Ref paccesslogss3bucket 
+        palbscheme: !Ref palbscheme 
+        palbsubnet1: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet1
+        palbsubnet2: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet2
+        palbsecuritygroup:
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedalbsg
+        palbcertificate: !Ref palbcertificate
+        pSslPolicy: !Ref pSslPolicy
+        palbport: !Ref palbport 
+        palbprotocol: !Ref palbprotocol 
   
         
           
