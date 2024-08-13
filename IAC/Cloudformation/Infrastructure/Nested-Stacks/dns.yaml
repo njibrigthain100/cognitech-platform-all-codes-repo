@@ -20,6 +20,11 @@ Parameters:
     Type: String
     Default: Z0334718LG87PKPVYABM
   
+  pHostedZoneName:
+    Description: The DNS hosted zone name 
+    Type: String
+    Default: kahbrigthllc.com
+  
   pLinuxip01:
     Description: The ip of the first linux server
     Type: String
@@ -101,7 +106,7 @@ Resources:
   rNestedcobsinerecord:
       Type: 'AWS::Route53::RecordSet'
       Properties:
-        HostedZoneName: !Ref pHostedZoneId
+        HostedZoneName: !Ref pHostedZoneName
         Comment: The ALB CNAME Record
         Name: !Ref pDomainName1
         Type: CNAME
@@ -112,7 +117,7 @@ Resources:
   rNesteddotnetrecord:
       Type: 'AWS::Route53::RecordSet'
       Properties:
-        HostedZoneName: !Ref pHostedZoneId
+        HostedZoneName: !Ref pHostedZoneName
         Comment: The ALB CNAME Record
         Name: !Ref pDomainName2
         Type: CNAME
@@ -123,7 +128,7 @@ Resources:
   rNestedwindowsrecord:
       Type: 'AWS::Route53::RecordSet'
       Properties:
-        HostedZoneName: !Ref pHostedZoneId
+        HostedZoneName: !Ref pHostedZoneName
         Comment: The ALB CNAME Record
         Name: !Ref pDomainIISName
         Type: CNAME

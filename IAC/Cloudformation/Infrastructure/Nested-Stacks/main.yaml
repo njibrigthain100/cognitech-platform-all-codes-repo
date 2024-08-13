@@ -116,6 +116,7 @@ Metadata: # This is putr in an s3 bucket
         default: "DNS configuration" 
       Parameters: 
         - pHostedZoneId
+        - pHostedZoneName
         - pLinuxip01
         - plinuxip02
         - pWindowsip01
@@ -301,6 +302,8 @@ Metadata: # This is putr in an s3 bucket
 #########################################DNS######################################
       pHostedZoneId: 
         default: The DNS hosted zone
+      pHostedZoneName: 
+        default: The DNS hosted zone name
       pLinuxip01:
         default: The ip of the first linux server
       plinuxip02:
@@ -633,6 +636,10 @@ Parameters:
     Type: String
     Default: Z0334718LG87PKPVYABM
   
+  pHostedZoneName:
+    Type: String
+    Default: kahbrigthllc.com
+  
   pLinuxip01:
     Type: String
 
@@ -961,6 +968,7 @@ Resources:
       Parameters: 
         pAppName: !Ref pAppName
         pHostedZoneId: !Ref pHostedZoneId 
+        pHostedZoneName: !Ref pHostedZoneName
         pLinuxip01: 
           Fn::GetAtt: 
             - rWebServers
