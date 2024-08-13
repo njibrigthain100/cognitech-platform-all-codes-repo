@@ -932,7 +932,10 @@ Resources:
             - rWebServers
             - Outputs.oWindowsWebServerInstanceId02
         pTargetType: !Ref pTargetType 
-        pApp1VPCId: !Ref pApp1VPCId 
+        pApp1VPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
         pdeletionprotectionenabled: !Ref pdeletionprotectionenabled 
         paccesslogss3enabled: !Ref paccesslogss3enabled
         paccesslogss3bucket: !Ref paccesslogss3bucket 
