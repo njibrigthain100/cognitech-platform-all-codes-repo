@@ -24,7 +24,7 @@ Parameters:
     Description: The ip of the first linux server
     Type: String
 
-  plinuxip02:
+  pLinuxip02:
     Description: The ip of the second linux server 
     Type: String
    

@@ -91,15 +91,10 @@ Parameters:
   paccesslogss3enabled:
     Description: Indicates whether access logs are enabled
     Type: String
-    Default: "true"
+    Default: "false"
     AllowedValues:
       - "true"
       - "false"
-  
-  paccesslogss3bucket:
-    Description: The name of the S3 bucket for the access logs
-    Type: String
-    Default: nestedalbbucket
   
   palbscheme:
     Description: The alb scheme
@@ -192,8 +187,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
-      HealthCheckPath: String
-      HealthCheckPort: String
+      HealthCheckPath: !Ref pHealthCheckPath
+      HealthCheckPort: !Ref pHealthCheckPort
       HealthCheckProtocol: !Ref pHealthCheckProtocol
       HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
       HealthyThresholdCount: !Ref pHealthyThresholdCount
@@ -225,9 +220,6 @@ Resources:
         - Key: access_logs.s3.enabled
           Value: !Ref paccesslogss3enabled
         
-        - Key: access_logs.s3.bucket
-          Value: !Ref paccesslogss3bucket
-
        Name: !Sub ${ pAwsAccount }-${ pAppName }-L-alb
        Scheme: !Ref palbscheme
        Type: application

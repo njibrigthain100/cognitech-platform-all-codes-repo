@@ -104,7 +104,6 @@ Metadata: # This is putr in an s3 bucket
         - pApp1VPCId
         - pdeletionprotectionenabled
         - paccesslogss3enabled
-        - paccesslogss3bucket
         - palbscheme
         - palbsubnet1
         - palbsubnet2
@@ -282,8 +281,6 @@ Metadata: # This is putr in an s3 bucket
         default: Indicates whether deletion protection is enabled
       paccesslogss3enabled:
         default: Indicates whether access logs are enabled
-      paccesslogss3bucket: 
-        default: The name of the S3 bucket for the access logs
       palbscheme:
         default: The alb scheme
       palbsubnet1:
@@ -597,15 +594,11 @@ Parameters:
       - "false"
   paccesslogss3enabled:
     Type: String
-    Default: "true"
+    Default: "false"
     AllowedValues:
       - "true"
       - "false"
-  
-  paccesslogss3bucket:
-    Type: String
-    Default: nestedalbbucket
-  
+    
   palbscheme:
     Type: String
     Default: internet-facing
@@ -629,9 +622,11 @@ Parameters:
 
   palbport:
     Type: String
+    Default: 443
 
   palbprotocol:
     Type: String
+    Default: HTTPS
 
 #############################################DNS######################################################
   pHostedZoneId:
@@ -938,7 +933,6 @@ Resources:
             - Outputs.oVPC
         pdeletionprotectionenabled: !Ref pdeletionprotectionenabled 
         paccesslogss3enabled: !Ref paccesslogss3enabled
-        paccesslogss3bucket: !Ref paccesslogss3bucket 
         palbscheme: !Ref palbscheme 
         palbsubnet1: 
           Fn::GetAtt: 
@@ -990,9 +984,9 @@ Resources:
           Fn::GetAtt: 
             - rALB
             - Outputs.oalbdnsname
-      DependsOn: 
-        - rWebServers
-        - rALB
+    DependsOn: 
+      - rWebServers
+      - rALB
   
         
           

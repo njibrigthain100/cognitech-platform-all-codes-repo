@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the directory service 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+  
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+  
+  pAdminPassowrd:
+    Description: The password for active directory admin user
+    Type: String
+ 
+Resources: 
+  rNestedActiveDirectory: 
+  Type: AWS::DirectoryService::MicrosoftAD
+  Properties: 
+    Name: "kahbrigthllc.com"
+    Password: 
+      Ref: MicrosoftADPW
+    ShortName: 
+      Ref: MicrosoftADShortName
+    VpcSettings: 
+      SubnetIds: 
+        - Ref: subnetID1
+        - Ref: subnetID2
+      VpcId: 
+        Ref: vpcID
+
+Outputs:
