@@ -965,7 +965,7 @@ Resources:
           Fn::GetAtt: 
             - rWebServers
             - Outputs.oLinuxWebServerIP01
-        plinuxip02: 
+        pLinuxip02: 
           Fn::GetAtt: 
             - rWebServers
             - Outputs.oLinuxWebServerIP02

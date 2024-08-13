@@ -17,23 +17,45 @@ Parameters:
     Type: String
   
   pAdminPassowrd:
-    Description: The password for active directory admin user
+    Description: The password for the default administrative user named Admin
     Type: String
+  
+  pADName:
+    Description: The directory DNS name
+    Type: String
+    Default: kahbrigthllc.com
+  
+  pSharedServicesPrivateSubnet1:
+    Description: The subnet in which to create the domain controllers
+    Type: String
+
+  pSharedServicesPrivateSubnet2:
+    Description: The subnet in which to create the domain controllers
+    Type: String
+ 
+  pSharedServicesVPCId:
+    Description: The VPC in which to create the directory service
+    Type: String
+ 
+  pADShortName:
+    Description: The NetBIOS name for your domain
+    Type: String
+    Default: kahbrigthllc
  
 Resources: 
   rNestedActiveDirectory: 
   Type: AWS::DirectoryService::MicrosoftAD
   Properties: 
-    Name: "kahbrigthllc.com"
+    Name: !Ref pADName
     Password: 
-      Ref: MicrosoftADPW
+      Ref: !Ref pAdminPassowrd
     ShortName: 
-      Ref: MicrosoftADShortName
+      Ref: !Ref pADShortName
     VpcSettings: 
       SubnetIds: 
-        - Ref: subnetID1
-        - Ref: subnetID2
+        - Ref: !Ref pSharedServicesPrivateSubnet1
+        - Ref: !Ref pSharedServicesPrivateSubnet2
       VpcId: 
-        Ref: vpcID
+        Ref: !Ref pSharedServicesPrivateSubnet2
 
 Outputs:
