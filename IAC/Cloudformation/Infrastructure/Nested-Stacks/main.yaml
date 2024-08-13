@@ -543,11 +543,11 @@ Parameters:
 ##########################################ALB################################################
   pHealthCheckIntervalSeconds:
     Type: String
-    Default: 30
+    Default: 5
   
   pHealthCheckProtocol:
     Type: String
-    Default: HTTPS
+    Default: HTTP
   
   pHealthCheckPath:
     Type: String
@@ -555,11 +555,11 @@ Parameters:
   
   pHealthCheckPort:
     Type: String
-    Default: 443
+    Default: 80
   
   pHealthCheckTimeoutSeconds:
     Type: String
-    Default: 15 
+    Default: 4 
 
   pHealthyThresholdCount:
     Type: String
@@ -567,11 +567,11 @@ Parameters:
   
   pPort:
     Type: String
-    Default: 443
+    Default: 80
       
   pProtocol:
     Type: String
-    Default: HTTPS
+    Default: HTTP
   
   pLinuxTarget1:
     Type: String
@@ -638,7 +638,7 @@ Parameters:
   
   pHostedZoneName:
     Type: String
-    Default: kahbrigthllc.com
+    Default: kahbrigthllc.com.
   
   pLinuxip01:
     Type: String
@@ -654,15 +654,15 @@ Parameters:
 
   pDomainName1:
     Type: String 
-    Default: cobsine.kahbrigthllc.com
+    Default: cobsine.kahbrigthllc.com.
   
   pDomainName2:
     Type: String 
-    Default: dotnet.kahbrigthllc.com
+    Default: dotnet.kahbrigthllc.com.
 
   pDomainIISName:
     Type: String 
-    Default: iis.kahbrigthllc.com
+    Default: iis.kahbrigthllc.com.
 
   palbDNSName:
     Type: String 

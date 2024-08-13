@@ -44,17 +44,17 @@ Parameters:
   pDomainName1:
     Description: The domain name 
     Type: String 
-    Default: cobsine.kahbrigthllc.com
+    Default: cobsine.kahbrigthllc.com.
   
   pDomainName2:
-    Description: The domain name 
+    Description: The domain name
     Type: String 
-    Default: dotnet.kahbrigthllc.com
+    Default: dotnet.kahbrigthllc.com.
 
   pDomainIISName:
     Description: The domain name 
     Type: String 
-    Default: iis.kahbrigthllc.com
+    Default: iis.kahbrigthllc.com.
 
   palbDNSName:
     Description: The alb dns name

@@ -81,31 +81,32 @@ Resources:
       ImageId: !Ref pAmznLnx2LatestAmiId
       UserData:  
         Fn::Base64: !Sub | 
-          #!/bin/bash -xe
-          Webserver_path="home"
-          Url="https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
-          Home_path="/var/www/html/$Webserver_path"
-          #Update and install apache
-          yum update -y
-          yum install -y httpd
-          #Create the directory
-          mkdir "$Home_path"
-          mkdir temp
-          cd temp
-          # Download and unzip the url
-          wget "$Url"
-          # Extract the filename from the URL
-          zipped_file=$(basename "$Url")
-          # Unzip the zipped file
-          unzip "$zipped_file"
-          # unzip cobsine.zip
-          # Capture the name of the unzipped directory 
-          Unzipped_directory=$(ls -d */)
-          mv "$Unzipped_directory"/* "$Home_path"
-          sed -i "s|DocumentRoot \"/var/www/html\"|DocumentRoot \"/var/www/html/\"|" /etc/httpd/conf/httpd.conf
-          #Start and enable apache 
-          systemctl enable httpd
-          systemctl restart httpd
+           #!/bin/bash -xe
+              Url="https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
+              Home_path="/var/www/html"
+              #Update and install apache
+              yum update -y
+              yum install -y httpd
+              #Create the directory
+              mkdir "$Home_path"
+              mkdir temp
+              cd temp
+              # Download and unzip the url
+              wget "$Url"
+              # Extract the filename from the URL
+              zipped_file=$(basename "$Url")
+              # Unzip the zipped file
+              unzip "$zipped_file"
+              # unzip cobsine.zip
+              # Capture the name of the unzipped directory
+              Unzipped_directory=$(ls -d */)
+              mv "$Unzipped_directory"/* "$Home_path"
+              #Start and enable apache
+              systemctl enable httpd
+              systemctl restart httpd
+              #Remove temp directory
+              cd ../
+              rm -rf temp
       InstanceType: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
@@ -153,9 +154,8 @@ Resources:
       UserData: 
         Fn::Base64: !Sub | 
             #!/bin/bash -xe
-            Webserver_path="market"
             Url="https://www.free-css.com/assets/files/free-css-templates/download/page281/dotnet.zip"
-            Home_path="/var/www/html/$Webserver_path"
+            Home_path="/var/www/html"
             #Update and install apache
             yum update -y
             yum install -y httpd
@@ -172,10 +172,12 @@ Resources:
             # unzip dotnet.zip
             Unzipped_directory=$(ls -d */)
             mv "$Unzipped_directory"/* "$Home_path"
-            sed -i "s|DocumentRoot \"/var/www/html\"|DocumentRoot \"/var/www/html/\"|" /etc/httpd/conf/httpd.conf
             #Start and enable apache 
             systemctl enable httpd
             systemctl restart httpd 
+            #Remove temp directory
+            cd ../
+            rm -rf temp
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
