@@ -30,7 +30,7 @@ Resources:
       runtimeConfig:
         aws:domainJoin:
           properties:
-            directoryId: "{{ directoryId}}"
+            directoryId: "{{ directoryId }}"
             directoryName: "{{ directoryName }}"
             dnsIpAddresses: "{{ dnsIpAddresses }}"
 
