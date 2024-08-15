@@ -88,7 +88,6 @@ Resources:
               yum update -y
               yum install -y httpd
               #Create the directory
-              mkdir "$Home_path"
               mkdir temp
               cd temp
               # Download and unzip the url
@@ -160,7 +159,6 @@ Resources:
             yum update -y
             yum install -y httpd
             #Create the directory
-            mkdir "$Home_path"
             mkdir temp
             cd temp
             # Download and unzip the url

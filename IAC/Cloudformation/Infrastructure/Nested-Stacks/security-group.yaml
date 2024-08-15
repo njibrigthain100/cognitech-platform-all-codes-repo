@@ -82,39 +82,6 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
           Description: "Allow HTTP access from the internet"
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedlinuxwebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTP access to linux Web server"
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedlinuxwebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTPS access to linux Web server"
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowswebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTP access to windows Web server"
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowswebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTPS access to windows Web server"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
@@ -136,42 +103,6 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
           Description: "Allow HTTP access from the internet"
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedlinuxwebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTP access to linux Web server"
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedlinuxwebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTPS access to linux Web server"
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowswebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTP access to windows Web server"
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowswebserversg
-               - GroupId
-        Description: "Allow Outbound traffic HTTPS access to windows Web server"
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-nlb-sg
@@ -204,15 +135,6 @@ Resources:
               - rNestedlinuxwebserversg
               - GroupId
           Description: "Allow HTTP access from the Web server"
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 50000
-        ToPort: 50100
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowsdatabaseserversg
-               - GroupId
-        Description: "Allow outbound traffic to DB server on tcp port 50000 to 50100"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
@@ -246,15 +168,6 @@ Resources:
               - rNestedwindowswebserversg
               - GroupId
           Description: "Allow HTTP access from the Web server"
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 50000
-        ToPort: 50100
-        SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedwindowsdatabaseserversg
-               - GroupId
-        Description: "Allow outbound traffic to DB server on tcp port 50000 to 50100"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
@@ -352,7 +265,7 @@ Resources:
             Fn::GetAtt:
               - rNestednlbsg
               - GroupId
-          Description: "Allow HTTP access from the NLB"
+          Description: "Allow HTTP access from the NLB" 
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
@@ -381,22 +294,6 @@ Resources:
               - rNestedlinuxAppserversg
               - GroupId
           Description: "Allow range 50000-50100 access from the Linux Appserver"
-        - IpProtocol: tcp
-          FromPort: 445
-          ToPort: 445
-          SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedlinuxAppserversg
-              - GroupId
-          Description: "Allow HTTP access from Linux Appserver"
-        - IpProtocol: tcp
-          FromPort: 445
-          ToPort: 445
-          SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedWindowsAppserversg
-              - GroupId
-          Description: "Allow HTTP access from Windows Appserver"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB
