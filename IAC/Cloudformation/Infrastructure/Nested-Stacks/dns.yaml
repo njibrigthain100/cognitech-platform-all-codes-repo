@@ -55,9 +55,18 @@ Parameters:
     Description: The domain name 
     Type: String 
     Default: iis.kahbrigthllc.com.
+  
+  pDomainNLBName:
+    Description: The domain name of the NLB
+    Type: String 
+    Default: rdp.kahbrigthllc.com.
 
   palbDNSName:
     Description: The alb dns name
+    Type: String 
+  
+  pnlbDNSName:
+    Description: The nlb dns name
     Type: String 
 
 
@@ -135,6 +144,17 @@ Resources:
         TTL: '900'
         ResourceRecords:
           - !Ref palbDNSName
+    
+  rNestedwindowsDBrecord:
+      Type: 'AWS::Route53::RecordSet'
+      Properties:
+        HostedZoneName: !Ref pHostedZoneName
+        Comment: The NLB CNAME Record
+        Name: !Ref pDomainNLBName
+        Type: CNAME
+        TTL: '900'
+        ResourceRecords:
+          - !Ref pnlbDNSName
 Outputs: 
   oCobsinerecordName:
     Description: The name of the first record

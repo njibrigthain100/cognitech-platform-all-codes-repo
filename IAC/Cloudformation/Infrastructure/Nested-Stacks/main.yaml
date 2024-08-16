@@ -125,6 +125,8 @@ Metadata: # This is putr in an s3 bucket
         - pDomainName2
         - pDomainIISName
         - palbDNSName
+        - pDomainNLBName
+        - pnlbDNSName
     - Label:
         default: "NLB configuration" 
       Parameters: 
@@ -339,6 +341,11 @@ Metadata: # This is putr in an s3 bucket
         default: The domain 3rd name 
       palbDNSName: 
         default: The alb dns name
+      pDomainNLBName:
+        default: The domain name of the NLB 
+      pnlbDNSName: 
+        default: The nlb dns name
+
 
 ###########################################NLB###########################################
       pnlbscheme: 
@@ -717,6 +724,15 @@ Parameters:
     Type: String 
     Default: iis.kahbrigthllc.com.
 
+  pDomainNLBName:
+    Description: The domain name of the NLB
+    Type: String 
+    Default: rdp.kahbrigthllc.com.
+
+  pnlbDNSName:
+    Description: The nlb dns name
+    Type: String 
+  
   palbDNSName:
     Type: String 
 
@@ -1139,10 +1155,15 @@ Resources:
         pDomainName1: !Ref pDomainName1 
         pDomainName2: !Ref pDomainName2 
         pDomainIISName: !Ref pDomainIISName 
+        pDomainNLBName: !Ref pDomainNLBName
         palbDNSName:
           Fn::GetAtt: 
             - rALB
             - Outputs.oalbdnsname
+        pnlbDNSName:
+          Fn::GetAtt: 
+            - rALB
+            - Outputs.oNestednlbDNSName
     DependsOn: 
       - rWebServers
       - rALB
