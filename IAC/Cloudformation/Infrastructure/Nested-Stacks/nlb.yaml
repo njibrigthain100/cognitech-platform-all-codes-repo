@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an nlb for DB server
+
+Parameters:  
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+  
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+  
+  pnlbscheme:
+    Description: The nlb scheme 
+    Type: String
+  
+  pnlbsubnet1:
+    Description: The first public subnet 
+    Type: String
+  
+  pnlbsubnet2:
+    Description: The second public subnet
+    Type: String
+  
+  pnlbtargetgroupport:
+    Description: The port on which the nlb is listenning on
+    Type: String
+    Default: 30010
+
+  pnlbtargetgroupprotocol:
+    Description: The protocol on which the nlb is listenning on
+    Type: String
+    Default: TCP
+
+  pnlbVPCId:
+    Description: The VPC Id on which the nlb is created
+    Type: String
+
+  pNLBHealthCheckIntervalSeconds:
+    Description: The intervals between healt checks 
+    Type: String
+    Default: 10 
+  
+  pNLBHealthCheckPort:
+    Description: The health check ports 
+    Type: String
+    Default: 30010
+  
+  pNLBHealthCheckProtocol:
+    Description: The health check protocol
+    Type: String
+    Default: TCP
+
+  pNLBHealthCheckTimeoutSeconds:
+    Description: The timeout after health checks 
+    Type: String
+    Default: 10
+
+  pNLBHealthyThresholdCount:
+    Description: The threshold for each health checks counts 
+    Type: String
+    Default: 3
+
+  pNLBTarget:
+    Description: The instance behind the target group
+    Type: String
+
+  pNLBTargettype:
+    Description: The type of target behind the target group
+    Type: String
+
+  pnlblistenerport:
+    Description: The port on which the NLB is listening on
+    Type: String
+    Default: 30010
+
+  pnlblistenerprotocol:
+    Description: The protocol on which the NLB is listening on
+    Type: String
+    Default: TLS
+
+  pnlblistenerCertificateArn:
+    Description: The certificate associated with the nlb
+    Type: String
+    Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
+
+
+
+Resources: 
+  rNestedNetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb
+      Scheme: !Ref pnlbscheme
+      Subnets:
+        - !Ref pnlbsubnet1
+        - !Ref pnlbsubnet2
+      Type: network
+  rNestedNetworkLoadBalancerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb-tg
+      Port: !Ref pnlbtargetgroupport
+      Protocol: !Ref pnlbtargetgroupprotocol
+      VpcId: !Ref pnlbVPCId
+      HealthCheckEnabled: True
+      HealthCheckIntervalSeconds: !Ref pNLBHealthCheckIntervalSeconds
+      HealthCheckPort: !Ref pNLBHealthCheckPort
+      HealthCheckProtocol: !Ref pNLBHealthCheckProtocol
+      HealthCheckTimeoutSeconds: !Ref pNLBHealthCheckTimeoutSeconds
+      HealthyThresholdCount: !Ref pNLBHealthyThresholdCount
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
+      Targets:
+        - Id: !Ref pNLBTarget
+          Port: 30010
+      TargetType: !Ref pNLBTargettype
+  rNestedNetworkLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref rNestedNetworkLoadBalancerTargetGroup
+      LoadBalancerArn: !Ref rNestedNetworkLoadBalancer
+      Port: !Ref pnlblistenerport
+      Protocol: !Ref pnlblistenerprotocol
+      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
+      Certificates:
+        - CertificateArn: !Ref pnlblistenerCertificateArn
+
+Outputs:
+  oNestednlbDNSName:
+    Description: The nlb DNS Name
+    Value: !GetAtt rNestedNetworkLoadBalancer.DNSName
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb-dnsname
+
+  oNestednlbName:
+    Description: The nlb name
+    Value: !Ref rNestedNetworkLoadBalancer
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb-name 
+  
+  oNestednlbArn:
+    Description: The nlb arn
+    Value: !GetAtt rNestedNetworkLoadBalancer.LoadBalancerArn
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb-arn

@@ -98,7 +98,7 @@ Resources:
       
 
 Outputs:
-  oLinuxAppServerInstanceId:
+  oWindowsDBServerInstanceId:
     Description: The Id of the windows DB server
     Value: !Ref rWindowsDBserver
     Export:

@@ -125,6 +125,25 @@ Metadata: # This is putr in an s3 bucket
         - pDomainName2
         - pDomainIISName
         - palbDNSName
+    - Label:
+        default: "NLB configuration" 
+      Parameters: 
+        - pnlbscheme
+        - pnlbsubnet1
+        - pnlbsubnet2
+        - pnlbtargetgroupport
+        - pnlbtargetgroupprotocol
+        - pnlbVPCId
+        - pNLBHealthCheckIntervalSeconds
+        - pNLBHealthCheckPort
+        - pNLBHealthCheckProtocol
+        - pNLBHealthCheckTimeoutSeconds
+        - pNLBHealthyThresholdCount
+        - pNLBTarget
+        - pNLBTargettype
+        - pnlblistenerport
+        - pnlblistenerprotocol
+        - pnlblistenerCertificateArn
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -320,6 +339,40 @@ Metadata: # This is putr in an s3 bucket
         default: The domain 3rd name 
       palbDNSName: 
         default: The alb dns name
+
+###########################################NLB###########################################
+      pnlbscheme: 
+        default: The nlb scheme
+      pnlbsubnet1: 
+        default: The first public subnet
+      pnlbsubnet2:
+        default: The second public subnet
+      pnlbtargetgroupport:
+        default: The port on which the target group gets traffic from the nlb
+      pnlbtargetgroupprotocol:
+        default: The protocol on which the target group is listening
+      pnlbVPCId: 
+        default: The VPC Id on which the nlb is created
+      pNLBHealthCheckIntervalSeconds:
+        default: The intervals between health checks
+      pNLBHealthCheckPort:
+        default: The health check ports for the nlb target group
+      pNLBHealthCheckProtocol:
+        default: The health check protocol for the nlb target group 
+      pNLBHealthCheckTimeoutSeconds: 
+        default: The timeout after health checks
+      pNLBHealthyThresholdCount: 
+        default: The threshold for each health checks counts
+      pNLBTarget: 
+        default: The instance behind the target group
+      pNLBTargettype: 
+        default: The type of target behind the target group
+      pnlblistenerport: 
+        default: The port on which the NLB is listening on
+      pnlblistenerprotocol: 
+        default: The protocol on which the NLB is listening on
+      pnlblistenerCertificateArn: 
+        default: The certificate associated with the nlb
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -667,6 +720,66 @@ Parameters:
   palbDNSName:
     Type: String 
 
+#############################################NLB##############################################
+  pnlbscheme:
+    Type: String
+    Default: internet-facing
+  
+  pnlbsubnet1:
+    Type: String
+  
+  pnlbsubnet2:
+    Type: String
+  
+  pnlbtargetgroupport:
+    Type: String
+    Default: 30010
+
+  pnlbtargetgroupprotocol:
+    Type: String
+    Default: TCP
+
+  pnlbVPCId:
+    Type: String
+
+  pNLBHealthCheckIntervalSeconds:
+    Type: String
+    Default: 10 
+  
+  pNLBHealthCheckPort:
+    Type: String
+    Default: 30010
+  
+  pNLBHealthCheckProtocol:
+    Type: String
+    Default: TCP
+
+  pNLBHealthCheckTimeoutSeconds:
+    Type: String
+    Default: 10
+
+  pNLBHealthyThresholdCount:
+    Type: String
+    Default: 3
+
+  pNLBTarget:
+    Type: String
+
+  pNLBTargettype:
+    Type: String
+    Default: instance
+
+  pnlblistenerport:
+    Type: String
+    Default: 30010
+
+  pnlblistenerprotocol:
+    Type: String
+    Default: TLS
+
+  pnlblistenerCertificateArn:
+    Type: String
+    Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
 
 
 Resources: 
@@ -959,6 +1072,44 @@ Resources:
         palbprotocol: !Ref palbprotocol 
     DependsOn: 
       - rWebServers
+
+  rNLB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/nlb.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pnlbscheme: !Ref pnlbscheme 
+        pnlbsubnet1: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet1
+        pnlbsubnet2: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet2
+        pnlbtargetgroupport: !Ref pnlbtargetgroupport 
+        pnlbtargetgroupprotocol: !Ref pnlbtargetgroupprotocol 
+        pnlbVPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pNLBHealthCheckIntervalSeconds: !Ref pNLBHealthCheckIntervalSeconds 
+        pNLBHealthCheckPort: !Ref pNLBHealthCheckPort 
+        pNLBHealthCheckProtocol: !Ref pNLBHealthCheckProtocol 
+        pNLBHealthCheckTimeoutSeconds: !Ref pNLBHealthCheckTimeoutSeconds 
+        pNLBHealthyThresholdCount: !Ref pNLBHealthyThresholdCount 
+        pNLBTarget: 
+          Fn::GetAtt: 
+            - rDBServers
+            - Outputs.oWindowsDBServerInstanceId
+        pNLBTargettype: !Ref pNLBTargettype 
+        pnlblistenerport: !Ref pnlblistenerport 
+        pnlblistenerprotocol: !Ref pnlblistenerprotocol 
+        pnlblistenerCertificateArn: !Ref pnlblistenerCertificateArn
+    DependsOn: 
+      - rDBServers
 
   rDNS:
     Type: AWS::CloudFormation::Stack
