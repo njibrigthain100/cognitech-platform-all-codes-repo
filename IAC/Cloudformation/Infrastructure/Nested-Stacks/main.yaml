@@ -146,6 +146,7 @@ Metadata: # This is putr in an s3 bucket
         - pnlblistenerport
         - pnlblistenerprotocol
         - pnlblistenerCertificateArn
+        - pnlbSecurityGroup
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -380,6 +381,8 @@ Metadata: # This is putr in an s3 bucket
         default: The protocol on which the NLB is listening on
       pnlblistenerCertificateArn: 
         default: The certificate associated with the nlb
+      pnlbSecurityGroup: 
+        default: The nlb security group
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -749,7 +752,7 @@ Parameters:
   
   pnlbtargetgroupport:
     Type: String
-    Default: 30010
+    Default: 3389
 
   pnlbtargetgroupprotocol:
     Type: String
@@ -764,7 +767,7 @@ Parameters:
   
   pNLBHealthCheckPort:
     Type: String
-    Default: 30010
+    Default: 
   
   pNLBHealthCheckProtocol:
     Type: String
@@ -797,6 +800,8 @@ Parameters:
     Type: String
     Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
 
+  pnlbSecurityGroup:
+    Type: String
 
 Resources: 
   rVpcStack:
@@ -1116,6 +1121,10 @@ Resources:
         pNLBHealthCheckProtocol: !Ref pNLBHealthCheckProtocol 
         pNLBHealthCheckTimeoutSeconds: !Ref pNLBHealthCheckTimeoutSeconds 
         pNLBHealthyThresholdCount: !Ref pNLBHealthyThresholdCount 
+        pnlbSecurityGroup:
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestednlbsg
         pNLBTarget: 
           Fn::GetAtt: 
             - rDBServers

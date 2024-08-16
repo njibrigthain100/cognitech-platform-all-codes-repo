@@ -90,6 +90,9 @@ Parameters:
     Type: String
     Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
 
+  pnlbSecurityGroup:
+    Description: The nlb security group
+    Type: String
 
 
 Resources: 
@@ -98,10 +101,15 @@ Resources:
     Properties:
       Name: !Sub ${ pAwsAccount }-${ pAppName }-nlb
       Scheme: !Ref pnlbscheme
+      SecurityGroups: 
+         - !Ref pnlbSecurityGroup
       Subnets:
         - !Ref pnlbsubnet1
         - !Ref pnlbsubnet2
       Type: network
+      Tags: 
+        - Key: Name
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-nlb
   rNestedNetworkLoadBalancerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -120,8 +128,9 @@ Resources:
           Value: 60
       Targets:
         - Id: !Ref pNLBTarget
-          Port: 30010
+          Port: 389
       TargetType: !Ref pNLBTargettype
+  
   rNestedNetworkLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
