@@ -31,7 +31,7 @@ Parameters:
   pnlbtargetgroupport:
     Description: The port on which the nlb is listenning on
     Type: String
-    Default: 30010
+    Default: 3389
 
   pnlbtargetgroupprotocol:
     Description: The protocol on which the nlb is listenning on
@@ -50,7 +50,7 @@ Parameters:
   pNLBHealthCheckPort:
     Description: The health check ports 
     Type: String
-    Default: 30010
+    Default: 3389
   
   pNLBHealthCheckProtocol:
     Description: The health check protocol

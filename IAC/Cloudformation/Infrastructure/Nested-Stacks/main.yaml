@@ -767,7 +767,7 @@ Parameters:
   
   pNLBHealthCheckPort:
     Type: String
-    Default: 
+    Default: 3389
   
   pNLBHealthCheckProtocol:
     Type: String
