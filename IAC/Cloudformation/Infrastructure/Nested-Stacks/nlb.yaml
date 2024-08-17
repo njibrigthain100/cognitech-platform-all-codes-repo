@@ -128,7 +128,7 @@ Resources:
           Value: 60
       Targets:
         - Id: !Ref pNLBTarget
-          Port: 389
+          Port: 3389
       TargetType: !Ref pNLBTargettype
   
   rNestedNetworkLoadBalancerListener:
@@ -140,9 +140,9 @@ Resources:
       LoadBalancerArn: !Ref rNestedNetworkLoadBalancer
       Port: !Ref pnlblistenerport
       Protocol: !Ref pnlblistenerprotocol
-      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
-      Certificates:
-        - CertificateArn: !Ref pnlblistenerCertificateArn
+      # SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
+      # Certificates:
+      #   - CertificateArn: !Ref pnlblistenerCertificateArn
 
 Outputs:
   oNestednlbDNSName:
