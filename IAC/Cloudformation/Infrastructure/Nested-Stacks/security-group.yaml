@@ -291,9 +291,17 @@ Resources:
           ToPort: 50100
           SourceSecurityGroupId: 
             Fn::GetAtt:
-              - rNestedlinuxAppserversg
+              - rNestedWindowsAppserversg
               - GroupId
-          Description: "Allow range 50000-50100 access from the Linux Appserver"
+          Description: "Allow range 50000-50100 access from the Windows Appserver"
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestednlbsg
+              - GroupId
+          Description: "Allow ingress from NLB sg on tcp port 3389"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB
