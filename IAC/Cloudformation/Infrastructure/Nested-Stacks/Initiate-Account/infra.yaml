@@ -236,7 +236,7 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-vpc
 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html
@@ -413,5 +413,53 @@ Outputs:
   oAppNatGateway2:
     Description: The ID of the second Natgateway
     Value: !Ref rNestedNatGateway2
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw2
+  
+  oSharedServicesVPC:
+    Description: The ID of the shared services vpc
+    Value: !Ref rNestedSharedServicesVPC
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-vpc
+      
+  oSharedServicesPrivateSubnet1:
+    Description: The ID of the shared services 1st private subnet
+    Value: !Ref rNestedSharedServicesPrivateSubnet1
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-private-subnet1
+  
+  oSharedServicesPrivateSubnet2:
+    Description: The ID of the shared services 2nd private subnet
+    Value: !Ref rNestedSharedServicesPrivateSubnet2
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-private-subnet2
+
+  oSharedServicesPublicSubnet1:
+    Description: The ID of the shared services 1st public subnet 
+    Value: !Ref rNestedSharedServicesPublicSubnet1
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-public-subnet1
+
+  oSharedServicesPublicSubnet2:
+    Description: The ID of the shared services 2nd public subnet
+    Value: !Ref rNestedSharedServicesPublicSubnet2
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-public-subnet2
+
+  oSharedServicesInternetGateway:
+    Description: The ID of the shared services internetgateway
+    Value: !Ref rNestedSharedServicesInternetGateway
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-igw
+
+  oSharedServicesNatGateway1:
+    Description: The ID of the shared services first Natgateway
+    Value: !Ref rNestedSharedServicesNatGateway1
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ss-ngw1
+
+  oSharedServicesNatGateway2:
+    Description: The ID of the shared services second Natgateway
+    Value: !Ref rNestedSharedServices
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ngw2

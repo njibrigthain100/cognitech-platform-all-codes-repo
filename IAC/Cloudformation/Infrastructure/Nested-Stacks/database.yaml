@@ -96,7 +96,6 @@ Resources:
         - Key: Type  
           Value: DB
       
-
 Outputs:
   oWindowsDBServerInstanceId:
     Description: The Id of the windows DB server
