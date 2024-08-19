@@ -146,7 +146,7 @@ Parameters:
   
   pAppName:
     Type: String
-    Default: cognitech
+    Default: CodeSync
 ########################## VPC parameters ######################################
   pVPCCidr:
     Type: String
