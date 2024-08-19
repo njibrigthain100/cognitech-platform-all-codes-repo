@@ -146,7 +146,7 @@ Parameters:
   
   pAppName:
     Type: String
-    Default: TechWave
+    Default: InnovaSoft
 ########################## VPC parameters ######################################
   pVPCCidr:
     Type: String
