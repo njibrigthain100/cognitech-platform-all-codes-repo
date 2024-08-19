@@ -146,7 +146,7 @@ Parameters:
   
   pAppName:
     Type: String
-    Default: InnovaSoft
+    Default: cognitech
 ########################## VPC parameters ######################################
   pVPCCidr:
     Type: String
