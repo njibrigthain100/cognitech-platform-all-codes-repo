@@ -55,6 +55,14 @@ Metadata: # This is putr in an s3 bucket
         - pAdminPassowrd
         - pADName
         - pADShortName
+        - pEdition
+    - Label: 
+        default: "Active Directory master server configurations" 
+      Parameters:
+        - pWindows2019LatestAmiId
+        - pADServerInstanceProfile
+        - pWindowsADSecurityGroup
+        - pADSharedservicesPrivateSubnetId
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -144,6 +152,18 @@ Metadata: # This is putr in an s3 bucket
         default: The directory DNS name
       pADShortName: 
         default: The NetBios name for the domain 
+      pEdition: 
+        default: The directory edition
+      
+###################################Active directory Master server###############################
+      pWindows2019LatestAmiId: 
+        default: The latest ami Id for windows 2019 
+      pADServerInstanceProfile: 
+        default: The instance profile for the active directory master server
+      pWindowsADSecurityGroup: 
+        default: The active directory master server security group
+      pADSharedservicesPrivateSubnetId: 
+        default: The subnet Id for the shared services vpc
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -316,6 +336,30 @@ Parameters:
     Type: String
     Default: kahbrigthllc
 
+  pEdition:
+    Type: String
+    Default: "Standard"
+    AllowedValues:
+      - "Enterprise"
+      - "Standard"
+
+############################################Active directory Master server########################################  
+  pWindows2019LatestAmiId:
+    Description: The latest ami Id for windows 2019 
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pWebServerInstanceProfile:
+    Description: The instance profile for the webserver
+    Type: String
+  
+  pWindowsADSecurityGroup:
+    Description: The windows webserver security group 
+    Type: String
+  
+  pADSharedservicesPrivateSubnetId:
+    Description: The subnet Id for the webserver 
+    Type: String 
 
 Resources: 
   rVpcStack:
@@ -351,14 +395,6 @@ Resources:
           Fn::Join:
             - ','
             - !Ref pSharedServicesAvailabilityZones
-        pAppName: !Ref pAppName
-
-  rIAMStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
-      TimeoutInMinutes: 20
-      Parameters: 
         pAppName: !Ref pAppName
   
   rTransitGatewayStack:
@@ -436,12 +472,11 @@ Resources:
     - rVpcStack
 
 #############################################################Active Directory##############################################
-
   rDirectoryService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ActiveDirectory.yaml
-      TimeoutInMinutes: 20
+      TimeoutInMinutes: 40
       Parameters:
         pAppName: !Ref pAppName
         pAdminPassowrd: !Ref pAdminPassowrd 
@@ -459,8 +494,56 @@ Resources:
             - rSharedServicesVpcStack 
             - Outputs.oVPC 
         pADShortName: !Ref pADShortName
+        pEdition: !Ref pEdition
     DependsOn: 
      - rSharedServicesVpcStack
+     - rVpcStack
+     - rTransitGatewayStack
+
+#############################################AD IAM Role###########################################################################
+  rSupportRoles:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SupportRoles.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pAppName: !Ref pAppName
+
+######################################SEcurity Group for Bastion and AD server#####################################################
+  rSecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ADSecurityGroup.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - SharedServicesVpcStack
+            - Outputs.oVPC
+
+###################################Active Directory Master Server#################################################################
+  rADMasterServer:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ADServer.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pWebServerInstanceProfile:
+          Fn::GetAtt:
+           - rSupportRoles
+           - Outputs.oNestedADIAMInstanceProfileName
+        pWindowsADSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedadsg
+        pADSharedservicesPrivateSubnetId: 
+          Fn::GetAtt:
+            - rSharedServicesVpcStack
+            - oPrivateSubnet1
+
 
   
         

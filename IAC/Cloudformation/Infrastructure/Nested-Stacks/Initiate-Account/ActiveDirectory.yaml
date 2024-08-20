@@ -41,21 +41,48 @@ Parameters:
     Description: The NetBIOS name for your domain
     Type: String
     Default: kahbrigthllc
+
+  pEdition:
+    Description: The directory edition 
+    Type: String
+    AllowedValues:
+      - "Enterprise"
+      - "Standard"
+  
+
  
 Resources: 
   rNestedActiveDirectory: 
-  Type: AWS::DirectoryService::MicrosoftAD
-  Properties: 
-    Name: !Ref pADName
-    Password: 
-      Ref: !Ref pAdminPassowrd
-    ShortName: 
-      Ref: !Ref pADShortName
-    VpcSettings: 
-      SubnetIds: 
-        - Ref: !Ref pSharedServicesPrivateSubnet1Id
-        - Ref: !Ref pSharedServicesPrivateSubnet2Id
-      VpcId: 
-        Ref: !Ref pSharedServicesVPCId
-
+    Type: AWS::DirectoryService::MicrosoftAD
+    Properties: 
+      Name: !Ref pADName
+      Edition: !Ref pEdition
+      Password: 
+        !Ref pAdminPassowrd
+      ShortName: 
+        !Ref pADShortName
+      VpcSettings: 
+        SubnetIds: 
+          - !Ref pSharedServicesPrivateSubnet1Id
+          - !Ref pSharedServicesPrivateSubnet2Id
+        VpcId: 
+          !Ref pSharedServicesVPCId
 Outputs:
+  oDirectoryId:
+    Description: The ID of the created directory 
+    Value: !Ref rNestedActiveDirectory
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-directoryId 
+
+  oDirectoryName:
+    Description: The name of the created directory 
+    Value: !Ref pADName
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-directoryName 
+  
+  oDirectoryDNSIpaddresses:
+    Description: The DNS Ipaddresses of the created directory 
+    Value: !Join [", ", !GetAtt rNestedActiveDirectory.DnsIpAddresses]
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-DNSIpaddresses
+

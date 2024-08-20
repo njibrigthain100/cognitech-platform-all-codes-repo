@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates both the ssh and rdp bastions in the shared services account 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Type: String
+    Default: cognitech
+  
+  pAmznLnx2LatestAmiId:
+    Description: The latest ami Id for amazon linux 2
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  pWindows2019LatestAmiId:
+    Description: The latest ami Id for windows 2019 
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pBastionInstanceProfile:
+    Description: The instance profile for the bastions 
+    Type: String
+  
+  pBastionRDPSecurityGroup:
+    Description: The security group for the rdp bastion  
+    Type: String
+  
+  pBastionSSHSecurityGroup:
+    Description: The security group for the ssh bastion
+    Type: String
+  
+  pSharedSeervicesPublicSubnetId:
+    Description: The subnet Id for the shared services public subnet
+    Type: String
+
+Mappings:
+  mAccountVariables:
+    "271457809232":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "388927731914":
+      pKeyPair: TBD
+      pInstanceType: t2.micro 
+    "882680178335":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "485147667400":
+      pKeyPair: windowscomputer 
+      pInstanceType: t2.small 
+    "526645041140":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "471112707322":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "730335294148":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "533267408704": 
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "637423478842":
+      pKeyPair: TBD 
+      pInstanceType: t2.micro
+     
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+  rSSHBastion:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pBastionInstanceProfile
+      ImageId: !Ref pAmznLnx2LatestAmiId
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pBastionSSHSecurityGroup
+      SubnetId: !Ref pSharedSeervicesPublicSubnetId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-SSH-bastion 
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-monthly 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: Bastion
+      
+
+  rRDPBastion:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pBastionInstanceProfile
+      ImageId: !Ref pWindows2019LatestAmiId
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pBastionRDPSecurityGroup
+      SubnetId: !Ref pSharedSeervicesPublicSubnetId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-RDP-bastion
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-monthly 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wb
+        - Key: Type  
+          Value: Bastion
+
+Outputs:
+  oSSHBastionInstanceId:
+    Description: The Id of the ssh bastion 
+    Value: !Ref rSSHBastion
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-Id
+
+  oRDPBastionInstanceId:
+    Description: The Id of the rdp bastion
+    Value: !Ref rRDPBastion
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-Id
+  
+
+    

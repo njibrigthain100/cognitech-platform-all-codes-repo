@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates both the windows and linux Web servers 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Type: String
+    Default: cognitech
+  
+  pWindows2019LatestAmiId:
+    Description: The latest ami Id for windows 2019 
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pADServerInstanceProfile:
+    Description: The instance profile for the active directory master server
+    Type: String
+  
+  pWindowsADSecurityGroup:
+    Description: The windows webserver security group 
+    Type: String
+  
+  pADSharedservicesPrivateSubnetId:
+    Description: The subnet Id for the webserver 
+    Type: String
+
+Mappings:
+  mAccountVariables:
+    "271457809232":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "388927731914":
+      pKeyPair: TBD
+      pInstanceType: t2.micro 
+    "882680178335":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "485147667400":
+      pKeyPair: windowscomputer 
+      pInstanceType: t2.small 
+    "526645041140":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "471112707322":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "730335294148":
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "533267408704": 
+      pKeyPair: TBD
+      pInstanceType: t2.micro
+    "637423478842":
+      pKeyPair: TBD 
+      pInstanceType: t2.micro
+     
+Resources: 
+  rActiveDirectoryServer:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pADServerInstanceProfile
+      ImageId: !Ref pWindows2019LatestAmiId
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref   pWindowsADSecurityGroup
+      SubnetId: !Ref pADSharedservicesPrivateSubnetId
+      UserData:  
+        Fn::Base64: !Sub | 
+          <powershell>
+            # Get a token for IMDSv2
+            $token = Invoke-RestMethod -Method Put -Uri http://169.254.169.254/latest/api/token -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="21600"}
+            # Get the instance ID using the token
+            $instance_id = Invoke-RestMethod -Uri http://169.254.169.254/latest/meta-data/instance-id -Headers @{"X-aws-ec2-metadata-token"=$token}
+            # Check if instance_id is retrieved successfully
+            if (-not $instance_id) {
+            Write-Host "Failed to retrieve instance ID."
+            exit 1
+            }
+            # Set the default AWS region
+            Set-DefaultAWSRegion -Region "us-east-1"
+            # Create an SSM association
+            New-SSMAssociation -InstanceId $instance_id -Name "DomainJoinDoc"
+            # Install Active directory 
+            Install-windowsFeature RSAT-AD-Tools,RSAT-DNS-Server -IncludeAllSubFeature -IncludeManagementTools 
+          </powershell>
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Windows
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }wapp 
+        - Key: Type  
+          Value: Active Directory
+ 
+Outputs:  
+  oActiveDirectoryInstanceId:
+    Description: The Id of the active directory windows server
+    Value: !Ref rActiveDirectoryServer
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ADId
+  
+  ooActiveDirectoryInstanceIp:
+    Description: The instance IP of the active directory windows server 
+    Value: !GetAtt  rActiveDirectoryServer.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ADIp
+

@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the security groups for all the ec2 instances
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech
+
+  pSharedServicesVPCCidr: 
+    Description: The shared services vpc Id 
+    Type: String 
+
+  pSharedServicesVPCId: 
+    Description: The Id of the shared services vpc
+    Type: String
+
+Resources: 
+  rNestedadbsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The alb security group 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: "Allow HTTPS access from the internet"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: "Allow HTTP access from the internet"
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: 0.0.0.0/0
+          Description: "Allow RDP access from the internet"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-sg
+      VpcId: !Ref pSharedServicesVPCId
+  rNestedsshbastionsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: ssh bastion security group
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: "Allow SSH access from the internet"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
+      VpcId: !Ref pSharedServicesVPCId
+
+  rNestedrdpbastionsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: rdp bastion security group
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: 0.0.0.0/0
+          Description: "Allow RDP access from the internet"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
+      VpcId: !Ref pSharedServicesVPCId
+ 
+Outputs:
+  oNestedadsg:
+    Description: The active directory master server security group id 
+    Value: !Ref rNestedadbsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ad-sg
+
+ oNestedsshbastionsg:
+    Description: The ssh bastion security group Id
+    Value: !Ref rNestedsshbastionsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-sg
+  
+  oNestedrdpbastionsg:
+    Description: The rdp bastion security group Id 
+    Value: !Ref rNestedrdpbastionsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-sg
+  
+  
