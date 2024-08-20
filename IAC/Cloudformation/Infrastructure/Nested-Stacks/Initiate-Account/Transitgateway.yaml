@@ -67,6 +67,7 @@ Parameters:
   pAppName:
     Type: String
     Default: cognitech
+#################################Shared service VPC variables#######################################
 
   pSharedServicesPrivateSubnet1Id:
     Description: The Id of the first shared services private subnet
@@ -79,6 +80,28 @@ Parameters:
   pSharedServicesVPCId:
     Description: The Id of the shared services VPC
     Type: String
+
+  pSSNatGateway1Id:
+    Description: The Id of the first shared services Nat gateway 
+    Type: String 
+
+  pSSNatGateway2Id:
+    Description: The Id of the second shared services Nat gateway 
+    Type: String 
+  
+  pSharedServicesInternetGateway:
+    Description: The Internet gateway id for the shared services vpc 
+    Type: String 
+  
+  pSharedServicesPublicSubnet1Id:
+    Description: The Id of the first shared services private subnet
+    Type: String
+
+  pSharedServicesPublicSubnet2Id:
+    Description: The Id of the second shared services private subnet
+    Type: String
+
+#################################App1 VPC variables#######################################
 
   pApp1PrivateSubnet1Id:
     Description: The Id of the first App1 private subnet
@@ -104,25 +127,7 @@ Parameters:
     Description: The Id of the second Nat gateway 
     Type: String 
   
-  pSSNatGateway1Id:
-    Description: The Id of the first shared services Nat gateway 
-    Type: String 
 
-  pSSNatGateway2Id:
-    Description: The Id of the second shared services Nat gateway 
-    Type: String 
-  
-  pSharedServicesInternetGateway:
-    Description: The Internet gateway id for the shared services vpc 
-    Type: String 
-  
-  pSharedServicesPublicSubnet1Id:
-    Description: The Id of the first shared services private subnet
-    Type: String
-
-  pSharedServicesPublicSubnet2Id:
-    Description: The Id of the second shared services private subnet
-    Type: String
   
   
 Resources:
@@ -166,6 +171,7 @@ Resources:
       VpcId: !Ref pApp1VPCId
   
   #####################App1 Private subnets routes & route tables#################################
+
     # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route-table.html
   rNestedPrivateSubnet1RouteTable:
     Type: AWS::EC2::RouteTable

@@ -25,11 +25,11 @@ Parameters:
     Type: String
     Default: kahbrigthllc.com
   
-  pSharedServicesPrivateSubnet1:
+  pSharedServicesPrivateSubnet1Id:
     Description: The subnet in which to create the domain controllers
     Type: String
 
-  pSharedServicesPrivateSubnet2:
+  pSharedServicesPrivateSubnet2Id:
     Description: The subnet in which to create the domain controllers
     Type: String
  
@@ -53,9 +53,9 @@ Resources:
       Ref: !Ref pADShortName
     VpcSettings: 
       SubnetIds: 
-        - Ref: !Ref pSharedServicesPrivateSubnet1
-        - Ref: !Ref pSharedServicesPrivateSubnet2
+        - Ref: !Ref pSharedServicesPrivateSubnet1Id
+        - Ref: !Ref pSharedServicesPrivateSubnet2Id
       VpcId: 
-        Ref: !Ref pSharedServicesPrivateSubnet2
+        Ref: !Ref pSharedServicesVPCId
 
 Outputs:

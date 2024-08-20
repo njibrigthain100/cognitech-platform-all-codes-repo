@@ -49,6 +49,12 @@ Metadata: # This is putr in an s3 bucket
         - pSharedServicesInternetGateway
         - pSharedServicesPublicSubnet1Id
         - pSharedServicesPublicSubnet2Id
+    - Label: 
+        default: "Directory Service configurations" 
+      Parameters:
+        - pAdminPassowrd
+        - pADName
+        - pADShortName
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -130,6 +136,14 @@ Metadata: # This is putr in an s3 bucket
         default: The Id of the first shared services public subnet
       pSharedServicesPublicSubnet2Id: 
         default: The Id of the second shared services public subnet
+
+#############################Directory Services####################################
+      pAdminPassowrd: 
+        default: The password for the default administartive admin user 
+      pADName: 
+        default: The directory DNS name
+      pADShortName: 
+        default: The NetBios name for the domain 
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -254,6 +268,10 @@ Parameters:
     AllowedValues:
       - "enable"
       - "disable"
+
+  pTransitGatewayCIDR:
+    Type: String 
+    Default: 10.1.0.0/16
   
   pSharedServicesPrivateSubnet1Id:
     Type: String
@@ -264,6 +282,12 @@ Parameters:
   pSharedServicesVPCId:
     Type: String
 
+  pSSNatGateway1Id:
+    Type: String 
+
+  pSSNatGateway2Id:
+    Type: String 
+
   pApp1PrivateSubnet1Id:
     Type: String
 
@@ -272,22 +296,26 @@ Parameters:
 
   pApp1VPCId:
     Type: String
-      
-  pTransitGatewayCIDR:
-    Type: String 
-    Default: 10.1.0.0/16
-  
+        
   pApp1NatGateway1Id:
     Type: String
   
   pApp1NatGateway2Id:
     Type: String 
   
-  pSSNatGateway1Id:
+########################################Directory Service########################################### 
+  pAdminPassowrd:
     Type: String 
+    Default: Shilohangel@2024
+  
+  pADName:
+    Type: String
+    Default: kahbrigthllc.com
+   
+  pADShortName:
+    Type: String
+    Default: kahbrigthllc
 
-  pSSNatGateway2Id:
-    Type: String 
 
 Resources: 
   rVpcStack:
@@ -348,6 +376,8 @@ Resources:
         pDNSSupport: !Ref pDNSSupport 
         pVPNSupport: !Ref pVPNSupport 
         pTransitGatewayCIDR: !Ref pTransitGatewayCIDR
+
+###############################Shared services variables#####################################
         pSharedServicesPrivateSubnet1Id: 
           Fn::GetAtt: 
             - rSharedServicesVpcStack 
@@ -360,27 +390,7 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack 
             - Outputs.oVPC 
-        pApp1PrivateSubnet1Id: 
-          Fn::GetAtt: 
-            - rVpcStack 
-            - Outputs.oPrivateSubnet1
-        pApp1PrivateSubnet2Id: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet2
-        pApp1VPCId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oVPC
-        pApp1NatGateway1Id:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oNatGateway1
-        pApp1NatGateway2Id:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oNatGateway2
-        pSSNatGateway1Id:
+          pSSNatGateway1Id:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oNatGateway1
@@ -400,10 +410,57 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oPublicSubnet2
-        
+##################################################App1 vpc variables#####################################
+        pApp1PrivateSubnet1Id: 
+          Fn::GetAtt: 
+            - rVpcStack 
+            - Outputs.oPrivateSubnet1
+        pApp1PrivateSubnet2Id: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet2
+        pApp1VPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pApp1NatGateway1Id:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oNatGateway1
+        pApp1NatGateway2Id:
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oNatGateway2       
     DependsOn: 
     - rSharedServicesVpcStack
     - rVpcStack
+
+#############################################################Active Directory##############################################
+
+  rDirectoryService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ActiveDirectory.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pAppName: !Ref pAppName
+        pAdminPassowrd: !Ref pAdminPassowrd 
+        pADName: !Ref pADName 
+        pSharedServicesPrivateSubnet1Id: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet1 
+        pSharedServicesPrivateSubnet2Id: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oPrivateSubnet2 
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack 
+            - Outputs.oVPC 
+        pADShortName: !Ref pADShortName
+    DependsOn: 
+     - rSharedServicesVpcStack
 
   
         
