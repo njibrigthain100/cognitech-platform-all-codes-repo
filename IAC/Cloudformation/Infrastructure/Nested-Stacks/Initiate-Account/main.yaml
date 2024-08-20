@@ -390,7 +390,7 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack 
             - Outputs.oVPC 
-          pSSNatGateway1Id:
+        pSSNatGateway1Id:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oNatGateway1
