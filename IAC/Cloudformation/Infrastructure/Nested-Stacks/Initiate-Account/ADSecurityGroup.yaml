@@ -32,20 +32,23 @@ Resources:
       GroupDescription: The alb security group 
       GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-sg
       SecurityGroupIngress: 
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-          Description: "Allow HTTPS access from the internet"
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-          Description: "Allow HTTP access from the internet"
+        # - IpProtocol: tcp
+        #   FromPort: 443
+        #   ToPort: 443
+        #   CidrIp: 0.0.0.0/0
+        #   Description: "Allow HTTPS access from the internet"
+        # - IpProtocol: tcp
+        #   FromPort: 80
+        #   ToPort: 80
+        #   CidrIp: 0.0.0.0/0
+        #   Description: "Allow HTTP access from the internet"
         - IpProtocol: tcp
           FromPort: 3389
           ToPort: 3389
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedrdpbastionsg
+              - GroupId
           Description: "Allow RDP access from the internet"
       Tags: 
         - Key: Name 
