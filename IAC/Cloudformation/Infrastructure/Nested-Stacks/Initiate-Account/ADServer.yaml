@@ -33,6 +33,10 @@ Parameters:
     Description: The subnet Id for the webserver 
     Type: String
 
+  pDocumentName:
+    Description: The domain join document for the server
+    Type: String
+
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -95,7 +99,7 @@ Resources:
             # Set the default AWS region
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
-            New-SSMAssociation -InstanceId $instance_id -Name "DomainJoinDoc"
+            New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
             # Install Active directory 
             Install-windowsFeature RSAT-AD-Tools,RSAT-DNS-Server -IncludeAllSubFeature -IncludeManagementTools 
           </powershell>

@@ -47,6 +47,13 @@ Resources:
               directoryName: !Ref pDirectoryName
               dnsIpAddresses: !Ref pDNSIpAddresses
 
+Outputs:
+  oDomainJoinDocument:
+    Description: The name of the ssm domain join document
+    Value: !Ref rNestedDomainJoinDocument
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
+
 
 
 

@@ -63,6 +63,7 @@ Metadata: # This is putr in an s3 bucket
         - pADServerInstanceProfile
         - pWindowsADSecurityGroup
         - pADSharedservicesPrivateSubnetId
+        - pDocumentName
     - Label: 
         default: "Bastion server configurations" 
       Parameters:
@@ -177,6 +178,8 @@ Metadata: # This is putr in an s3 bucket
         default: The active directory master server security group
       pADSharedservicesPrivateSubnetId: 
         default: The subnet Id for the shared services vpc
+      pDocumentName: 
+        default: The ssm domain join document for the server
 
 ###################################Bastion Server###############################
       pBastionInstanceProfile: 
@@ -389,6 +392,9 @@ Parameters:
   pADSharedservicesPrivateSubnetId:
     Type: String 
 
+  pDocumentName:
+    Type: String
+
 ############################################Bastion server########################################  
   pBastionInstanceProfile: 
     Type: String
@@ -410,7 +416,7 @@ Parameters:
     Type: String
 
   pDNSIpAddresses:
-    AllowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+    # AllowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
     Type: CommaDelimitedList
   
 Resources: 
@@ -618,10 +624,16 @@ Resources:
           Fn::GetAtt:
             - rSharedServicesVpcStack
             - Outputs.oPrivateSubnet1
+        pDocumentName: 
+          Fn::GetAtt:
+            - rSSMDomainJoin
+            - Outputs.oDomainJoinDocument
+
     DependsOn: 
       - rSupportRoles
       - rSharedServicesVpcStack
       - rDirectoryService
+      - rSSMDomainJoin
 
 ###################################Bastion servers#################################################################
   rBastions:
