@@ -90,7 +90,7 @@ Outputs:
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ad-sg
 
- oNestedsshbastionsg:
+  oNestedsshbastionsg:
     Description: The ssh bastion security group Id
     Value: !Ref rNestedsshbastionsg
     Export: 

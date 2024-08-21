@@ -63,6 +63,13 @@ Metadata: # This is putr in an s3 bucket
         - pADServerInstanceProfile
         - pWindowsADSecurityGroup
         - pADSharedservicesPrivateSubnetId
+    - Label: 
+        default: "Bastion server configurations" 
+      Parameters:
+        - pBastionInstanceProfile
+        - pBastionRDPSecurityGroup
+        - pBastionSSHSecurityGroup
+        - pSharedSeervicesPublicSubnetId
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -164,6 +171,16 @@ Metadata: # This is putr in an s3 bucket
         default: The active directory master server security group
       pADSharedservicesPrivateSubnetId: 
         default: The subnet Id for the shared services vpc
+
+###################################Bastion erver###############################
+      pBastionInstanceProfile: 
+        default: The instance profile for the bastions servers 
+      pBastionRDPSecurityGroup: 
+        default: The security group for the rdp bastion
+      pBastionSSHSecurityGroup: 
+        default: The security group for the ssh bastion
+      pSharedSeervicesPublicSubnetId: 
+        default: The subnet Id for the shared services public subnet
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -349,18 +366,27 @@ Parameters:
     Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
   
-  pWebServerInstanceProfile:
-    Description: The instance profile for the webserver
+  pADServerInstanceProfile:
     Type: String
   
   pWindowsADSecurityGroup:
-    Description: The windows webserver security group 
     Type: String
   
   pADSharedservicesPrivateSubnetId:
-    Description: The subnet Id for the webserver 
     Type: String 
 
+############################################Bastion server########################################  
+  pBastionInstanceProfile: 
+    Type: String
+  
+  pBastionRDPSecurityGroup: 
+    Type: String
+  
+  pBastionSSHSecurityGroup:
+    Type: String
+  
+  pSharedSeervicesPublicSubnetId:
+    Type: String
 Resources: 
   rVpcStack:
     Type: AWS::CloudFormation::Stack
@@ -520,7 +546,7 @@ Resources:
         pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
         pSharedServicesVPCId: 
           Fn::GetAtt: 
-            - SharedServicesVpcStack
+            - rSharedServicesVpcStack
             - Outputs.oVPC
 
 ###################################Active Directory Master Server#################################################################
@@ -531,7 +557,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
-        pWebServerInstanceProfile:
+        pADServerInstanceProfile:
           Fn::GetAtt:
            - rSupportRoles
            - Outputs.oNestedADIAMInstanceProfileName
@@ -542,9 +568,59 @@ Resources:
         pADSharedservicesPrivateSubnetId: 
           Fn::GetAtt:
             - rSharedServicesVpcStack
-            - oPrivateSubnet1
+            - Outputs.oPrivateSubnet1
+    DependsOn: 
+      - rSupportRoles
+      - rSharedServicesVpcStack
 
+###################################Bastion servers#################################################################
+  rBastions:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/bastions.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pBastionInstanceProfile:
+          Fn::GetAtt:
+           - rSupportRoles
+           - Outputs.oNestedBastionIAMInstanceProfileName
+        pBastionRDPSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedrdpbastionsg
+        pBastionSSHSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedsshbastionsg
+        pSharedSeervicesPublicSubnetId: 
+          Fn::GetAtt:
+            - rSharedServicesVpcStack
+            - Outputs.oPublicSubnet1
+    DependsOn: 
+        - rSupportRoles
+        - rSharedServicesVpcStack
 
+# ###################################Secrets Manager#################################################################
+#   rSecretsManager:
+#     Type: AWS::CloudFormation::Stack
+#     Properties:
+#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SecretsManager.yaml
+#       TimeoutInMinutes: 20
+#       Parameters: 
+#         pAppName: !Ref pAppName
+#         pWebServerInstanceProfile:
+#           Fn::GetAtt:
+#            - rSupportRoles
+#            - Outputs.oNestedADIAMInstanceProfileName
+#         pWindowsADSecurityGroup: 
+#           Fn::GetAtt: 
+#             - rSecurityGroupStack
+#             - Outputs.oNestedadsg
+#         pADSharedservicesPrivateSubnetId: 
+#           Fn::GetAtt:
+#             - rSharedServicesVpcStack
+#             - Outputs.oPrivateSubnet1
   
         
           

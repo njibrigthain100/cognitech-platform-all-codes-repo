@@ -77,7 +77,7 @@ Resources:
     Properties: 
       Path: /
       Roles: 
-        - Ref: rNestedBastionProfile
+        - Ref: rNestedBastionRole
   
 
 Outputs:
