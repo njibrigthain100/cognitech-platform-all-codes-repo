@@ -39,6 +39,7 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
         - !Sub arn:${AWS::Partition}:iam::aws:policy/SecretsManagerReadWrite
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSDirectoryServiceFullAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMDirectoryServiceAccess
       Path: /
 
   rNestedIAMProfile:
