@@ -572,6 +572,7 @@ Resources:
     DependsOn: 
       - rSupportRoles
       - rSharedServicesVpcStack
+      - rDirectoryService
 
 ###################################Bastion servers#################################################################
   rBastions:

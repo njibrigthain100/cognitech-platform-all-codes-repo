@@ -101,7 +101,7 @@ Resources:
           </powershell>
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-01
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-Master-server
         - Key: backup
           Value: !Sub ${ AWS::Region}-daily 
         - Key: Patch Group
