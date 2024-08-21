@@ -70,6 +70,12 @@ Metadata: # This is putr in an s3 bucket
         - pBastionRDPSecurityGroup
         - pBastionSSHSecurityGroup
         - pSharedSeervicesPublicSubnetId
+    - Label: 
+        default: "SSM documnet configurations" 
+      Parameters:
+        - pDirectoryId
+        - pDirectoryName
+        - pDNSIpAddresses
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -172,7 +178,7 @@ Metadata: # This is putr in an s3 bucket
       pADSharedservicesPrivateSubnetId: 
         default: The subnet Id for the shared services vpc
 
-###################################Bastion erver###############################
+###################################Bastion Server###############################
       pBastionInstanceProfile: 
         default: The instance profile for the bastions servers 
       pBastionRDPSecurityGroup: 
@@ -181,6 +187,14 @@ Metadata: # This is putr in an s3 bucket
         default: The security group for the ssh bastion
       pSharedSeervicesPublicSubnetId: 
         default: The subnet Id for the shared services public subnet
+
+###################################SSM Domain join docunment###############################
+      pDirectoryId: 
+        default: The ID of the AWS Directory Service directory 
+      pDirectoryName: 
+        default: The name of the directory. For example, test.example.com
+      pDNSIpAddresses: 
+        default: The IP addresses of the DNS servers in the directory
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -387,6 +401,18 @@ Parameters:
   
   pSharedSeervicesPublicSubnetId:
     Type: String
+
+############################################SSM domain join document#######################################  
+  pDirectoryId:
+    Type: String
+  
+  pDirectoryName:
+    Type: String
+
+  pDNSIpAddresses:
+    AllowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+    Type: CommaDelimitedList
+  
 Resources: 
   rVpcStack:
     Type: AWS::CloudFormation::Stack
@@ -525,6 +551,29 @@ Resources:
      - rSharedServicesVpcStack
      - rVpcStack
      - rTransitGatewayStack
+
+###################################SSM Domain Join Document#################################################################
+  rSSMDomainJoin:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/DomainJoinSSMDocument.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pDirectoryId:
+          Fn::GetAtt:
+           - rDirectoryService
+           - Outputs.oDirectoryId
+        pDirectoryName: 
+          Fn::GetAtt: 
+            - rDirectoryService
+            - Outputs.oDirectoryName
+        pDNSIpAddresses: 
+          Fn::GetAtt:
+            - rDirectoryService
+            - Outputs.oDirectoryDNSIpaddresses
+    DependsOn: 
+      - rDirectoryService
 
 #############################################AD IAM Role###########################################################################
   rSupportRoles:
