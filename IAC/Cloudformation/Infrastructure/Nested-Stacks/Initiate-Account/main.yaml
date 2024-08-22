@@ -77,6 +77,15 @@ Metadata: # This is putr in an s3 bucket
         - pDirectoryId
         - pDirectoryName
         - pDNSIpAddresses
+    - Label: 
+        default: "Secrets Manager configurations" 
+      Parameters:
+        - pDomainJoinUserName
+    - Label: 
+        default: "Domain Join Automation configurations" 
+      Parameters:
+        - pAssociationName
+        - pCronexpression
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
@@ -198,6 +207,17 @@ Metadata: # This is putr in an s3 bucket
         default: The name of the directory. For example, test.example.com
       pDNSIpAddresses: 
         default: The IP addresses of the DNS servers in the directory
+
+###################################Secrets Manager###############################
+      pDomainJoinUserName: 
+        default: The active directory admin user name 
+    
+###################################SSM Domain join automation###############################
+      pAssociationName: 
+        default: The name of the association for the domain join
+      pCronexpression: 
+        default: The cron expression used for the association 
+
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -416,9 +436,21 @@ Parameters:
     Type: String
 
   pDNSIpAddresses:
-    # AllowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
     Type: CommaDelimitedList
+
+############################################Secrets Manager#######################################  
+  pDomainJoinUserName:
+    Type: String
   
+############################################SSM Doamin join automation#######################################  
+  pAssociationName:
+    Type: String
+    Default: DomainJoin 
+
+  pCronexpression:
+    Type: String
+    Default: cron(0 14 * * ? *)
+
 Resources: 
   rVpcStack:
     Type: AWS::CloudFormation::Stack
@@ -671,20 +703,36 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
-        pWebServerInstanceProfile:
+        pDirectoryId:
           Fn::GetAtt:
-           - rSupportRoles
-           - Outputs.oNestedADIAMInstanceProfileName
-        pWindowsADSecurityGroup: 
-          Fn::GetAtt: 
-            - rSecurityGroupStack
-            - Outputs.oNestedadsg
-        pADSharedservicesPrivateSubnetId: 
+           - rDirectoryService
+           - Outputs.oDirectoryId
+        pDomainJoinUserName: !Ref pDomainJoinUserName
+        pAdminPassowrd: !Ref pAdminPassowrd
+    DependsOn: 
+        - rDirectoryService
+
+###################################Domain Join Association#################################################################
+  rDomainJoinAutomation:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Domainjoinautomation.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAssociationName: !Ref pAssociationName
+        pCronexpression: !Ref pCronexpression
+        pDocumentName:
           Fn::GetAtt:
-            - rSharedServicesVpcStack
-            - Outputs.oPrivateSubnet1
-  
+           - rSSMDomainJoin
+           - Outputs.oDomainJoinDocument
+    DependsOn: 
+        - rDirectoryService
+        - rSSMDomainJoin
         
+        
+        
+  
           
 
 

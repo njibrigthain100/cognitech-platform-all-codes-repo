@@ -19,12 +19,11 @@ Parameters:
   pAssociationName:
     Description: The association name 
     Type: String
-    Default: domain 
+
 
   pDocumentName:
     Description: The document used for the association 
     Type: String
-    Default: DomainJoinDoc 
 
   pCronexpression:
     Description: The cron expression used for the association 
