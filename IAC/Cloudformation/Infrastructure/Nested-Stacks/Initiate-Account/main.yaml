@@ -89,7 +89,7 @@ Metadata: # This is putr in an s3 bucket
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
-        default: The account name in upper case. 
+        default: pAwsAccount 
       pAwsAccountLC: 
         default: The account name in lower case 
       pBucketName: 
@@ -221,6 +221,7 @@ Metadata: # This is putr in an s3 bucket
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
+    Description: The account name in upper case. 
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccount
   
@@ -441,6 +442,7 @@ Parameters:
 ############################################Secrets Manager#######################################  
   pDomainJoinUserName:
     Type: String
+    Default: Admin
   
 ############################################SSM Doamin join automation#######################################  
   pAssociationName:
@@ -691,9 +693,16 @@ Resources:
           Fn::GetAtt:
             - rSharedServicesVpcStack
             - Outputs.oPublicSubnet1
+        pDocumentName: 
+          Fn::GetAtt:
+            - rSSMDomainJoin
+            - Outputs.oDomainJoinDocument
     DependsOn: 
-        - rSupportRoles
-        - rSharedServicesVpcStack
+      - rSupportRoles
+      - rSharedServicesVpcStack
+      - rDirectoryService
+      - rSSMDomainJoin
+
 
 ###################################Secrets Manager#################################################################
   rSecretsManager:

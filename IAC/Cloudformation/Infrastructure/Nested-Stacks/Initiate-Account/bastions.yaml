@@ -41,6 +41,10 @@ Parameters:
   pSharedSeervicesPublicSubnetId:
     Description: The subnet Id for the shared services public subnet
     Type: String
+  
+  pDocumentName:
+    Description: The domain join document for the server
+    Type: String
 
 Mappings:
   mAccountVariables:
@@ -90,6 +94,22 @@ Resources:
       SecurityGroupIds: 
         - !Ref pBastionSSHSecurityGroup
       SubnetId: !Ref pSharedSeervicesPublicSubnetId
+      UserData:  
+        Fn::Base64: !Sub | 
+          #!/bin/bash
+          # Set the default AWS region
+          export AWS_DEFAULT_REGION="us-east-1"
+          # Get a token for IMDSv2
+          TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+          # Get the instance ID using the token
+          instance_id=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+          # Check if instance_id is retrieved successfully
+          if [ -z "$instance_id" ]; then
+            echo "Failed to retrieve instance ID."
+            exit 1
+          fi
+          # Create an SSM association
+          aws ssm create-association --instance-id "$instance_id" --name "${pDocumentName}"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-SSH-bastion 
@@ -123,6 +143,23 @@ Resources:
       SecurityGroupIds: 
         - !Ref pBastionRDPSecurityGroup
       SubnetId: !Ref pSharedSeervicesPublicSubnetId
+      UserData:  
+        Fn::Base64: !Sub | 
+          <powershell>
+            # Get a token for IMDSv2
+            $token = Invoke-RestMethod -Method Put -Uri http://169.254.169.254/latest/api/token -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="21600"}
+            # Get the instance ID using the token
+            $instance_id = Invoke-RestMethod -Uri http://169.254.169.254/latest/meta-data/instance-id -Headers @{"X-aws-ec2-metadata-token"=$token}
+            # Check if instance_id is retrieved successfully
+            if (-not $instance_id) {
+            Write-Host "Failed to retrieve instance ID."
+            exit 1
+            }
+            # Set the default AWS region
+            Set-DefaultAWSRegion -Region "us-east-1"
+            # Create an SSM association
+            New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+          </powershell>
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-RDP-bastion
