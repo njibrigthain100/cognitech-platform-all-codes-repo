@@ -105,6 +105,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: App
+        - Key: DomainJoin 
+          Value: yes
 
   rWindowsAppserver:
     Type: AWS::EC2::Instance
@@ -137,6 +139,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }wapp 
         - Key: Type  
           Value: App
+        - Key: DomainJoin 
+          Value: yes
         
 
 Outputs:

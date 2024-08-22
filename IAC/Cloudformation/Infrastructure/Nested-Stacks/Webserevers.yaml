@@ -132,6 +132,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: Web
+        - Key: DomainJoin 
+          Value: yes
 
 
   rLinuxWebserver02:
@@ -191,6 +193,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: Web
+        - Key: DomainJoin 
+          Value: yes
 
 
   rWindowsWebserver01:
@@ -232,6 +236,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }wapp 
         - Key: Type  
           Value: Web 
+        - Key: DomainJoin 
+          Value: yes
  
   rWindowsWebserver02:
     Type: AWS::EC2::Instance
@@ -272,6 +278,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }wapp 
         - Key: Type  
           Value: App
+        - Key: DomainJoin 
+          Value: yes
 
 Outputs:
   oLinuxWebServerInstanceId01:

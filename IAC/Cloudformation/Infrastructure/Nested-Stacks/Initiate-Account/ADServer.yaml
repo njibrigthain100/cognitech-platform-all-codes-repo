@@ -118,6 +118,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }wapp 
         - Key: Type  
           Value: Active Directory
+        - Key: DomainJoin 
+          Value: yes
  
 Outputs:  
   oActiveDirectoryInstanceId:

@@ -663,26 +663,26 @@ Resources:
         - rSupportRoles
         - rSharedServicesVpcStack
 
-# ###################################Secrets Manager#################################################################
-#   rSecretsManager:
-#     Type: AWS::CloudFormation::Stack
-#     Properties:
-#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SecretsManager.yaml
-#       TimeoutInMinutes: 20
-#       Parameters: 
-#         pAppName: !Ref pAppName
-#         pWebServerInstanceProfile:
-#           Fn::GetAtt:
-#            - rSupportRoles
-#            - Outputs.oNestedADIAMInstanceProfileName
-#         pWindowsADSecurityGroup: 
-#           Fn::GetAtt: 
-#             - rSecurityGroupStack
-#             - Outputs.oNestedadsg
-#         pADSharedservicesPrivateSubnetId: 
-#           Fn::GetAtt:
-#             - rSharedServicesVpcStack
-#             - Outputs.oPrivateSubnet1
+###################################Secrets Manager#################################################################
+  rSecretsManager:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SecretsManager.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pWebServerInstanceProfile:
+          Fn::GetAtt:
+           - rSupportRoles
+           - Outputs.oNestedADIAMInstanceProfileName
+        pWindowsADSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedadsg
+        pADSharedservicesPrivateSubnetId: 
+          Fn::GetAtt:
+            - rSharedServicesVpcStack
+            - Outputs.oPrivateSubnet1
   
         
           

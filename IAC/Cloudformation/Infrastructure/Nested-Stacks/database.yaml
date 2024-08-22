@@ -95,6 +95,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }wdb 
         - Key: Type  
           Value: DB
+        - Key: DomainJoin 
+          Value: yes
       
 Outputs:
   oWindowsDBServerInstanceId:

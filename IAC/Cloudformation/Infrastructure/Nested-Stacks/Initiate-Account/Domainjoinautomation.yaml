@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an automation document for server domain join
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Type: String
+    Default: cognitech
+
+  pAssociationName:
+    Description: The association name 
+    Type: String
+    Default: domain 
+
+  pDocumentName:
+    Description: The document used for the association 
+    Type: String
+    Default: DomainJoinDoc 
+
+  pCronexpression:
+    Description: The cron expression used for the association 
+    Type: String
+    Default: cron(0 14 * * ? *)
+
+Resources: 
+  rNestedDomainjoinautomation:
+    Type: AWS::SSM::Association
+    Properties:
+      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-${ pAssociationName }
+      Name: !Ref pDocumentName
+      ScheduleExpression: !Ref pCronexpression
+      Targets:
+      - Key: tag:DomainJoin
+        Values:
+        - yes   
