@@ -107,6 +107,8 @@ Resources:
           Value: App
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Linux-PatchGroup
 
   rWindowsAppserver:
     Type: AWS::EC2::Instance
@@ -141,6 +143,8 @@ Resources:
           Value: App
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Windows-PatchGroup
         
 
 Outputs:

@@ -86,138 +86,151 @@ Metadata: # This is putr in an s3 bucket
       Parameters:
         - pAssociationName
         - pCronexpression
+    - Label: 
+        default: "Maintenance Window configurations" 
+      Parameters:
+        - pWindowsPatchWindow
+        - pLinuxPatchWindow
+        - pMaintenanceWindowSchedule
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: pAwsAccount 
       pAwsAccountLC: 
-        default: The account name in lower case 
+        default: pAwsAccountLC 
       pBucketName: 
-        default: The name of the bucket storing all the children stacks 
+        default: pBucketName 
       pAppName: 
-        default: The appplication being created 
+        default: pAppName
   ###########################App vpc parameter labels############################################
       pVPCCidr: 
-        default: The vpc cidr range 
+        default: pVPCCidr 
       pPrivateSubnet1CIDR: 
-        default: The first private subnet cidr range.
+        default: pPrivateSubnet1CIDR
       pPrivateSubnet2CIDR: 
-        default: The second private subnet cidr range 
+        default: pPrivateSubnet2CIDR 
       pPublicSubnet1CIDR: 
-        default: The first public subnet cidr range
+        default: pPublicSubnet1CIDR
       pPublicSubnet2CIDR: 
-        default: The second public subnet cidr range 
+        default: pPublicSubnet2CIDR 
       pAvailabilityZones: 
-        default: The availability zones on which the resource will be created 
+        default: pAvailabilityZones
   ###########################App shared services parameter labels#################################
       pSharedServicesAccount: 
-        default: The vpc name for shared services 
+        default: pSharedServicesAccount
       pSharedServicesVPCCidr: 
-        default: The vpc cidr range for shared services vpc
+        default: pSharedServicesVPCCidr
       pSharedServicesPrivateSubnet1CIDR: 
-        default: The first private subnet cidr range for shared services
+        default: pSharedServicesPrivateSubnet1CIDR
       pSharedServicesPrivateSubnet2CIDR: 
-        default: The second private subnet cidr range for shared services 
+        default: pSharedServicesPrivateSubnet2CIDR
       pSharedServicesPublicSubnet1CIDR: 
-        default: The first public subnet cidr range for shared services
+        default: pSharedServicesPublicSubnet1CIDR
       pSharedServicesPublicSubnet2CIDR: 
-        default: The second public subnet cidr range for shared services
+        default: pSharedServicesPublicSubnet2CIDR
       pSharedServicesAvailabilityZones: 
-        default: The availability zones on which the resource will be created for shared services
+        default: pSharedServicesAvailabilityZones
       pVpcid: 
-        default: The vpc id on which the resources will be created 
+        default: pVpcid 
 #############################Transit gateway parameter labels######################################
       pAmazonAsn: 
-        default: The Amazon side Autonomous System Number (ASN)
+        default: pAmazonAsn
       pAutoAcceptAttachment: 
-        default: Do you want to auto accept the tgw attachments?
+        default: pAutoAcceptAttachment
       pRouteTablePropagation: 
-        default: Do you want to automatically propagate the routes to the default route table?
+        default: pRouteTablePropagation
       pRouteTableAssociation: 
-        default: Do you want to automatically associate the routes to the default route table?
+        default: pRouteTableAssociation
       pDNSSupport: 
-        default:  Do you want to enable DNS suuport?
+        default:  pDNSSupport
       pVPNSupport: 
-        default: Do you want to enable VPN suuport? 
+        default: pVPNSupport 
       pSharedServicesPrivateSubnet1Id: 
-        default: The Id of the first shared services private subnet
+        default: pSharedServicesPrivateSubnet1Id
       pSharedServicesPrivateSubnet2Id: 
-        default: The Id of the second shared services private subnet
+        default: pSharedServicesPrivateSubnet2Id
       pSharedServicesVPCId: 
-        default: The Id of the shared services VPC
+        default: pSharedServicesVPCId
       pApp1PrivateSubnet1Id: 
-        default: The Id of the first App1 private subnet 
+        default: pApp1PrivateSubnet1Id 
       pApp1PrivateSubnet2Id: 
-        default: The Id of the second App1 private subnet 
+        default: pApp1PrivateSubnet2Id 
       pApp1VPCId: 
-        default: The Id of the App1 VPC
+        default: pApp1VPCId
       pTransitGatewayCIDR:
-        default: The CIDR range for the transit gateway. Most likely /16 
+        default: pTransitGatewayCIDR
       pApp1NatGateway1Id:
-        default: The Id of the first Nat gateway
+        default: pApp1NatGateway1Id
       pApp1NatGateway2Id:
-        default: The Id of the second Nat gateway
+        default: pApp1NatGateway2Id
       pSSNatGateway1Id: 
-        default: The Id of the first shared services Nat gateway
+        default: pSSNatGateway1Id
       pSSNatGateway2Id: 
-        default: The Id of the second shared services Nat gateway
+        default: pSSNatGateway2Id
       pSharedServicesInternetGateway: 
-        default: The Internet gateway id for the shared services vpc
+        default: pSharedServicesInternetGateway
       pSharedServicesPublicSubnet1Id: 
-        default: The Id of the first shared services public subnet
+        default: pSharedServicesPublicSubnet1Id
       pSharedServicesPublicSubnet2Id: 
-        default: The Id of the second shared services public subnet
+        default: pSharedServicesPublicSubnet2Id
 
 #############################Directory Services####################################
       pAdminPassowrd: 
-        default: The password for the default administartive admin user 
+        default: pAdminPassowrd 
       pADName: 
-        default: The directory DNS name
+        default: pADName
       pADShortName: 
-        default: The NetBios name for the domain 
+        default: pADShortName 
       pEdition: 
-        default: The directory edition
+        default: pEdition
       
 ###################################Active directory Master server###############################
       pWindows2019LatestAmiId: 
-        default: The latest ami Id for windows 2019 
+        default: pWindows2019LatestAmiId 
       pADServerInstanceProfile: 
-        default: The instance profile for the active directory master server
+        default: pADServerInstanceProfile
       pWindowsADSecurityGroup: 
-        default: The active directory master server security group
+        default: pWindowsADSecurityGroup
       pADSharedservicesPrivateSubnetId: 
-        default: The subnet Id for the shared services vpc
+        default: pADSharedservicesPrivateSubnetId
       pDocumentName: 
-        default: The ssm domain join document for the server
+        default: pDocumentName
 
 ###################################Bastion Server###############################
       pBastionInstanceProfile: 
-        default: The instance profile for the bastions servers 
+        default: pBastionInstanceProfile 
       pBastionRDPSecurityGroup: 
-        default: The security group for the rdp bastion
+        default: pBastionRDPSecurityGroup
       pBastionSSHSecurityGroup: 
-        default: The security group for the ssh bastion
+        default: pBastionSSHSecurityGroup
       pSharedSeervicesPublicSubnetId: 
-        default: The subnet Id for the shared services public subnet
+        default: pSharedSeervicesPublicSubnetId
 
 ###################################SSM Domain join docunment###############################
       pDirectoryId: 
-        default: The ID of the AWS Directory Service directory 
+        default: pDirectoryId 
       pDirectoryName: 
-        default: The name of the directory. For example, test.example.com
+        default: pDirectoryName
       pDNSIpAddresses: 
-        default: The IP addresses of the DNS servers in the directory
+        default: pDNSIpAddresses
 
 ###################################Secrets Manager###############################
       pDomainJoinUserName: 
-        default: The active directory admin user name 
+        default: pDomainJoinUserName 
     
 ###################################SSM Domain join automation###############################
       pAssociationName: 
-        default: The name of the association for the domain join
+        default: pAssociationName
       pCronexpression: 
-        default: The cron expression used for the association 
+        default: pCronexpression 
 
+###################################SSM Maintenance Window###############################
+      pWindowsPatchWindow: 
+        default: pWindowsPatchWindow
+      pLinuxPatchWindow: 
+        default: pLinuxPatchWindow
+      pMaintenanceWindowSchedule: 
+        default: pMaintenanceWindowSchedule
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -226,83 +239,101 @@ Parameters:
     Default: /standard/AWSAccount
   
   pAwsAccountLC:
+    Description: The account name in lower case 
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccountLC
 
   pBucketName:
+    Description: The name of the bucket storing all the children stacks 
     Type: String
     Default: prod-nested-stack-us-east-1
   
   pAppName:
+    Description: The appplication being created
     Type: String
     Default: cognitech
 ########################## VPC parameters ######################################
   pVPCCidr:
+    Description: The app vpc cidr range
     Type: String
     Default: 10.1.1.0/24
   
   pPrivateSubnet1CIDR:
+    Description: The first private subnet cidr range.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.1.0/27
   
   pPrivateSubnet2CIDR:
+    Description: The second private subnet cidr range
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.1.32/27
   
   pPublicSubnet1CIDR:
+    Description: The first public subnet cidr range
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.1.64/27
   
   pPublicSubnet2CIDR:
+    Description: The second public subnet cidr range
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.1.96/27
   
   pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
 
 ########################## Shared services VPC parameters ######################################
   pSharedServicesAccount:
+    Description: The shared services vpc name
     Type: String
     Default: /standard/SharedServicesVpc
   
   pSharedServicesVPCCidr:
+    Description: The vpc cidr range for shared services vpc
     Type: String
     Default: 10.1.2.0/24
   
   pSharedServicesPrivateSubnet1CIDR:
+    Description: The first private subnet cidr range for shared services
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.2.0/27
   
   pSharedServicesPrivateSubnet2CIDR:
+    Description: The second private subnet cidr range for shared services 
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.2.32/27
   
   pSharedServicesPublicSubnet1CIDR:
+    Description: The first public subnet cidr range for shared services
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.2.64/27
   
   pSharedServicesPublicSubnet2CIDR:
+    Description: The second public subnet cidr range for shared services
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
     Default: 10.1.2.96/27
   
   pSharedServicesAvailabilityZones:
+    Description: The availability zones on which the resource will be created for shared services
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
   # Security Group parameters
   pVpcid:
+    Description: The vpc id on which the resources will be created
     Type: String 
   
   ################################ Transit Gateway ###############################################
   pAmazonAsn:
+    Description: The Amazon side Autonomous System Number (ASN)
     Type: String
     Default: 65000
     MinLength: 5
@@ -310,6 +341,7 @@ Parameters:
     ConstraintDescription: The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
   
   pAutoAcceptAttachment:
+    Description: Do you want to auto accept the tgw attachments?
     Type: String
     Default: "enable"
     AllowedValues:
@@ -317,6 +349,7 @@ Parameters:
       - "disable"
   
   pRouteTablePropagation:
+    Description: Do you want to automatically propagate the routes to the default route table?
     Type: String
     Default: "enable"
     AllowedValues:
@@ -324,6 +357,7 @@ Parameters:
       - "disable"
   
   pRouteTableAssociation: 
+    Description: Do you want to automatically associate the routes to the default route table?
     Type: String
     Default: "enable"
     AllowedValues:
@@ -331,6 +365,7 @@ Parameters:
       - "disable"
 
   pDNSSupport:
+    Description: Do you want to enable DNS suuport?
     Type: String
     Default: "enable"
     AllowedValues:
@@ -338,6 +373,7 @@ Parameters:
       - "disable"
   
   pVPNSupport:
+    Description: Do you want to enable VPN suuport?
     Type: String
     Default: "enable"
     AllowedValues:
@@ -345,53 +381,68 @@ Parameters:
       - "disable"
 
   pTransitGatewayCIDR:
+    Description: The CIDR range for the transit gateway. Most likely /16 
     Type: String 
     Default: 10.1.0.0/16
   
   pSharedServicesPrivateSubnet1Id:
+    Description: The Id of the first shared services private subnet
     Type: String
 
   pSharedServicesPrivateSubnet2Id:
+    Description: The Id of the second shared services private subnet
     Type: String
 
   pSharedServicesVPCId:
+    Description: The Id of the shared services VPC
     Type: String
 
   pSSNatGateway1Id:
+    Description: The Id of the first shared services Nat gateway
     Type: String 
 
   pSSNatGateway2Id:
+    Description: The Id of the second shared services Nat gateway
     Type: String 
 
   pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
     Type: String
 
   pApp1PrivateSubnet2Id:
+    Description: The Id of the second App1 private subnet
     Type: String
 
   pApp1VPCId:
+    Description: The Id of the App1 VPC
     Type: String
         
-  pApp1NatGateway1Id:
+  pApp1NatGateway1Id: 
+    Description: The Id of the first Nat gateway
     Type: String
   
   pApp1NatGateway2Id:
+    Description: The Id of the second Nat gateway
     Type: String 
   
 ########################################Directory Service########################################### 
   pAdminPassowrd:
+    Description: The password for the default administartive admin user 
     Type: String 
     Default: Shilohangel@2024
   
   pADName:
+    Description: The directory DNS name
     Type: String
     Default: kahbrigthllc.com
    
   pADShortName:
+    Description: The NetBios name for the domain
     Type: String
     Default: kahbrigthllc
 
   pEdition:
+    Description: The directory edition
     Type: String
     Default: "Standard"
     AllowedValues:
@@ -405,53 +456,83 @@ Parameters:
     Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
   
   pADServerInstanceProfile:
+    Description: The instance profile for the active directory master server
     Type: String
   
   pWindowsADSecurityGroup:
+    Description: The active directory master server security group
     Type: String
   
   pADSharedservicesPrivateSubnetId:
+    Description: The subnet Id for the shared services vpc
     Type: String 
 
   pDocumentName:
+    Description: The ssm domain join document for the server
     Type: String
 
 ############################################Bastion server########################################  
   pBastionInstanceProfile: 
+    Description: The instance profile for the bastions servers
     Type: String
   
   pBastionRDPSecurityGroup: 
+    Description: The security group for the rdp bastion
     Type: String
   
   pBastionSSHSecurityGroup:
+    Description: The security group for the ssh bastion
     Type: String
   
   pSharedSeervicesPublicSubnetId:
+    Description: The subnet Id for the shared services public subnet
     Type: String
 
 ############################################SSM domain join document#######################################  
   pDirectoryId:
+    Description: The ID of the AWS Directory Service directory
     Type: String
   
   pDirectoryName:
+    Description: The name of the directory. For example, test.example.com
     Type: String
 
   pDNSIpAddresses:
+    Description: The IP addresses of the DNS servers in the directory
     Type: CommaDelimitedList
 
 ############################################Secrets Manager#######################################  
   pDomainJoinUserName:
+    Description: The active directory admin user name
     Type: String
     Default: Admin
   
 ############################################SSM Doamin join automation#######################################  
   pAssociationName:
+    Description: The name of the association for the domain join
     Type: String
     Default: DomainJoin 
 
   pCronexpression:
+    Description: The cron expression used for the association
     Type: String
     Default: cron(0 14 * * ? *)
+
+############################################SSM Maintenence Window#######################################  
+  pWindowsPatchWindow:
+    Description: The name of the window for windows patching 
+    Type: String
+    Default: WindowsPatch
+
+  pLinuxPatchWindow:
+    Description: The name of the window for linux patching 
+    Type: String
+    Default: LinuxPatch
+
+  pMaintenanceWindowSchedule:
+    Description: The schedule for when the maintenance window happens
+    Type: String
+    Default: cron(0 0 ? * SUN *)
 
 Resources: 
   rVpcStack:
@@ -738,6 +819,19 @@ Resources:
     DependsOn: 
         - rDirectoryService
         - rSSMDomainJoin
+
+###################################SSM Maintenance Window#################################################################
+  rSSMMaintenanceWindow:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMMaintenanceWindow.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pWindowsPatchWindow: !Ref pWindowsPatchWindow
+        pLinuxPatchWindow: !Ref pLinuxPatchWindow
+        pMaintenanceWindowSchedule: !Ref pMaintenanceWindowSchedule
+
         
         
         

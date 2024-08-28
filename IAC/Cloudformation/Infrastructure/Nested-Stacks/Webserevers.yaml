@@ -134,6 +134,8 @@ Resources:
           Value: Web
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Linux-PatchGroup
 
 
   rLinuxWebserver02:
@@ -195,6 +197,8 @@ Resources:
           Value: Web
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Linux-PatchGroup
 
 
   rWindowsWebserver01:
@@ -238,6 +242,8 @@ Resources:
           Value: Web 
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Windows-PatchGroup
  
   rWindowsWebserver02:
     Type: AWS::EC2::Instance
@@ -280,6 +286,8 @@ Resources:
           Value: App
         - Key: DomainJoin 
           Value: yes
+        - Key: PatchGroup 
+          Value: Windows-PatchGroup
 
 Outputs:
   oLinuxWebServerInstanceId01:
