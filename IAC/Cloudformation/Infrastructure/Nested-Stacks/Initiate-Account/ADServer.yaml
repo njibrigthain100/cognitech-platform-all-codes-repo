@@ -102,6 +102,29 @@ Resources:
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
             # Install Active directory 
             Install-windowsFeature RSAT-AD-Tools,RSAT-DNS-Server -IncludeAllSubFeature -IncludeManagementTools 
+            # Variables - customize these according to your environment
+            $DomainName = "kahbrigthllc.com"           # Your domain name (e.g., corp.example.com)
+            $SafeModeAdminPassword = "Shilohangel@2024"   # DSRM password for safe mode admin
+            # AWS Directory Service Admin Credentials
+            $Username = "Admin@kahbrigthllc.com"       # Your AWS Directory Service admin username
+            $Password = "Shilohangel@2024"        # Your AWS Directory Service admin password
+            $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
+            $AWSAdminCredential = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
+            # Install the AD DS role
+            Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+            # Install AD DS and promote the server as a domain controller
+            Install-ADDSDomainController `
+                -DomainName $DomainName `
+                -InstallDns `
+                -Credential $AWSAdminCredential `
+                -DatabasePath "C:\Windows\NTDS" `
+                -LogPath "C:\Windows\NTDS" `
+                -SysvolPath "C:\Windows\SYSVOL" `
+                -NoRebootOnCompletion `
+                -SafeModeAdministratorPassword (ConvertTo-SecureString $SafeModeAdminPassword -AsPlainText -Force) `
+                -Force
+            # Reboot the server to complete the installation
+            Restart-Computer -Force
           </powershell>
       Tags: 
         - Key: Name 
