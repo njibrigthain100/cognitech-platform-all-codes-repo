@@ -10,59 +10,11 @@ Metadata: # This is putr in an s3 bucket
         - pAwsAccountLC
         - pBucketName
         - pAppName
-    - Label: 
-        default: "Network configurations" 
-      Parameters:
-        - pVPCCidr
-        - pPrivateSubnet1CIDR
-        - pPrivateSubnet2CIDR
-        - pPublicSubnet1CIDR
-        - pPublicSubnet2CIDR
-        - pAvailabilityZones
-        - pSharedServicesAccount
-        - pSharedServicesVPCCidr
-        - pSharedServicesPrivateSubnet1CIDR
-        - pSharedServicesPrivateSubnet2CIDR
-        - pSharedServicesPublicSubnet1CIDR
-        - pSharedServicesPublicSubnet2CIDR
-        - pSharedServicesAvailabilityZones
     - Label:
         default: "security group configurations" 
       Parameters: 
         - pVpcid
         - pSharedServicesVPCId
-    - Label:
-        default: "Transit Gateway configurations" 
-      Parameters: 
-        - pAmazonAsn
-        - pAutoAcceptAttachment
-        - pRouteTablePropagation
-        - pRouteTableAssociation
-        - pDNSSupport
-        - pVPNSupport
-        - pSharedServicesPrivateSubnet1Id
-        - pSharedServicesPrivateSubnet2Id
-        - pSharedServicesVPCId
-        - pApp1PrivateSubnet1Id
-        - pApp1PrivateSubnet2Id
-        - pApp1VPCId
-        - pTransitGatewayCIDR
-        - pApp1NatGateway1Id
-        - pApp1NatGateway2Id
-        - pSSNatGateway1Id
-        - pSSNatGateway2Id
-        - pSharedServicesInternetGateway
-        - pSharedServicesPublicSubnet1Id
-        - pSharedServicesPublicSubnet2Id
-    - Label:
-        default: "Bastion hosts configurations" 
-      Parameters: 
-        - pAmznLnx2LatestAmiId
-        - pWindows2019LatestAmiId
-        - pBastionInstanceProfile
-        - pBastionRDPSecurityGroup
-        - pBastionSSHSecurityGroup
-        - pSharedSeervicesPublicSubnetId
     - Label:
         default: "App Servers configurations" 
       Parameters: 
@@ -150,515 +102,304 @@ Metadata: # This is putr in an s3 bucket
 
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
-        default: The account name in upper case. 
+        default: pAwsAccount 
       pAwsAccountLC: 
-        default: The account name in lower case 
+        default: pAwsAccountLC 
       pBucketName: 
-        default: The name of the bucket storing all the children stacks 
+        default: pBucketName 
       pAppName: 
-        default: The appplication being created 
-  ###########################App vpc parameter labels############################################
-      pVPCCidr: 
-        default: The vpc cidr range 
-      pPrivateSubnet1CIDR: 
-        default: The first private subnet cidr range.
-      pPrivateSubnet2CIDR: 
-        default: The second private subnet cidr range 
-      pPublicSubnet1CIDR: 
-        default: The first public subnet cidr range
-      pPublicSubnet2CIDR: 
-        default: The second public subnet cidr range 
-      pAvailabilityZones: 
-        default: The availability zones on which the resource will be created 
-  ###########################App shared services parameter labels#################################
-      pSharedServicesAccount: 
-        default: The vpc name for shared services 
-      pSharedServicesVPCCidr: 
-        default: The vpc cidr range for shared services vpc
-      pSharedServicesPrivateSubnet1CIDR: 
-        default: The first private subnet cidr range for shared services
-      pSharedServicesPrivateSubnet2CIDR: 
-        default: The second private subnet cidr range for shared services 
-      pSharedServicesPublicSubnet1CIDR: 
-        default: The first public subnet cidr range for shared services
-      pSharedServicesPublicSubnet2CIDR: 
-        default: The second public subnet cidr range for shared services
-      pSharedServicesAvailabilityZones: 
-        default: The availability zones on which the resource will be created for shared services
-      pVpcid: 
-        default: The vpc id on which the resources will be created 
-#############################Transit gateway parameter labels######################################
-      pAmazonAsn: 
-        default: The Amazon side Autonomous System Number (ASN)
-      pAutoAcceptAttachment: 
-        default: Do you want to auto accept the tgw attachments?
-      pRouteTablePropagation: 
-        default: Do you want to automatically propagate the routes to the default route table?
-      pRouteTableAssociation: 
-        default: Do you want to automatically associate the routes to the default route table?
-      pDNSSupport: 
-        default:  Do you want to enable DNS suuport?
-      pVPNSupport: 
-        default: Do you want to enable VPN suuport? 
-      pSharedServicesPrivateSubnet1Id: 
-        default: The Id of the first shared services private subnet
-      pSharedServicesPrivateSubnet2Id: 
-        default: The Id of the second shared services private subnet
-      pSharedServicesVPCId: 
-        default: The Id of the shared services VPC
-      pApp1PrivateSubnet1Id: 
-        default: The Id of the first App1 private subnet 
-      pApp1PrivateSubnet2Id: 
-        default: The Id of the second App1 private subnet 
-      pApp1VPCId: 
-        default: The Id of the App1 VPC
-      pTransitGatewayCIDR:
-        default: The CIDR range for the transit gateway. Most likely /16 
-      pApp1NatGateway1Id:
-        default: The Id of the first Nat gateway
-      pApp1NatGateway2Id:
-        default: The Id of the second Nat gateway
-      pSSNatGateway1Id: 
-        default: The Id of the first shared services Nat gateway
-      pSSNatGateway2Id: 
-        default: The Id of the second shared services Nat gateway
-      pSharedServicesInternetGateway: 
-        default: The Internet gateway id for the shared services vpc
-      pSharedServicesPublicSubnet1Id: 
-        default: The Id of the first shared services public subnet
-      pSharedServicesPublicSubnet2Id: 
-        default: The Id of the second shared services public subnet
-
-#######################Bastion hosts parameters ############################### 
-      pAmznLnx2LatestAmiId: 
-        default: The latest ami Id for amazon linux 2 
-      pWindows2019LatestAmiId: 
-        default: The latest ami Id for windows 2019
-      pBastionInstanceProfile: 
-        default: The instance profile for the bastions
-      pBastionRDPSecurityGroup: 
-        default: The security group for the rdp bastion 
-      pBastionSSHSecurityGroup: 
-        default: The security group for the ssh bastion
-      pSharedSeervicesPublicSubnetId: 
-        default: The subnet Id for the shared services public subnet
+        default: pAppName 
 
 #######################App servers parameters ############################### 
       pAppServerInstanceProfile: 
-        default: The instance profile for the App server
+        default: pAppServerInstanceProfile
       pWindowsAppServerSecurityGroup:
-        default: The windows app server security group 
+        default: pWindowsAppServerSecurityGroup 
       pLinuxAppServerSecurityGroup:
-        default: The linux app server security group
+        default: pLinuxAppServerSecurityGroup
       pAppServerPrivateSubnetId:
-        default: The subnet Id for the app server
+        default: pAppServerPrivateSubnetId
 
 #######################Web servers parameters ############################### 
       pWebServerInstanceProfile: 
-        default: The instance profile for the web server
+        default: pWebServerInstanceProfile
       pWindowsWebServerSecurityGroup:
-        default: The windows web server security group 
+        default: pWindowsWebServerSecurityGroup 
       pLinuxWebServerSecurityGroup:
-        default: The linux web server security group
+        default: pLinuxWebServerSecurityGroup
       pWebServerPrivateSubnetId:
-        default: The subnet Id for the web server
+        default: pWebServerPrivateSubnetId
 
 #######################DB servers parameters ############################### 
-      ppWindowsDBLatestAmiId: 
-        default: The latest ami Id for windows & SQL
+      pWindowsDBLatestAmiId: 
+        default: pWindowsDBLatestAmiId
       pDBServerInstanceProfile:
-        default: The instance profile for the DB server 
+        default: pDBServerInstanceProfile 
       pWindowsDBServerSecurityGroup:
-        default: The windows DB server security group
+        default: pWindowsDBServerSecurityGroup
       pDBServerPrivateSubnetId:
-        default: The subnet Id for the DB server
+        default: pDBServerPrivateSubnetId
 
 #############################ALB parameters#####################################
       pHealthCheckIntervalSeconds: 
-        default: The intervals for health checks
+        default: pHealthCheckIntervalSeconds
       pHealthCheckProtocol:
-        default: The health check protocol 
+        default: pHealthCheckProtocol 
       pHealthCheckPath:
-        default: The path for the alb health check
+        default: pHealthCheckPath
       pHealthCheckPort:
-        default: The health check protocol
+        default: pHealthCheckPort
       pHealthCheckTimeoutSeconds: 
-        default: The amount of time, in seconds, during which no response from a target means a failed health
+        default: pHealthCheckTimeoutSecond
       pHealthyThresholdCount:
-        default: The number of consecutive health check successes required before considering a target healthy
+        default: pHealthyThresholdCount
       pPort:
-        default: The port on which the targets receive traffic
+        default: pPort
       pProtocol:
-        default: The protocol to use for routing traffic to the targets
+        default: pProtocol
       pLinuxTarget1: 
-        default: The first linux instance ID behind the target group
+        default: pLinuxTarget1
       pLinuxTarget2:
-        default: The second linux instance ID behind the target group
+        default: pLinuxTarget2
       pWindowsTarget1:
-        default: The first windows instance ID behind the target group
+        default: pWindowsTarget1
       pWindowsTarget2:
-        default: The second windows instance ID behind the target group
+        default: pWindowsTarget2
       pTargetType: 
-        default: The type of target that you must specify when registering targets with this target group
+        default: pTargetType
       pdeletionprotectionenabled:
-        default: Indicates whether deletion protection is enabled
+        default: pdeletionprotectionenabled
       paccesslogss3enabled:
-        default: Indicates whether access logs are enabled
+        default: paccesslogss3enabled
       palbscheme:
-        default: The alb scheme
+        default: palbscheme
       palbsubnet1:
-        default: The first alb subnet
+        default: palbsubnet1
       palbsubnet2:
-        default: The second alb subnet
+        default: palbsubnet2
       palbsecuritygroup: 
-        default: The alb security group
+        default: palbsecuritygroup
       palbcertificate:
-        default: The alb certificate
+        default: palbcertificate
       pSslPolicy:
-        default: Security policy to negotiate SSL connections between a client and the load balancer
+        default: pSslPolicy
       palbport:
-        default: The port on which the load balancer is listening
+        default: palbport
       palbprotocol: 
-        default: The protocol for connections from clients to the load balancer
+        default: palbprotocol
 
 #########################################DNS######################################
       pHostedZoneId: 
-        default: The DNS hosted zone
+        default: pHostedZoneId
       pHostedZoneName: 
-        default: The DNS hosted zone name
+        default: pHostedZoneName
       pLinuxip01:
-        default: The ip of the first linux server
+        default: pLinuxip01
       plinuxip02:
-        default: The ip of the second linux server
+        default: plinuxip02
       pWindowsip01:
-        default: The ip of the first windows server
+        default: pWindowsip01
       pWindowsip02: 
-        default: The ip of the second windows server
+        default: pWindowsip02
       pDomainName1:
-        default: The domain 1st name
+        default: pDomainName1
       pDomainName2:
-        default: The domain 2nd name
+        default: pDomainName2
       pDomainIISName:
-        default: The domain 3rd name 
+        default: pDomainIISName 
       palbDNSName: 
-        default: The alb dns name
+        default: palbDNSName
       pDomainNLBName:
-        default: The domain name of the NLB 
+        default: pDomainNLBName 
       pnlbDNSName: 
-        default: The nlb dns name
-
+        default: pnlbDNSName
 
 ###########################################NLB###########################################
       pnlbscheme: 
-        default: The nlb scheme
+        default: pnlbscheme
       pnlbsubnet1: 
-        default: The first public subnet
+        default: pnlbsubnet1
       pnlbsubnet2:
-        default: The second public subnet
+        default: pnlbsubnet2
       pnlbtargetgroupport:
-        default: The port on which the target group gets traffic from the nlb
+        default: pnlbtargetgroupport
       pnlbtargetgroupprotocol:
-        default: The protocol on which the target group is listening
+        default: pnlbtargetgroupprotocol
       pnlbVPCId: 
-        default: The VPC Id on which the nlb is created
+        default: nlbVPCId
       pNLBHealthCheckIntervalSeconds:
-        default: The intervals between health checks
+        default: pNLBHealthCheckIntervalSeconds
       pNLBHealthCheckPort:
-        default: The health check ports for the nlb target group
+        default: pNLBHealthCheckPort
       pNLBHealthCheckProtocol:
-        default: The health check protocol for the nlb target group 
+        default: pNLBHealthCheckProtocol 
       pNLBHealthCheckTimeoutSeconds: 
-        default: The timeout after health checks
+        default: pNLBHealthCheckTimeoutSeconds
       pNLBHealthyThresholdCount: 
-        default: The threshold for each health checks counts
+        default: pNLBHealthyThresholdCount
       pNLBTarget: 
-        default: The instance behind the target group
+        default: pNLBTarget
       pNLBTargettype: 
-        default: The type of target behind the target group
+        default: pNLBTargettype
       pnlblistenerport: 
-        default: The port on which the NLB is listening on
+        default: pnlblistenerport
       pnlblistenerprotocol: 
-        default: The protocol on which the NLB is listening on
+        default: pnlblistenerprotocol
       # pnlblistenerCertificateArn: 
       #   default: The certificate associated with the nlb
       pnlbSecurityGroup: 
-        default: The nlb security group
+        default: pnlbSecurityGroup
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
+    Description: The account name in upper case
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccount
   
   pAwsAccountLC:
+    Description: The account name in lower case
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/AWSAccountLC
 
   pBucketName:
+    Description: The name of the bucket storing all the children stacks
     Type: String
     Default: prod-nested-stack-us-east-1
   
   pAppName:
+    Description: The appplication being created
     Type: String
     Default: cognitech
-########################## VPC parameters ######################################
-  pVPCCidr:
-    Type: String
-    Default: 10.1.1.0/24
-  
-  pPrivateSubnet1CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.1.0/27
-  
-  pPrivateSubnet2CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.1.32/27
-  
-  pPublicSubnet1CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.1.64/27
-  
-  pPublicSubnet2CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.1.96/27
-  
+
   pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
 
-########################## Shared services VPC parameters ######################################
-  pSharedServicesAccount:
-    Type: String
-    Default: /standard/SharedServicesVpc
-  
-  pSharedServicesVPCCidr:
-    Type: String
-    Default: 10.1.2.0/24
-  
-  pSharedServicesPrivateSubnet1CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.2.0/27
-  
-  pSharedServicesPrivateSubnet2CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.2.32/27
-  
-  pSharedServicesPublicSubnet1CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.2.64/27
-  
-  pSharedServicesPublicSubnet2CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
-    Default: 10.1.2.96/27
-  
-  pSharedServicesAvailabilityZones:
-    Type: CommaDelimitedList
-    Default: us-east-1a, us-east-1b
-  # Security Group parameters
-  pVpcid:
-    Type: String 
-  
-  ################################ Transit Gateway ###############################################
-  pAmazonAsn:
-    Type: String
-    Default: 65000
-    MinLength: 5
-    MaxLength: 10
-    ConstraintDescription: The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
-  
-  pAutoAcceptAttachment:
-    Type: String
-    Default: "enable"
-    AllowedValues:
-      - "enable"
-      - "disable"
-  
-  pRouteTablePropagation:
-    Type: String
-    Default: "enable"
-    AllowedValues:
-      - "enable"
-      - "disable"
-  
-  pRouteTableAssociation: 
-    Type: String
-    Default: "enable"
-    AllowedValues:
-      - "enable"
-      - "disable"
-
-  pDNSSupport:
-    Type: String
-    Default: "enable"
-    AllowedValues:
-      - "enable"
-      - "disable"
-  
-  pVPNSupport:
-    Type: String
-    Default: "enable"
-    AllowedValues:
-      - "enable"
-      - "disable"
-  
-  pSharedServicesPrivateSubnet1Id:
-    Type: String
-
-  pSharedServicesPrivateSubnet2Id:
-    Type: String
-
-  pSharedServicesVPCId:
-    Type: String
-
-  pApp1PrivateSubnet1Id:
-    Type: String
-
-  pApp1PrivateSubnet2Id:
-    Type: String
-
-  pApp1VPCId:
-    Type: String
-      
-  pTransitGatewayCIDR:
-    Type: String 
-    Default: 10.1.0.0/16
-  
-  pApp1NatGateway1Id:
-    Type: String
-  
-  pApp1NatGateway2Id:
-    Type: String 
-  
-  pSSNatGateway1Id:
-    Type: String 
-
-  pSSNatGateway2Id:
-    Type: String 
-
-  ################################### Bastion hosts #####################################
-  pAmznLnx2LatestAmiId:
-    Type: String 
-    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-  
-  pWindows2019LatestAmiId:
-    Type : String 
-    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
-  
-  pBastionInstanceProfile:
-    Type: String
-  
-  pBastionRDPSecurityGroup: 
-    Type: String
-  
-  pBastionSSHSecurityGroup:
-    Type: String
-  
-  pSharedSeervicesPublicSubnetId:
-    Type: String
-
-  ################################### App servers #####################################
+################################### App servers #####################################
   pAppServerInstanceProfile:
+    Description: The instance profile for the App server
     Type: String
   
   pWindowsAppServerSecurityGroup:
+    Description: The windows app server security group
     Type: String
   
   pLinuxAppServerSecurityGroup:
+    Description: The linux app server security group
     Type: String
   
   pAppServerPrivateSubnetId:
+    Description: The subnet Id for the app server
     Type: String
 
   ################################### Web servers #####################################
   pWebServerInstanceProfile:
+    Description: The instance profile for the web server
     Type: String
   
   pWindowsWebServerSecurityGroup:
+    Description: The windows web server security group
     Type: String
   
   pLinuxWebServerSecurityGroup:
+    Description: The linux web server security group
     Type: String
   
   pWebServerPrivateSubnetId:
+    Description: The subnet Id for the web server
     Type: String
 
   ################################### DB servers #####################################
   pWindowsDBLatestAmiId:
+    Description: The latest ami Id for windows & SQL
     Type: String
     Default: '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-SQL_2019_Standard'
   
   pDBServerInstanceProfile:
+    Description: The instance profile for the DB server
     Type: String
   
   pWindowsDBServerSecurityGroup:
+    Description: The windows DB server security group
     Type: String
   
   pDBServerPrivateSubnetId:
+    Description: The subnet Id for the DB server
     Type: String
 
 ##########################################ALB################################################
   pHealthCheckIntervalSeconds:
+    Description: The intervals for health checks
     Type: String
     Default: 5
   
   pHealthCheckProtocol:
+    Description: The health check protocol
     Type: String
     Default: HTTP
   
   pHealthCheckPath:
+    Description: The path for the alb health check
     Type: String
     Default: /
   
   pHealthCheckPort:
+    Description: The health check protocol
     Type: String
     Default: 80
   
   pHealthCheckTimeoutSeconds:
+    Description: The amount of time, in seconds, during which no response from a target means a failed health
     Type: String
     Default: 4 
 
   pHealthyThresholdCount:
+    Description: The number of consecutive health check successes required before considering a target healthy
     Type: String
     Default: 5
   
   pPort:
+    Description: The port on which the targets receive traffic
     Type: String
     Default: 80
       
   pProtocol:
+    Description: The protocol to use for routing traffic to the targets
     Type: String
     Default: HTTP
   
   pLinuxTarget1:
+    Description: The first linux instance ID behind the target group
     Type: String
  
   pLinuxTarget2:
+    Description: The second linux instance ID behind the target group
     Type: String
 
   pWindowsTarget1:
+    Description: The first windows instance ID behind the target group
     Type: String
  
   pWindowsTarget2:
+    Description: The second windows instance ID behind the target group
     Type: String
   
   pTargetType:
+    Description: The type of target that you must specify when registering targets with this target group
     Type: String
     Default: instance
   
   pdeletionprotectionenabled:
+    Description: Indicates whether deletion protection is enabled
     Type: String
     Default: "false"
     AllowedValues:
       - "true"
       - "false"
+
   paccesslogss3enabled:
+    Description: Indicates whether access logs are enabled
     Type: String
     Default: "false"
     AllowedValues:
@@ -666,64 +407,81 @@ Parameters:
       - "false"
     
   palbscheme:
+    Description: The alb scheme
     Type: String
     Default: internet-facing
   
   palbsubnet1:
+    Description: The first alb subnet
     Type: String
 
   palbsubnet2:
+    Description: The second alb subnet
     Type: String
   
   palbsecuritygroup:
+    Description: The alb security group
     Type: String
   
   palbcertificate:
+    Description: The alb certificate 
     Type: String
     Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
  
   pSslPolicy:
+    Description: Security policy to negotiate SSL connections between a client and the load balancer
     Type: String
     Default: ELBSecurityPolicy-2016-08
 
   palbport:
+    Description: The port on which the load balancer is listening
     Type: String
     Default: 443
 
   palbprotocol:
+    Description: The protocol for connections from clients to the load balancer
     Type: String
     Default: HTTPS
 
 #############################################DNS######################################################
   pHostedZoneId:
+    Description: The DNS hosted zone
     Type: String
     Default: Z0334718LG87PKPVYABM
   
   pHostedZoneName:
+    Description: The DNS hosted zone name
     Type: String
     Default: kahbrigthllc.com.
   
   pLinuxip01:
+    Description: The ip of the first linux server
     Type: String
 
   plinuxip02:
+    Description: The ip of the second linux server
     Type: String
    
   pWindowsip01:
+    Description: The ip of the first windows server
     Type: String
 
   pWindowsip02:
+    Description: The ip of the second windows server
     Type: String
 
   pDomainName1:
+    Description: The domain 1st name
     Type: String 
     Default: cobsine.kahbrigthllc.com.
   
   pDomainName2:
+    Description: The domain 2nd name
     Type: String 
     Default: dotnet.kahbrigthllc.com.
 
   pDomainIISName:
+    Description: The domain 3rd name
     Type: String 
     Default: iis.kahbrigthllc.com.
 
@@ -737,108 +495,91 @@ Parameters:
     Type: String 
   
   palbDNSName:
+    Description: The nlb dns name
     Type: String 
 
 #############################################NLB##############################################
   pnlbscheme:
+    Description: The nlb scheme
     Type: String
     Default: internet-facing
   
   pnlbsubnet1:
+    Description: The first public subnet
     Type: String
   
   pnlbsubnet2:
+    Description: The second public subnet
     Type: String
   
   pnlbtargetgroupport:
+    Description: The port on which the target group gets traffic from the nlb
     Type: String
     Default: 3389
 
   pnlbtargetgroupprotocol:
+    Description: The protocol on which the target group is listening
     Type: String
     Default: TCP
 
   pnlbVPCId:
+    Description: The VPC Id on which the nlb is created
     Type: String
 
   pNLBHealthCheckIntervalSeconds:
+    Description: The intervals between health checks
     Type: String
     Default: 10 
   
   pNLBHealthCheckPort:
+    Description: The health check ports for the nlb target group
     Type: String
     Default: 3389
   
   pNLBHealthCheckProtocol:
+    Description: The health check protocol for the nlb target group
     Type: String
     Default: TCP
 
   pNLBHealthCheckTimeoutSeconds:
+    Description: The timeout after health checks
     Type: String
     Default: 10
 
   pNLBHealthyThresholdCount:
+    Description: The threshold for each health checks counts
     Type: String
     Default: 3
 
   pNLBTarget:
+    Description: The instance behind the target group
     Type: String
 
   pNLBTargettype:
+    Description: The type of target behind the target group
     Type: String
     Default: instance
 
   pnlblistenerport:
+    Description: The port on which the NLB is listening on
     Type: String
     Default: 30010
 
   pnlblistenerprotocol:
+    Description: The protocol on which the NLB is listening on
     Type: String
     Default: TCP
 
   # pnlblistenerCertificateArn:
+  #   Description: The certificate associated with the nlb
   #   Type: String
   #   Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
 
   pnlbSecurityGroup:
+    Description: The nlb security group
     Type: String
 
 Resources: 
-  rVpcStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/vpc.yaml
-      TimeoutInMinutes: 20
-      Parameters:
-        pVPCCidr: !Ref pVPCCidr 
-        pPrivateSubnet1CIDR: !Ref pPrivateSubnet1CIDR 
-        pPrivateSubnet2CIDR: !Ref pPrivateSubnet2CIDR 
-        pPublicSubnet1CIDR: !Ref pPublicSubnet1CIDR 
-        pPublicSubnet2CIDR: !Ref pPublicSubnet2CIDR 
-        pAppName: !Ref pAppName
-        pAvailabilityZones:
-          Fn::Join:
-            - ','
-            - !Ref pAvailabilityZones
-  
-  rSharedServicesVpcStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/sharedvpc.yaml
-      TimeoutInMinutes: 20
-      Parameters:
-        pSharedServicesAccount: !Ref pSharedServicesAccount
-        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr 
-        pSharedServicesPrivateSubnet1CIDR: !Ref pSharedServicesPrivateSubnet1CIDR 
-        pSharedServicesPrivateSubnet2CIDR: !Ref pSharedServicesPrivateSubnet2CIDR 
-        pSharedServicesPublicSubnet1CIDR: !Ref pSharedServicesPublicSubnet1CIDR 
-        pSharedServicesPublicSubnet2CIDR: !Ref pSharedServicesPublicSubnet2CIDR 
-        pSharedServicesAvailabilityZones:
-          Fn::Join:
-            - ','
-            - !Ref pSharedServicesAvailabilityZones
-        pAppName: !Ref pAppName
-
   rIAMStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -863,105 +604,6 @@ Resources:
           Fn::GetAtt: 
             - rSharedServicesVpcStack
             - Outputs.oVPC
-
-  
-  rTransitGatewayStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/TransitGateway.yaml
-      TimeoutInMinutes: 20
-      Parameters: 
-        pAppName: !Ref pAppName
-        pSharedServicesAccount: !Ref pSharedServicesAccount
-        pAmazonAsn: !Ref pAmazonAsn
-        pAutoAcceptAttachment: !Ref pAutoAcceptAttachment 
-        pRouteTablePropagation: !Ref pRouteTablePropagation 
-        pRouteTableAssociation: !Ref pRouteTableAssociation 
-        pDNSSupport: !Ref pDNSSupport 
-        pVPNSupport: !Ref pVPNSupport 
-        pTransitGatewayCIDR: !Ref pTransitGatewayCIDR
-        pSharedServicesPrivateSubnet1Id: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oPrivateSubnet1
-        pSharedServicesPrivateSubnet2Id: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oPrivateSubnet2 
-        pSharedServicesVPCId: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oVPC 
-        pApp1PrivateSubnet1Id: 
-          Fn::GetAtt: 
-            - rVpcStack 
-            - Outputs.oPrivateSubnet1
-        pApp1PrivateSubnet2Id: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet2
-        pApp1VPCId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oVPC
-        pApp1NatGateway1Id:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oNatGateway1
-        pApp1NatGateway2Id:
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oNatGateway2
-        pSSNatGateway1Id:
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oNatGateway1
-        pSSNatGateway2Id:
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oNatGateway2
-        pSharedServicesInternetGateway:
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oInternetGateway
-        pSharedServicesPublicSubnet1Id:
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oPublicSubnet1
-        pSharedServicesPublicSubnet2Id:
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oPublicSubnet2
-        
-    DependsOn: 
-    - rSharedServicesVpcStack
-    - rVpcStack
-
-  rBastionHost:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/bastions.yaml
-      TimeoutInMinutes: 20
-      Parameters: 
-        pAppName: !Ref pAppName
-        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
-        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
-        pBastionInstanceProfile: 
-          Fn::GetAtt: 
-            - rIAMStack
-            - Outputs.oNestedBastionInstanceProfileName
-        pBastionRDPSecurityGroup: 
-          Fn::GetAtt: 
-            - rSecurityGroupStack
-            - Outputs.oNestedrdpbastionsg
-        pBastionSSHSecurityGroup: 
-          Fn::GetAtt: 
-            - rSecurityGroupStack
-            - Outputs.oNestedsshbastionsg
-        pSharedSeervicesPublicSubnetId: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oPublicSubnet1
   
   rAppServers:
     Type: AWS::CloudFormation::Stack

@@ -33,38 +33,6 @@ Parameters:
 
 
 Resources: 
-  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
-  rNestedsshbastionsg:
-    Type: AWS::EC2::SecurityGroup
-    Properties: 
-      GroupDescription: ssh bastion security group
-      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
-      SecurityGroupIngress: 
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
-          Description: "Allow SSH access from the internet"
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
-      VpcId: !Ref pSharedServicesVPCId
-
-  rNestedrdpbastionsg:
-    Type: AWS::EC2::SecurityGroup
-    Properties: 
-      GroupDescription: rdp bastion security group
-      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
-      SecurityGroupIngress: 
-        - IpProtocol: tcp
-          FromPort: 3389
-          ToPort: 3389
-          CidrIp: 0.0.0.0/0
-          Description: "Allow RDP access from the internet"
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
-      VpcId: !Ref pSharedServicesVPCId
 ############################ALB Security group################################
   rNestedalbsg:
     Type: AWS::EC2::SecurityGroup
@@ -307,18 +275,6 @@ Resources:
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-DB
       VpcId: !Ref pVpcid
 Outputs:
-  oNestedsshbastionsg:
-    Description: The ssh bastion security group Id
-    Value: !Ref rNestedsshbastionsg
-    Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-sg
-  
-  oNestedrdpbastionsg:
-    Description: The rdp bastion security group Id 
-    Value: !Ref rNestedrdpbastionsg
-    Export: 
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-sg
-
   oNestedalbsg:
     Description: The alb security group Id
     Value: !Ref rNestedalbsg

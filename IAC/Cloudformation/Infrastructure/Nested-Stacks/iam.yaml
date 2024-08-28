@@ -48,36 +48,6 @@ Resources:
       Path: /
       Roles: 
         - Ref: rNestedInstanceRole
-  
-  rNestedBastionInstanceRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      Comment: This is the role to be used by the instance during the buid
-    Properties: 
-      RoleName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-bastion-role
-      AssumeRolePolicyDocument: 
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal: 
-              Service:
-                - !Sub ec2.${AWS::URLSuffix}
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns: 
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/SecretsManagerReadWrite
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSDirectoryServiceFullAccess
-      Path: /
-
-# https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html
-  rBastionIAMProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Path: /
-      Roles: 
-        - Ref: rNestedBastionInstanceRole
-
 Outputs:
   oNestedIAMRoleArn:
     Description: The arn of the IAM role 
@@ -95,22 +65,5 @@ Outputs:
     Description: The name of the instance profile 
     Value: !Ref rNestedIAMProfile
     Export: 
-      Name: Nested-iam-Instance-pfofile-Name
+      Name: Nested-iam-Instance-profile-Name
   
-  oNestedBastionIAMRoleArn:
-    Description: The arn of the IAM role 
-    Value: !GetAtt rNestedBastionInstanceRole.Arn
-    Export: 
-      Name: Nested-Bastion-iam-Role-Arn
-    
-  oNestedBastionIAMRoleName:
-    Description: The name of the IAM role
-    Value: !Ref rNestedBastionInstanceRole
-    Export: 
-      Name: Nested-Bastion-iam-Role-Name
-  
-  oNestedBastionInstanceProfileName:
-    Description: The name of the bastion instance profile 
-    Value: !Ref rBastionIAMProfile
-    Export: 
-      Name: Nested-Bastion-Instance-profile-Name
