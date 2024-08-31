@@ -24,7 +24,7 @@ Resources:
         BackupPlanName: !Sub ${ pAwsAccount }-${ pAppName }-backup-plan
         BackupPlanRule:
           - RuleName: daily-backups
-            TargetBackupVault: !Ref 'BackupVault'
+            TargetBackupVault: !Ref 'rNestedBackupVault'
             ScheduleExpression: cron(0 5 ? * * *)
             StartWindowMinutes: 60
             Lifecycle:
@@ -77,7 +77,7 @@ Resources:
     Properties:
       BackupSelection:
         SelectionName: !Sub ${ pAwsAccount }-${ pAppName }-backup-tags
-        IamRoleArn: !GetAtt rNestedBackupRole.Arn'
+        IamRoleArn: !GetAtt 'rNestedBackupRole.Arn'
         ListOfTags:
           - ConditionType: STRINGEQUALS
             ConditionKey: backup
