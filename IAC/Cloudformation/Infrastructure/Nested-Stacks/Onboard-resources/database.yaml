@@ -77,6 +77,17 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
+      BlockDeviceMappings:
+          - DeviceName: /dev/sda1
+            Ebs:
+              VolumeSize: 15 
+              DeleteOnTermination: true 
+              Tags:
+                - Key: Backup 
+                  Value: Daily
+          - DeviceName: /dev/sdf 
+            Ebs:
+              VolumeSize: 10 
       SecurityGroupIds: 
         - !Ref pWindowsDBServerSecurityGroup
       SubnetId: !Ref pDBServerPrivateSubnetId

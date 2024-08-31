@@ -114,6 +114,17 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
+      BlockDeviceMappings:
+          - DeviceName: /dev/xva
+            Ebs:
+              VolumeSize: 10 
+              DeleteOnTermination: true 
+              Tags:
+                - Key: Backup 
+                  Value: Daily
+          - DeviceName: /dev/sdf
+            Ebs:
+              VolumeSize: 8
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -151,6 +162,17 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
+      BlockDeviceMappings:
+          - DeviceName: /dev/xva
+            Ebs:
+              VolumeSize: 10 
+              DeleteOnTermination: true 
+              Tags:
+                - Key: Backup 
+                  Value: Daily
+          - DeviceName: /dev/sdf 
+            Ebs:
+              VolumeSize: 9
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -214,6 +236,17 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
+      BlockDeviceMappings:
+          - DeviceName: /dev/sda1
+            Ebs:
+              VolumeSize: 10 
+              DeleteOnTermination: true 
+              Tags:
+                - Key: Backup 
+                  Value: Daily
+          - DeviceName: /dev/sdf 
+            Ebs:
+              VolumeSize: 8 
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -266,6 +299,17 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
+      BlockDeviceMappings:
+          - DeviceName: /dev/sda1
+            Ebs:
+              VolumeSize: 10 
+              DeleteOnTermination: true 
+              Tags:
+                - Key: Backup 
+                  Value: Daily
+          - DeviceName: /dev/sdf 
+            Ebs:
+              VolumeSize: 18
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId

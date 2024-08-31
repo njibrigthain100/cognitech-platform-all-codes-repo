@@ -1,0 +1,834 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an aws 3 tier arcitecture with nested stacks
+Metadata: # This is putr in an s3 bucket
+  AWS::CloudFormation::Interface:
+    ParameterGroups: # This groups all the parameter acording to resources created
+    - Label:
+        default: "Account values"
+      Parameters: 
+        - pAwsAccount
+        - pAwsAccountLC
+        - pBucketName
+        - pAppName
+        - pSharedServicesVPCCidr
+    - Label:
+        default: "security group configurations" 
+      Parameters: 
+        - pVpcid
+        - pSharedServicesVPCId
+    - Label:
+        default: "App Servers configurations" 
+      Parameters: 
+        - pAppServerInstanceProfile
+        - pWindowsAppServerSecurityGroup
+        - pLinuxAppServerSecurityGroup
+        - pAppServerPrivateSubnetId
+    - Label:
+        default: "Web Servers configurations" 
+      Parameters: 
+        - pWebServerInstanceProfile
+        - pWindowsWebServerSecurityGroup
+        - pLinuxWebServerSecurityGroup
+        - pWebServerPrivateSubnetId
+    - Label:
+        default: "DB Servers configurations" 
+      Parameters: 
+        - pWindowsDBLatestAmiId
+        - pDBServerInstanceProfile
+        - pWindowsDBServerSecurityGroup
+        - pDBServerPrivateSubnetId 
+    
+    - Label:
+        default: "ALB configuration" 
+      Parameters: 
+        - pHealthCheckIntervalSeconds
+        - pHealthCheckProtocol
+        - pHealthCheckPath
+        - pHealthCheckPort
+        - pHealthCheckTimeoutSeconds
+        - pHealthyThresholdCount
+        - pPort
+        - pProtocol
+        - pLinuxTarget1
+        - pLinuxTarget2
+        - pWindowsTarget1
+        - pWindowsTarget2
+        - pTargetType
+        - pApp1VPCId
+        - pdeletionprotectionenabled
+        - paccesslogss3enabled
+        - palbscheme
+        - palbsubnet1
+        - palbsubnet2
+        - palbsecuritygroup
+        - palbcertificate
+        - pSslPolicy
+        - palbport
+        - palbprotocol
+    - Label:
+        default: "DNS configuration" 
+      Parameters: 
+        - pHostedZoneId
+        - pHostedZoneName
+        - pLinuxip01
+        - plinuxip02
+        - pWindowsip01
+        - pWindowsip02
+        - pDomainName1
+        - pDomainName2
+        - pDomainIISName
+        - palbDNSName
+        - pDomainNLBName
+        - pnlbDNSName
+    - Label:
+        default: "NLB configuration" 
+      Parameters: 
+        - pnlbscheme
+        - pnlbsubnet1
+        - pnlbsubnet2
+        - pnlbtargetgroupport
+        - pnlbtargetgroupprotocol
+        - pnlbVPCId
+        - pNLBHealthCheckIntervalSeconds
+        - pNLBHealthCheckPort
+        - pNLBHealthCheckProtocol
+        - pNLBHealthCheckTimeoutSeconds
+        - pNLBHealthyThresholdCount
+        - pNLBTarget
+        - pNLBTargettype
+        - pnlblistenerport
+        - pnlblistenerprotocol
+        # - pnlblistenerCertificateArn
+        - pnlbSecurityGroup
+
+    ParameterLabels: # The default values will be presented on the console 
+      pAwsAccount: 
+        default: pAwsAccount 
+      pAwsAccountLC: 
+        default: pAwsAccountLC 
+      pBucketName: 
+        default: pBucketName 
+      pAppName: 
+        default: pAppName 
+      pSharedServicesVPCCidr: 
+        default: pSharedServicesVPCCidr
+
+#######################App servers parameters ############################### 
+      pAppServerInstanceProfile: 
+        default: pAppServerInstanceProfile
+      pWindowsAppServerSecurityGroup:
+        default: pWindowsAppServerSecurityGroup 
+      pLinuxAppServerSecurityGroup:
+        default: pLinuxAppServerSecurityGroup
+      pAppServerPrivateSubnetId:
+        default: pAppServerPrivateSubnetId
+
+#######################Web servers parameters ############################### 
+      pWebServerInstanceProfile: 
+        default: pWebServerInstanceProfile
+      pWindowsWebServerSecurityGroup:
+        default: pWindowsWebServerSecurityGroup 
+      pLinuxWebServerSecurityGroup:
+        default: pLinuxWebServerSecurityGroup
+      pWebServerPrivateSubnetId:
+        default: pWebServerPrivateSubnetId
+
+#######################DB servers parameters ############################### 
+      pWindowsDBLatestAmiId: 
+        default: pWindowsDBLatestAmiId
+      pDBServerInstanceProfile:
+        default: pDBServerInstanceProfile 
+      pWindowsDBServerSecurityGroup:
+        default: pWindowsDBServerSecurityGroup
+      pDBServerPrivateSubnetId:
+        default: pDBServerPrivateSubnetId
+
+#############################ALB parameters#####################################
+      pHealthCheckIntervalSeconds: 
+        default: pHealthCheckIntervalSeconds
+      pHealthCheckProtocol:
+        default: pHealthCheckProtocol 
+      pHealthCheckPath:
+        default: pHealthCheckPath
+      pHealthCheckPort:
+        default: pHealthCheckPort
+      pHealthCheckTimeoutSeconds: 
+        default: pHealthCheckTimeoutSecond
+      pHealthyThresholdCount:
+        default: pHealthyThresholdCount
+      pPort:
+        default: pPort
+      pProtocol:
+        default: pProtocol
+      pLinuxTarget1: 
+        default: pLinuxTarget1
+      pLinuxTarget2:
+        default: pLinuxTarget2
+      pWindowsTarget1:
+        default: pWindowsTarget1
+      pWindowsTarget2:
+        default: pWindowsTarget2
+      pTargetType: 
+        default: pTargetType
+      pdeletionprotectionenabled:
+        default: pdeletionprotectionenabled
+      paccesslogss3enabled:
+        default: paccesslogss3enabled
+      palbscheme:
+        default: palbscheme
+      palbsubnet1:
+        default: palbsubnet1
+      palbsubnet2:
+        default: palbsubnet2
+      palbsecuritygroup: 
+        default: palbsecuritygroup
+      palbcertificate:
+        default: palbcertificate
+      pSslPolicy:
+        default: pSslPolicy
+      palbport:
+        default: palbport
+      palbprotocol: 
+        default: palbprotocol
+
+#########################################DNS######################################
+      pHostedZoneId: 
+        default: pHostedZoneId
+      pHostedZoneName: 
+        default: pHostedZoneName
+      pLinuxip01:
+        default: pLinuxip01
+      plinuxip02:
+        default: plinuxip02
+      pWindowsip01:
+        default: pWindowsip01
+      pWindowsip02: 
+        default: pWindowsip02
+      pDomainName1:
+        default: pDomainName1
+      pDomainName2:
+        default: pDomainName2
+      pDomainIISName:
+        default: pDomainIISName 
+      palbDNSName: 
+        default: palbDNSName
+      pDomainNLBName:
+        default: pDomainNLBName 
+      pnlbDNSName: 
+        default: pnlbDNSName
+
+###########################################NLB###########################################
+      pnlbscheme: 
+        default: pnlbscheme
+      pnlbsubnet1: 
+        default: pnlbsubnet1
+      pnlbsubnet2:
+        default: pnlbsubnet2
+      pnlbtargetgroupport:
+        default: pnlbtargetgroupport
+      pnlbtargetgroupprotocol:
+        default: pnlbtargetgroupprotocol
+      pnlbVPCId: 
+        default: nlbVPCId
+      pNLBHealthCheckIntervalSeconds:
+        default: pNLBHealthCheckIntervalSeconds
+      pNLBHealthCheckPort:
+        default: pNLBHealthCheckPort
+      pNLBHealthCheckProtocol:
+        default: pNLBHealthCheckProtocol 
+      pNLBHealthCheckTimeoutSeconds: 
+        default: pNLBHealthCheckTimeoutSeconds
+      pNLBHealthyThresholdCount: 
+        default: pNLBHealthyThresholdCount
+      pNLBTarget: 
+        default: pNLBTarget
+      pNLBTargettype: 
+        default: pNLBTargettype
+      pnlblistenerport: 
+        default: pnlblistenerport
+      pnlblistenerprotocol: 
+        default: pnlblistenerprotocol
+      # pnlblistenerCertificateArn: 
+      #   default: The certificate associated with the nlb
+      pnlbSecurityGroup: 
+        default: pnlbSecurityGroup
+Parameters: 
+####################### General parameter for all stacks #######################
+  pAwsAccount:
+    Description: The account name in upper case
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account name in lower case
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pBucketName:
+    Description: The name of the bucket storing all the children stacks
+    Type: String
+    Default: prod-nested-stack-us-east-1
+  
+  pAppName:
+    Description: The appplication being created
+    Type: String
+    Default: cognitech
+
+  pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
+
+  pSharedServicesVPCCidr:
+    Description: The vpc cidr range for shared services vpc
+    Type: String
+    Default: 10.1.2.0/24
+
+################################### App servers #####################################
+  pAppServerInstanceProfile:
+    Description: The instance profile for the App server
+    Type: String
+  
+  pWindowsAppServerSecurityGroup:
+    Description: The windows app server security group
+    Type: String
+  
+  pLinuxAppServerSecurityGroup:
+    Description: The linux app server security group
+    Type: String
+  
+  pAppServerPrivateSubnetId:
+    Description: The subnet Id for the app server
+    Type: String
+
+  ################################### Web servers #####################################
+  pWebServerInstanceProfile:
+    Description: The instance profile for the web server
+    Type: String
+  
+  pWindowsWebServerSecurityGroup:
+    Description: The windows web server security group
+    Type: String
+  
+  pLinuxWebServerSecurityGroup:
+    Description: The linux web server security group
+    Type: String
+  
+  pWebServerPrivateSubnetId:
+    Description: The subnet Id for the web server
+    Type: String
+
+  ################################### DB servers #####################################
+  pWindowsDBLatestAmiId:
+    Description: The latest ami Id for windows & SQL
+    Type: String
+    Default: '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-SQL_2019_Standard'
+  
+  pDBServerInstanceProfile:
+    Description: The instance profile for the DB server
+    Type: String
+  
+  pWindowsDBServerSecurityGroup:
+    Description: The windows DB server security group
+    Type: String
+  
+  pDBServerPrivateSubnetId:
+    Description: The subnet Id for the DB server
+    Type: String
+
+##########################################ALB################################################
+  pHealthCheckIntervalSeconds:
+    Description: The intervals for health checks
+    Type: String
+    Default: 5
+  
+  pHealthCheckProtocol:
+    Description: The health check protocol
+    Type: String
+    Default: HTTP
+  
+  pHealthCheckPath:
+    Description: The path for the alb health check
+    Type: String
+    Default: /
+  
+  pHealthCheckPort:
+    Description: The health check protocol
+    Type: String
+    Default: 80
+  
+  pHealthCheckTimeoutSeconds:
+    Description: The amount of time, in seconds, during which no response from a target means a failed health
+    Type: String
+    Default: 4 
+
+  pHealthyThresholdCount:
+    Description: The number of consecutive health check successes required before considering a target healthy
+    Type: String
+    Default: 5
+  
+  pPort:
+    Description: The port on which the targets receive traffic
+    Type: String
+    Default: 80
+      
+  pProtocol:
+    Description: The protocol to use for routing traffic to the targets
+    Type: String
+    Default: HTTP
+  
+  pLinuxTarget1:
+    Description: The first linux instance ID behind the target group
+    Type: String
+ 
+  pLinuxTarget2:
+    Description: The second linux instance ID behind the target group
+    Type: String
+
+  pWindowsTarget1:
+    Description: The first windows instance ID behind the target group
+    Type: String
+ 
+  pWindowsTarget2:
+    Description: The second windows instance ID behind the target group
+    Type: String
+  
+  pTargetType:
+    Description: The type of target that you must specify when registering targets with this target group
+    Type: String
+    Default: instance
+  
+  pdeletionprotectionenabled:
+    Description: Indicates whether deletion protection is enabled
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  paccesslogss3enabled:
+    Description: Indicates whether access logs are enabled
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+    
+  palbscheme:
+    Description: The alb scheme
+    Type: String
+    Default: internet-facing
+  
+  palbsubnet1:
+    Description: The first alb subnet
+    Type: String
+
+  palbsubnet2:
+    Description: The second alb subnet
+    Type: String
+  
+  palbsecuritygroup:
+    Description: The alb security group
+    Type: String
+  
+  palbcertificate:
+    Description: The alb certificate 
+    Type: String
+    Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
+ 
+  pSslPolicy:
+    Description: Security policy to negotiate SSL connections between a client and the load balancer
+    Type: String
+    Default: ELBSecurityPolicy-2016-08
+
+  palbport:
+    Description: The port on which the load balancer is listening
+    Type: String
+    Default: 443
+
+  palbprotocol:
+    Description: The protocol for connections from clients to the load balancer
+    Type: String
+    Default: HTTPS
+
+#############################################DNS######################################################
+  pHostedZoneId:
+    Description: The DNS hosted zone
+    Type: String
+    Default: Z0334718LG87PKPVYABM
+  
+  pHostedZoneName:
+    Description: The DNS hosted zone name
+    Type: String
+    Default: kahbrigthllc.com.
+  
+  pLinuxip01:
+    Description: The ip of the first linux server
+    Type: String
+
+  plinuxip02:
+    Description: The ip of the second linux server
+    Type: String
+   
+  pWindowsip01:
+    Description: The ip of the first windows server
+    Type: String
+
+  pWindowsip02:
+    Description: The ip of the second windows server
+    Type: String
+
+  pDomainName1:
+    Description: The domain 1st name
+    Type: String 
+    Default: cobsine.kahbrigthllc.com.
+  
+  pDomainName2:
+    Description: The domain 2nd name
+    Type: String 
+    Default: dotnet.kahbrigthllc.com.
+
+  pDomainIISName:
+    Description: The domain 3rd name
+    Type: String 
+    Default: iis.kahbrigthllc.com.
+
+  pDomainNLBName:
+    Description: The domain name of the NLB
+    Type: String 
+    Default: rdp.kahbrigthllc.com.
+
+  pnlbDNSName:
+    Description: The nlb dns name
+    Type: String 
+  
+  palbDNSName:
+    Description: The nlb dns name
+    Type: String 
+
+#############################################NLB##############################################
+  pnlbscheme:
+    Description: The nlb scheme
+    Type: String
+    Default: internet-facing
+  
+  pnlbsubnet1:
+    Description: The first public subnet
+    Type: String
+  
+  pnlbsubnet2:
+    Description: The second public subnet
+    Type: String
+  
+  pnlbtargetgroupport:
+    Description: The port on which the target group gets traffic from the nlb
+    Type: String
+    Default: 3389
+
+  pnlbtargetgroupprotocol:
+    Description: The protocol on which the target group is listening
+    Type: String
+    Default: TCP
+
+  pnlbVPCId:
+    Description: The VPC Id on which the nlb is created
+    Type: String
+
+  pNLBHealthCheckIntervalSeconds:
+    Description: The intervals between health checks
+    Type: String
+    Default: 10 
+  
+  pNLBHealthCheckPort:
+    Description: The health check ports for the nlb target group
+    Type: String
+    Default: 3389
+  
+  pNLBHealthCheckProtocol:
+    Description: The health check protocol for the nlb target group
+    Type: String
+    Default: TCP
+
+  pNLBHealthCheckTimeoutSeconds:
+    Description: The timeout after health checks
+    Type: String
+    Default: 10
+
+  pNLBHealthyThresholdCount:
+    Description: The threshold for each health checks counts
+    Type: String
+    Default: 3
+
+  pNLBTarget:
+    Description: The instance behind the target group
+    Type: String
+
+  pNLBTargettype:
+    Description: The type of target behind the target group
+    Type: String
+    Default: instance
+
+  pnlblistenerport:
+    Description: The port on which the NLB is listening on
+    Type: String
+    Default: 30010
+
+  pnlblistenerprotocol:
+    Description: The protocol on which the NLB is listening on
+    Type: String
+    Default: TCP
+
+  # pnlblistenerCertificateArn:
+  #   Description: The certificate associated with the nlb
+  #   Type: String
+  #   Default: arn:aws:acm:us-east-1:485147667400:certificate/706bda3c-cacf-45b1-b51c-89151b367494
+
+  pnlbSecurityGroup:
+    Description: The nlb security group
+    Type: String
+
+Resources: 
+  rIAMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+
+  rSecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/security-group.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
+        pVpcid: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oVPC
+  
+  rAppServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Appservers.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
+        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pAppServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsAppServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedWindowsAppsg
+        pLinuxAppServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedlinuxAppsg
+        pAppServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
+
+  rWebServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Webserevers.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
+        pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pWebServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsWebServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedwindowswebsg
+        pLinuxWebServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedlinuxwebsg
+        pWebServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
+
+  rDBServers:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/database.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pWindowsDBLatestAmiId: !Ref pWindowsDBLatestAmiId
+        pDBServerInstanceProfile: 
+          Fn::GetAtt: 
+            - rIAMStack
+            - Outputs.oNestedIAMInstanceProfileName
+        pWindowsDBServerSecurityGroup: 
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedWindowsDBsg
+        pDBServerPrivateSubnetId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPrivateSubnet1
+  
+  rALB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/alb.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pHealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
+        pHealthCheckProtocol: !Ref pHealthCheckProtocol
+        pHealthCheckPath: !Ref pHealthCheckPath 
+        pHealthCheckPort: !Ref pHealthCheckPort 
+        pHealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds 
+        pHealthyThresholdCount: !Ref pHealthyThresholdCount 
+        pPort: !Ref pPort 
+        pProtocol: !Ref pProtocol
+        pLinuxTarget1: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerInstanceId02
+        pLinuxTarget2: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerInstanceId01
+        pWindowsTarget1: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerInstanceId01
+        pWindowsTarget2: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerInstanceId02
+        pTargetType: !Ref pTargetType 
+        pApp1VPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pdeletionprotectionenabled: !Ref pdeletionprotectionenabled 
+        paccesslogss3enabled: !Ref paccesslogss3enabled
+        palbscheme: !Ref palbscheme 
+        palbsubnet1: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet1
+        palbsubnet2: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet2
+        palbsecuritygroup:
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedalbsg
+        palbcertificate: !Ref palbcertificate
+        pSslPolicy: !Ref pSslPolicy
+        palbport: !Ref palbport 
+        palbprotocol: !Ref palbprotocol 
+    DependsOn: 
+      - rWebServers
+
+  rNLB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/nlb.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pnlbscheme: !Ref pnlbscheme 
+        pnlbsubnet1: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet1
+        pnlbsubnet2: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oPublicSubnet2
+        pnlbtargetgroupport: !Ref pnlbtargetgroupport 
+        pnlbtargetgroupprotocol: !Ref pnlbtargetgroupprotocol 
+        pnlbVPCId: 
+          Fn::GetAtt: 
+            - rVpcStack
+            - Outputs.oVPC
+        pNLBHealthCheckIntervalSeconds: !Ref pNLBHealthCheckIntervalSeconds 
+        pNLBHealthCheckPort: !Ref pNLBHealthCheckPort 
+        pNLBHealthCheckProtocol: !Ref pNLBHealthCheckProtocol 
+        pNLBHealthCheckTimeoutSeconds: !Ref pNLBHealthCheckTimeoutSeconds 
+        pNLBHealthyThresholdCount: !Ref pNLBHealthyThresholdCount 
+        pnlbSecurityGroup:
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestednlbsg
+        pNLBTarget: 
+          Fn::GetAtt: 
+            - rDBServers
+            - Outputs.oWindowsDBServerInstanceId
+        pNLBTargettype: !Ref pNLBTargettype 
+        pnlblistenerport: !Ref pnlblistenerport 
+        pnlblistenerprotocol: !Ref pnlblistenerprotocol 
+        # pnlblistenerCertificateArn: !Ref pnlblistenerCertificateArn
+    DependsOn: 
+      - rDBServers
+
+  rDNS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/dns.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pHostedZoneId: !Ref pHostedZoneId 
+        pHostedZoneName: !Ref pHostedZoneName
+        pLinuxip01: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerIP01
+        pLinuxip02: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxWebServerIP02
+        pWindowsip01: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerIP01
+        pWindowsip02:
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oWindowsWebServerIP02 
+        pDomainName1: !Ref pDomainName1 
+        pDomainName2: !Ref pDomainName2 
+        pDomainIISName: !Ref pDomainIISName 
+        pDomainNLBName: !Ref pDomainNLBName
+        palbDNSName:
+          Fn::GetAtt: 
+            - rALB
+            - Outputs.oalbdnsname
+        pnlbDNSName:
+          Fn::GetAtt: 
+            - rNLB
+            - Outputs.oNestednlbDNSName
+    DependsOn: 
+      - rWebServers
+      - rALB
+  
+        
+          
+
+
+  

@@ -10,6 +10,8 @@ Metadata: # This is putr in an s3 bucket
         - pAwsAccountLC
         - pBucketName
         - pAppName
+        - pSharedServicesVPCCidr
+        - pSharedServicesAccount
     - Label:
         default: "security group configurations" 
       Parameters: 
@@ -109,6 +111,10 @@ Metadata: # This is putr in an s3 bucket
         default: pBucketName 
       pAppName: 
         default: pAppName 
+      pSharedServicesVPCCidr: 
+        default: pSharedServicesVPCCidr
+      pSharedServicesAccount:
+        default: pSharedServicesAccount
 
 #######################App servers parameters ############################### 
       pAppServerInstanceProfile: 
@@ -275,6 +281,16 @@ Parameters:
     Description: The availability zones on which the resource will be created 
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
+
+  pSharedServicesVPCCidr:
+    Description: The vpc cidr range for shared services vpc
+    Type: String
+    Default: 10.1.2.0/24
+  
+  pSharedServicesAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/SharedServicesVpc
 
 ################################### App servers #####################################
   pAppServerInstanceProfile:
@@ -597,13 +613,11 @@ Resources:
         pAppName: !Ref pAppName
         pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
         pVpcid: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oVPC
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
         pSharedServicesVPCId: 
-          Fn::GetAtt: 
-            - rSharedServicesVpcStack
-            - Outputs.oVPC
+          Fn::ImportValue:
+            !Sub ${ pSharedServicesAccount }-${ AWS::Region}-${ pAppName }-vpc  
   
   rAppServers:
     Type: AWS::CloudFormation::Stack
@@ -627,9 +641,8 @@ Resources:
             - rSecurityGroupStack
             - Outputs.oNestedlinuxAppsg
         pAppServerPrivateSubnetId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet1
+           Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
 
   rWebServers:
     Type: AWS::CloudFormation::Stack
@@ -653,9 +666,8 @@ Resources:
             - rSecurityGroupStack
             - Outputs.oNestedlinuxwebsg
         pWebServerPrivateSubnetId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet1
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
 
   rDBServers:
     Type: AWS::CloudFormation::Stack
@@ -674,9 +686,8 @@ Resources:
             - rSecurityGroupStack
             - Outputs.oNestedWindowsDBsg
         pDBServerPrivateSubnetId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPrivateSubnet1
+           Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
   
   rALB:
     Type: AWS::CloudFormation::Stack
@@ -718,13 +729,11 @@ Resources:
         paccesslogss3enabled: !Ref paccesslogss3enabled
         palbscheme: !Ref palbscheme 
         palbsubnet1: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPublicSubnet1
+           Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet1
         palbsubnet2: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPublicSubnet2
+            Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet2
         palbsecuritygroup:
           Fn::GetAtt: 
             - rSecurityGroupStack
@@ -745,19 +754,16 @@ Resources:
         pAppName: !Ref pAppName
         pnlbscheme: !Ref pnlbscheme 
         pnlbsubnet1: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPublicSubnet1
+            Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet1
         pnlbsubnet2: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oPublicSubnet2
+            Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet2
         pnlbtargetgroupport: !Ref pnlbtargetgroupport 
         pnlbtargetgroupprotocol: !Ref pnlbtargetgroupprotocol 
         pnlbVPCId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oVPC
+            Fn::ImportValue:
+                !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
         pNLBHealthCheckIntervalSeconds: !Ref pNLBHealthCheckIntervalSeconds 
         pNLBHealthCheckPort: !Ref pNLBHealthCheckPort 
         pNLBHealthCheckProtocol: !Ref pNLBHealthCheckProtocol 
