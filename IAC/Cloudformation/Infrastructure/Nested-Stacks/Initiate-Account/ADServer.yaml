@@ -112,6 +112,7 @@ Resources:
             $AWSAdminCredential = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
             # Install the AD DS role
             Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+            Install-WindowsFeature RSAT-AD-Tools,RSAT-DNS-Server,GPMC -IncludeAllSubFeature -IncludeManagementTools
             # Install AD DS and promote the server as a domain controller
             Install-ADDSDomainController `
                 -DomainName $DomainName `
