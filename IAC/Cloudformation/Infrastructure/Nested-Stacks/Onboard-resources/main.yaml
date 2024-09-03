@@ -26,6 +26,7 @@ Metadata: # This is putr in an s3 bucket
         - pWindowsAppServerSecurityGroup
         - pLinuxAppServerSecurityGroup
         - pAppServerPrivateSubnetId
+        - pDocumentName
     - Label:
         default: "Web Servers configurations" 
       Parameters: 
@@ -130,7 +131,9 @@ Metadata: # This is putr in an s3 bucket
       pLinuxAppServerSecurityGroup:
         default: pLinuxAppServerSecurityGroup
       pAppServerPrivateSubnetId:
-        default: pAppServerPrivateSubnetId
+        default: pAppServerPrivateSubnetId 
+      pDocumentName:
+        default: pDocumentName
 
 #######################Web servers parameters ############################### 
       pWebServerInstanceProfile: 
@@ -300,12 +303,12 @@ Parameters:
 
   pAmznLnx2LatestAmiId:
     Description: The latest ami Id for amazon linux 2
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Type: String 
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   
   pWindows2019LatestAmiId:
     Description: The latest ami Id for windows 2019 
-    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Type : String 
     Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
 
 ################################### App servers #####################################
@@ -323,6 +326,10 @@ Parameters:
   
   pAppServerPrivateSubnetId:
     Description: The subnet Id for the app server
+    Type: String
+  
+  pDocumentName:
+    Description: The domain join document for the server
     Type: String
 
   ################################### Web servers #####################################
@@ -659,6 +666,9 @@ Resources:
         pAppServerPrivateSubnetId: 
            Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+        pDocumentName: 
+          Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
 
   rWebServers:
     Type: AWS::CloudFormation::Stack
@@ -684,6 +694,9 @@ Resources:
         pWebServerPrivateSubnetId: 
           Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+        pDocumentName: 
+          Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
 
   rDBServers:
     Type: AWS::CloudFormation::Stack
