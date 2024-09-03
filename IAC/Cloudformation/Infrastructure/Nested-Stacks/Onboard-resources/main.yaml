@@ -12,6 +12,8 @@ Metadata: # This is putr in an s3 bucket
         - pAppName
         - pSharedServicesVPCCidr
         - pSharedServicesAccount
+        - pAmznLnx2LatestAmiId
+        - pWindows2019LatestAmiId
     - Label:
         default: "security group configurations" 
       Parameters: 
@@ -115,6 +117,10 @@ Metadata: # This is putr in an s3 bucket
         default: pSharedServicesVPCCidr
       pSharedServicesAccount:
         default: pSharedServicesAccount
+      pAmznLnx2LatestAmiId:
+        default: pAmznLnx2LatestAmiId
+      pWindows2019LatestAmiId: 
+        default: pWindows2019LatestAmiId
 
 #######################App servers parameters ############################### 
       pAppServerInstanceProfile: 
@@ -291,6 +297,16 @@ Parameters:
     Description: The account in which the resources will be created
     Type: AWS::SSM::Parameter::Value<String>
     Default: /standard/SharedServicesVpc
+
+  pAmznLnx2LatestAmiId:
+    Description: The latest ami Id for amazon linux 2
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  pWindows2019LatestAmiId:
+    Description: The latest ami Id for windows 2019 
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
 
 ################################### App servers #####################################
   pAppServerInstanceProfile:
@@ -722,17 +738,16 @@ Resources:
             - Outputs.oWindowsWebServerInstanceId02
         pTargetType: !Ref pTargetType 
         pApp1VPCId: 
-          Fn::GetAtt: 
-            - rVpcStack
-            - Outputs.oVPC
+          Fn::ImportValue:
+                !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc
         pdeletionprotectionenabled: !Ref pdeletionprotectionenabled 
         paccesslogss3enabled: !Ref paccesslogss3enabled
         palbscheme: !Ref palbscheme 
         palbsubnet1: 
-           Fn::ImportValue:
+          Fn::ImportValue:
               !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet1
         palbsubnet2: 
-            Fn::ImportValue:
+          Fn::ImportValue:
               !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-public-subnet2
         palbsecuritygroup:
           Fn::GetAtt: 

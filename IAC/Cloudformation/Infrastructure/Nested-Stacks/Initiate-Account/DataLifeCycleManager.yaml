@@ -25,8 +25,8 @@ Resources:
         ResourceTypes:
         - VOLUME
         TargetTags:
-        - Key: backup 
-          Value: '!Sub ${ AWS::Region}-daily'
+        - Key: Backup 
+          Value: 'Daily'
         Schedules:
         - Name: !Sub ${ pAwsAccount }-${ pAppName }-Daily-Snapshots
           TagsToAdd:
