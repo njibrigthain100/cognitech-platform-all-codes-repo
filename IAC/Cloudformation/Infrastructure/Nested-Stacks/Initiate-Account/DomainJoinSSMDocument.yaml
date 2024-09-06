@@ -30,6 +30,7 @@ Parameters:
     AllowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
     Description: The IP addresses of the DNS servers in the directory
     Type: CommaDelimitedList
+
     
  
 Resources: 
@@ -46,13 +47,14 @@ Resources:
               directoryId: !Ref pDirectoryId
               directoryName: !Ref pDirectoryName
               dnsIpAddresses: !Ref pDNSIpAddresses
-
+  
 Outputs:
   oDomainJoinDocument:
     Description: The name of the ssm domain join document
     Value: !Ref rNestedDomainJoinDocument
     Export: 
       Name: !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
+
 
 
 

@@ -37,6 +37,16 @@ Parameters:
     Description: The domain join document for the server
     Type: String
 
+  pAdminPassowrd:
+    Description: The password for the default administartive admin user 
+    Type: String 
+
+  pDomainJoinUserName:
+    Description: The active directory admin user name
+    Type: String
+
+
+
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -101,18 +111,17 @@ Resources:
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
             # Install Active directory 
-            Install-windowsFeature RSAT-AD-Tools,RSAT-DNS-Server -IncludeAllSubFeature -IncludeManagementTools 
+            Install-WindowsFeature RSAT-AD-Tools,RSAT-DNS-Server,GPMC -IncludeAllSubFeature -IncludeManagementTools 
             # Variables - customize these according to your environment
-            $DomainName = "kahbrigthllc.com"           # Your domain name (e.g., corp.example.com)
-            $SafeModeAdminPassword = "Shilohangel@2024"   # DSRM password for safe mode admin
+            $DomainName = "${pDomainJoinUserName}"           # Your domain name (e.g., corp.example.com)
+            $SafeModeAdminPassword = "${pAdminPassowrd}"   # DSRM password for safe mode admin
             # AWS Directory Service Admin Credentials
-            $Username = "Admin@kahbrigthllc.com"       # Your AWS Directory Service admin username
-            $Password = "Shilohangel@2024"        # Your AWS Directory Service admin password
+            $Username = "${pDomainJoinUserName}@kahbrigthllc.com"       # Your AWS Directory Service admin username
+            $Password = "${pAdminPassowrd}"       # Your AWS Directory Service admin password
             $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
             $AWSAdminCredential = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
             # Install the AD DS role
             Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-            Install-WindowsFeature RSAT-AD-Tools,RSAT-DNS-Server,GPMC -IncludeAllSubFeature -IncludeManagementTools
             # Install AD DS and promote the server as a domain controller
             Install-ADDSDomainController `
                 -DomainName $DomainName `

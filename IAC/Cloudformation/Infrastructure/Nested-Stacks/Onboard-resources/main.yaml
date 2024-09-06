@@ -288,7 +288,7 @@ Parameters:
 
   pAvailabilityZones:
     Description: The availability zones on which the resource will be created 
-    Type: CommaDelimitedList
+    Type: String
     Default: us-east-1a, us-east-1b
 
   pSharedServicesVPCCidr:
@@ -649,6 +649,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pAvailabilityZones: !Ref pAvailabilityZones
         pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
         pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
         pAppServerInstanceProfile: 
@@ -677,6 +678,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pAvailabilityZones: !Ref pAvailabilityZones
         pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
         pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
         pWebServerInstanceProfile: 
@@ -705,6 +707,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pAvailabilityZones: !Ref pAvailabilityZones
         pWindowsDBLatestAmiId: !Ref pWindowsDBLatestAmiId
         pDBServerInstanceProfile: 
           Fn::GetAtt: 
@@ -717,6 +720,9 @@ Resources:
         pDBServerPrivateSubnetId: 
            Fn::ImportValue:
               !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+        pDocumentName: 
+          Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
   
   rALB:
     Type: AWS::CloudFormation::Stack

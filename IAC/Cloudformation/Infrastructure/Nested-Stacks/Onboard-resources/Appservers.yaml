@@ -46,6 +46,11 @@ Parameters:
     Description: The domain join document for the server
     Type: String
 
+  pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
+
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -92,16 +97,10 @@ Resources:
         - !Ref AWS::AccountId 
         - pKeyPair
       BlockDeviceMappings:
-          - DeviceName: /dev/xva 
+          - DeviceName: /dev/xvda 
             Ebs:
-              VolumeSize: 10 
-              DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 5                     
+              VolumeSize: 30 
+              DeleteOnTermination: true                     
       SecurityGroupIds: 
         - !Ref pLinuxAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
@@ -141,6 +140,22 @@ Resources:
         - Key: PatchGroup 
           Value: Linux-PatchGroup
 
+  rLinuxAppserverVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rLinuxAppserverVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rLinuxAppserver
+      VolumeId: !Ref rLinuxAppserverVolume
+
   rWindowsAppserver:
     Type: AWS::EC2::Instance
     Properties: 
@@ -157,14 +172,8 @@ Resources:
       BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
-              VolumeSize: 15 
-              DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 10    
+              VolumeSize: 30 
+              DeleteOnTermination: true  
       SecurityGroupIds: 
         - !Ref pWindowsAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
@@ -203,6 +212,22 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+  
+  rWindowsAppserverVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rWindowsAppserverVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rWindowsAppserver
+      VolumeId: !Ref rWindowsAppserverVolume
         
 
 Outputs:

@@ -33,6 +33,15 @@ Parameters:
     Description: The subnet Id for the DB server 
     Type: String
 
+  pDocumentName:
+    Description: The domain join document for the server
+    Type: String
+
+  pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
+
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -80,14 +89,8 @@ Resources:
       BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
-              VolumeSize: 15 
-              DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 10 
+              VolumeSize: 100
+              DeleteOnTermination: true  
       SecurityGroupIds: 
         - !Ref pWindowsDBServerSecurityGroup
       SubnetId: !Ref pDBServerPrivateSubnetId
@@ -124,6 +127,22 @@ Resources:
           Value: DB
         - Key: DomainJoin 
           Value: yes
+   
+  rWindowsDBserverVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 100
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rWindowsDBserverVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rWindowsDBserver
+      VolumeId: !Ref rWindowsDBserverVolume
       
 Outputs:
   oWindowsDBServerInstanceId:

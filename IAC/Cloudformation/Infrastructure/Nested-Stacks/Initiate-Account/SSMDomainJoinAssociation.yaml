@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the SSM document for directory services
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+    
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String  
+
+  pADName:
+    Description: The directory DNS name
+    Type: String
+
+  pDocumentName:
+    Description: The domain join document for the server
+    Type: String
+
+    
+ 
+Resources: 
+  # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-document.html
+  rNestedWindowsDomainJoin:
+    Type: AWS::SSM::Document
+    Properties: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-WindowsDomainJoin
+      DocumentFormat: JSON
+      DocumentType: Command
+      Content: 
+        schemaVersion: '2.2'
+        description: "Document to retrieve instance metadata and create SSM association for Windows servers"
+        mainSteps:
+          - action: "aws:runPowerShellScript"
+            name: "runPowerShellScript"
+            inputs:
+              runCommand:
+                - "# Check if the server is already domain-joined"
+                - "try {"
+                - "    $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain()"
+                - "    Write-Host \"Already part of domain: $($domain.Name)\""
+                - "    exit 0"
+                - "} catch {"
+                - "    Write-Host \"Not part of any domain, proceeding with further steps.\""
+                - "}"
+                - ""
+                - "# Get a token for IMDSv2"
+                - "$token = Invoke-RestMethod -Method Put -Uri http://169.254.169.254/latest/api/token -Headers @{'X-aws-ec2-metadata-token-ttl-seconds'='21600'}"
+                - ""
+                - "# Get the instance ID using the token"
+                - "$instance_id = Invoke-RestMethod -Uri http://169.254.169.254/latest/meta-data/instance-id -Headers @{'X-aws-ec2-metadata-token'=$token}"
+                - ""
+                - "# Check if instance_id is retrieved successfully"
+                - "if (-not $instance_id) {"
+                - "    Write-Host 'Failed to retrieve instance ID.'"
+                - "    exit 1"
+                - "}"
+                - ""
+                - "# Set the default AWS region"
+                - "Set-DefaultAWSRegion -Region 'us-east-1'"
+                - ""
+                - "# Create an SSM association"
+                - "New-SSMAssociation -InstanceId $instance_id -Name '${pDocumentName}'"
+  rNestedLinuxDomainJoin:
+    Type: AWS::SSM::Document
+    Properties: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-LinuxDomainJoin
+      DocumentFormat: JSON
+      DocumentType: Command
+      Content: 
+        schemaVersion: '2.2'
+        description: "Document to retrieve instance metadata and create SSM association for Linux servers"
+        mainSteps:
+          - action: "aws:runShellScript"
+            name: "runBashScript"
+            inputs:
+              runCommand:
+                - "#!/bin/bash"
+                - "DOMAIN_NAME=\"${pADName}\""
+                - ""
+                - "# Check if the instance is already joined to the domain"
+                - "if realm list | grep -q $DOMAIN_NAME; then"
+                - "  echo \"Instance is already joined to the domain: $DOMAIN_NAME.\""
+                - "  exit 0"
+                - "else"
+                - "  echo \"Instance is not joined to the domain, proceeding...\""
+                - "fi"
+                - ""
+                - "# Set the default AWS region"
+                - "export AWS_DEFAULT_REGION=\"us-east-1\""
+                - ""
+                - "# Get a token for IMDSv2"
+                - "TOKEN=$(curl -X PUT \"http://169.254.169.254/latest/api/token\" -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\")"
+                - ""
+                - "# Get the instance ID using the token"
+                - "instance_id=$(curl -H \"X-aws-ec2-metadata-token: $TOKEN\" -s http://169.254.169.254/latest/meta-data/instance-id)"
+                - ""
+                - "# Check if instance_id is retrieved successfully"
+                - "if [ -z \"$instance_id\" ]; then"
+                - "  echo \"Failed to retrieve instance ID.\""
+                - "  exit 1"
+                - "fi"
+                - ""
+                - "# Create an SSM association"
+                - "aws ssm create-association --instance-id \"$instance_id\" --name \"${pDocumentName}\""
+Outputs:
+  oWindowsDomainJoinDoc:
+    Description: Document for windows domain join in case of failure 
+    Value: !Ref rNestedWindowsDomainJoin
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-WindowsDomainJoin
+
+  oLinuxDomainJoinDoc:
+    Description: Document for linux domain join in case of failure 
+    Value: !Ref rNestedLinuxDomainJoin
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-LinuxDomainJoin
+
+
+
+

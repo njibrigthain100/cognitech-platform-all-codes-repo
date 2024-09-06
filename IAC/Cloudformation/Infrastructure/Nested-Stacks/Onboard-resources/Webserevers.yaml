@@ -46,6 +46,11 @@ Parameters:
     Description: The domain join document for the server
     Type: String
 
+  pAvailabilityZones:
+    Description: The availability zones on which the resource will be created 
+    Type: CommaDelimitedList
+    Default: us-east-1a, us-east-1b
+
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -132,16 +137,10 @@ Resources:
         - !Ref AWS::AccountId 
         - pKeyPair
       BlockDeviceMappings:
-          - DeviceName: /dev/xva
+          - DeviceName: /dev/xvda
             Ebs:
-              VolumeSize: 10 
+              VolumeSize: 30
               DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf
-            Ebs:
-              VolumeSize: 8
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -164,7 +163,22 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
+  
+  rLinuxWebserver1Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
 
+  rLinuxWebserver1VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rLinuxWebserver01
+      VolumeId: !Ref rLinuxWebserver1Volume
 
   rLinuxWebserver02:
     Type: AWS::EC2::Instance
@@ -180,16 +194,10 @@ Resources:
         - !Ref AWS::AccountId 
         - pKeyPair
       BlockDeviceMappings:
-          - DeviceName: /dev/xva
+          - DeviceName: /dev/xvda
             Ebs:
-              VolumeSize: 10 
+              VolumeSize: 30
               DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 9
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -251,6 +259,22 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
+  
+  rLinuxWebserver2Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rLinuxWebserver2VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rLinuxWebserver02
+      VolumeId: !Ref rLinuxWebserver2Volume
 
 
   rWindowsWebserver01:
@@ -269,14 +293,8 @@ Resources:
       BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
-              VolumeSize: 10 
+              VolumeSize: 30
               DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 8 
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -320,6 +338,22 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+  
+  rWindowsWebserver1Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rWindowsWebserver1VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rWindowsWebserver01
+      VolumeId: !Ref rWindowsWebserver1Volume
  
   rWindowsWebserver02:
     Type: AWS::EC2::Instance
@@ -345,14 +379,8 @@ Resources:
       BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
-              VolumeSize: 10 
-              DeleteOnTermination: true 
-              Tags:
-                - Key: Backup 
-                  Value: Daily
-          - DeviceName: /dev/sdf 
-            Ebs:
-              VolumeSize: 18
+              VolumeSize: 30 
+              DeleteOnTermination: true
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -391,6 +419,23 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+
+  
+  rWindowsWebserver2Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+      Size: 30
+      Tags:
+        - Key: Backup
+          Value: Daily
+
+  rWindowsWebserver2VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdf
+      InstanceId: !Ref rWindowsWebserver02
+      VolumeId: !Ref rWindowsWebserver2Volume
 
 Outputs:
   oLinuxWebServerInstanceId01:

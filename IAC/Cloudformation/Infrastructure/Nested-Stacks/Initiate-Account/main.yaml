@@ -727,6 +727,8 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pAdminPassowrd: !Ref pAdminPassowrd
+        pDomainJoinUserName: !Ref pDomainJoinUserName
         pADServerInstanceProfile:
           Fn::GetAtt:
            - rSupportRoles
@@ -816,9 +818,18 @@ Resources:
           Fn::GetAtt:
            - rSSMDomainJoin
            - Outputs.oDomainJoinDocument
+        pWindowsDocumentName:
+          Fn::GetAtt:
+           - rSSMMDomainJoinDocuments
+           - Outputs.oWindowsDomainJoinDoc
+        pLinuxDocumentName:
+          Fn::GetAtt:
+           - rSSMMDomainJoinDocuments
+           - Outputs.oLinuxDomainJoinDoc
     DependsOn: 
         - rDirectoryService
         - rSSMDomainJoin
+        - rSSMMDomainJoinDocuments
 
 ###################################SSM Maintenance Window#################################################################
   rSSMMaintenanceWindow:
@@ -831,6 +842,19 @@ Resources:
         pWindowsPatchWindow: !Ref pWindowsPatchWindow
         pLinuxPatchWindow: !Ref pLinuxPatchWindow
         pMaintenanceWindowSchedule: !Ref pMaintenanceWindowSchedule
+
+########################################SSM Domain Join association documnet################################################
+  rSSMMDomainJoinDocuments:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMDomainJoinAssociation.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pADName: !Ref pADName
+        pDocumentName: !Ref pDocumentName
+    DependsOn:
+         - rSSMDomainJoin
 
         
         
