@@ -654,18 +654,18 @@ Resources:
         pAppName: !Ref pAppName
         pAdminPassowrd: !Ref pAdminPassowrd 
         pADName: !Ref pADName 
-        pSharedServicesPrivateSubnet1Id: 
+        pApp1PrivateSubnet1Id: 
           Fn::GetAtt: 
-            - rSharedServicesVpcStack 
+            - rVpcStack 
             - Outputs.oPrivateSubnet1 
-        pSharedServicesPrivateSubnet2Id: 
+        pApp1PrivateSubnet2Id: 
           Fn::GetAtt: 
-            - rSharedServicesVpcStack 
+            - rVpcStack
             - Outputs.oPrivateSubnet2 
-        pSharedServicesVPCId: 
+        pApp1VPCId: 
           Fn::GetAtt: 
-            - rSharedServicesVpcStack 
-            - Outputs.oVPC 
+            - rVpcStack
+            - Outputs.oVPC
         pADShortName: !Ref pADShortName
         pEdition: !Ref pEdition
     DependsOn: 
@@ -737,9 +737,9 @@ Resources:
           Fn::GetAtt: 
             - rSecurityGroupStack
             - Outputs.oNestedadsg
-        pADSharedservicesPrivateSubnetId: 
-          Fn::GetAtt:
-            - rSharedServicesVpcStack
+        pApp1PrivateSubnet1Id: 
+          Fn::GetAtt: 
+            - rVpcStack 
             - Outputs.oPrivateSubnet1
         pDocumentName: 
           Fn::GetAtt:

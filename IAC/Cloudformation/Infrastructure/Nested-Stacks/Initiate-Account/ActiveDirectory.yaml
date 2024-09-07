@@ -25,16 +25,16 @@ Parameters:
     Type: String
     Default: kahbrigthllc.com
   
-  pSharedServicesPrivateSubnet1Id:
-    Description: The subnet in which to create the domain controllers
+  pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
     Type: String
 
-  pSharedServicesPrivateSubnet2Id:
-    Description: The subnet in which to create the domain controllers
+  pApp1PrivateSubnet2Id:
+    Description: The Id of the second App1 private subnet
     Type: String
  
-  pSharedServicesVPCId:
-    Description: The VPC in which to create the directory service
+  pApp1VPCId:
+    Description: The Id of the App1 VPC
     Type: String
  
   pADShortName:
@@ -63,10 +63,10 @@ Resources:
         !Ref pADShortName
       VpcSettings: 
         SubnetIds: 
-          - !Ref pSharedServicesPrivateSubnet1Id
-          - !Ref pSharedServicesPrivateSubnet2Id
+          - !Ref pApp1PrivateSubnet1Id
+          - !Ref pApp1PrivateSubnet2Id
         VpcId: 
-          !Ref pSharedServicesVPCId
+          !Ref pApp1VPCId
 Outputs:
   oDirectoryId:
     Description: The ID of the created directory 
@@ -85,4 +85,7 @@ Outputs:
     Value: !Join [", ", !GetAtt rNestedActiveDirectory.DnsIpAddresses]
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-DNSIpaddresses
+  
+
+
 

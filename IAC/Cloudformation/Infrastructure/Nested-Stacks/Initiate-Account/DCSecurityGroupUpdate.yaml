@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Updates the domain controller security groups 
+
+Parameters:
+  pSharedServicesVPCId:
+    Description: The Id of the shared services VPC
+    Type: String
+
+  pDirectoryId:
+    Description: The ID of the AWS Directory Service directory
+    Type: String 
+
+  pSecurityGroupName:
+    Description: The name of the domain controller security group
+    Type: String 
+
+Resources: 
+  rNestedDCSecurityGroupRules:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref pSharedServicesVPCId
+      GroupDescription: !Sub "AWS created network interface for directory ${pDirectoryId}"
+  InboundRule:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 10.1.1.0/24
+      GroupName: !GetAtt:  "${pDirectoryId}_controllers"
+

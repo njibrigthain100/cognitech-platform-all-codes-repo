@@ -29,8 +29,9 @@ Parameters:
     Description: The windows webserver security group 
     Type: String
   
-  pADSharedservicesPrivateSubnetId:
-    Description: The subnet Id for the webserver 
+
+  pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
     Type: String
 
   pDocumentName:
@@ -45,8 +46,6 @@ Parameters:
     Description: The active directory admin user name
     Type: String
 
-
-
 Mappings:
   mAccountVariables:
     "271457809232":
@@ -60,7 +59,7 @@ Mappings:
       pInstanceType: t2.micro
     "485147667400":
       pKeyPair: windowscomputer 
-      pInstanceType: t2.small 
+      pInstanceType: t2.large
     "526645041140":
       pKeyPair: TBD
       pInstanceType: t2.micro
@@ -93,7 +92,7 @@ Resources:
         - pKeyPair
       SecurityGroupIds: 
         - !Ref   pWindowsADSecurityGroup
-      SubnetId: !Ref pADSharedservicesPrivateSubnetId
+      SubnetId: !Ref pApp1PrivateSubnet1Id
       UserData:  
         Fn::Base64: !Sub | 
           <powershell>

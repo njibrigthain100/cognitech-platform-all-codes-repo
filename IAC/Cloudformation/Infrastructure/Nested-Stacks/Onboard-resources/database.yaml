@@ -85,12 +85,7 @@ Resources:
       KeyName: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
-        - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/sda1
-            Ebs:
-              VolumeSize: 100
-              DeleteOnTermination: true  
+        - pKeyPair 
       SecurityGroupIds: 
         - !Ref pWindowsDBServerSecurityGroup
       SubnetId: !Ref pDBServerPrivateSubnetId
@@ -110,6 +105,7 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+          </powershell>
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-DB

@@ -95,12 +95,7 @@ Resources:
       KeyName: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
-        - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/xvda 
-            Ebs:
-              VolumeSize: 30 
-              DeleteOnTermination: true                     
+        - pKeyPair                    
       SecurityGroupIds: 
         - !Ref pLinuxAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
@@ -168,12 +163,7 @@ Resources:
       KeyName: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
-        - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/sda1
-            Ebs:
-              VolumeSize: 30 
-              DeleteOnTermination: true  
+        - pKeyPair 
       SecurityGroupIds: 
         - !Ref pWindowsAppServerSecurityGroup
       SubnetId: !Ref pAppServerPrivateSubnetId
@@ -193,6 +183,7 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+          </powershell>
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-App

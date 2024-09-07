@@ -64,7 +64,7 @@ Mappings:
       pInstanceType: t2.micro
     "485147667400":
       pKeyPair: windowscomputer 
-      pInstanceType: t2.small 
+      pInstanceType: t2.large 
     "526645041140":
       pKeyPair: TBD
       pInstanceType: t2.micro
@@ -93,19 +93,6 @@ Resources:
            #!/bin/bash -xe
               Url="https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
               Home_path="/var/www/html"
-              # Set the default AWS region
-              export AWS_DEFAULT_REGION="us-east-1"
-              # Get a token for IMDSv2
-              TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-              # Get the instance ID using the token
-              instance_id=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
-              # Check if instance_id is retrieved successfully
-              if [ -z "$instance_id" ]; then
-                echo "Failed to retrieve instance ID."
-                exit 1
-              fi
-              # Create an SSM association
-              aws ssm create-association --instance-id "$instance_id" --name "${pDocumentName}"
               #Update and install apache
               yum update -y
               yum install -y httpd
@@ -136,11 +123,6 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/xvda
-            Ebs:
-              VolumeSize: 30
-              DeleteOnTermination: true 
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -193,11 +175,6 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/xvda
-            Ebs:
-              VolumeSize: 30
-              DeleteOnTermination: true 
       SecurityGroupIds: 
         - !Ref pLinuxWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -206,19 +183,6 @@ Resources:
             #!/bin/bash -xe
             Url="https://www.free-css.com/assets/files/free-css-templates/download/page281/dotnet.zip"
             Home_path="/var/www/html"
-            # Set the default AWS region
-            export AWS_DEFAULT_REGION="us-east-1"
-            # Get a token for IMDSv2
-            TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-            # Get the instance ID using the token
-            instance_id=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
-            # Check if instance_id is retrieved successfully
-            if [ -z "$instance_id" ]; then
-              echo "Failed to retrieve instance ID."
-              exit 1
-            fi
-            # Create an SSM association
-            aws ssm create-association --instance-id "$instance_id" --name "${pDocumentName}"
             #Update and install apache
             yum update -y
             yum install -y httpd
@@ -290,11 +254,6 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/sda1
-            Ebs:
-              VolumeSize: 30
-              DeleteOnTermination: true 
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -314,10 +273,10 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
-          # Install Web-Server feature with management tools
-          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
-          #Restart machine
-          shutdown -r -t 10;
+            # Install Web-Server feature with management tools
+            Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+            #Restart machine
+            shutdown -r -t 10;
           </powershell>
       Tags: 
         - Key: Name 
@@ -360,14 +319,6 @@ Resources:
     Properties: 
       IamInstanceProfile: !Ref pWebServerInstanceProfile
       ImageId: !Ref pWindows2019LatestAmiId
-      UserData:  
-        Fn::Base64: !Sub | 
-          <powershell>
-          # Install Web-Server feature with management tools
-          Install-WindowsFeature -Name Web-Server -IncludeManagementTools
-          #Restart machine
-          shutdown -r -t 10;
-          </powershell>
       InstanceType: !FindInMap 
         - mAccountVariables
         - !Ref AWS::AccountId 
@@ -376,11 +327,6 @@ Resources:
         - mAccountVariables
         - !Ref AWS::AccountId 
         - pKeyPair
-      BlockDeviceMappings:
-          - DeviceName: /dev/sda1
-            Ebs:
-              VolumeSize: 30 
-              DeleteOnTermination: true
       SecurityGroupIds: 
         - !Ref pWindowsWebServerSecurityGroup
       SubnetId: !Ref pWebServerPrivateSubnetId
@@ -400,6 +346,11 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+            # Install Web-Server feature with management tools
+            Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+            #Restart machine
+            shutdown -r -t 10;
+          </powershell>
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Windows-Web-02
@@ -419,8 +370,7 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
-
-  
+ 
   rWindowsWebserver2Volume:
     Type: AWS::EC2::Volume
     Properties:
