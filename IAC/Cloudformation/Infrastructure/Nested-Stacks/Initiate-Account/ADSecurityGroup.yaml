@@ -21,8 +21,8 @@ Parameters:
     Description: The shared services vpc Id 
     Type: String 
 
-  pSharedServicesVPCId: 
-    Description: The Id of the shared services vpc
+  pApp1VPCId:
+    Description: The Id of the App1 VPC
     Type: String
 
 Resources: 
@@ -53,7 +53,7 @@ Resources:
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-sg
-      VpcId: !Ref pSharedServicesVPCId
+      VpcId: !Ref pApp1VPCId
   rNestedsshbastionsg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -68,7 +68,7 @@ Resources:
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion
-      VpcId: !Ref pSharedServicesVPCId
+      VpcId: !Ref pApp1VPCId
 
   rNestedrdpbastionsg:
     Type: AWS::EC2::SecurityGroup
@@ -84,7 +84,7 @@ Resources:
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion
-      VpcId: !Ref pSharedServicesVPCId
+      VpcId: !Ref pApp1VPCId
  
 Outputs:
   oNestedadsg:

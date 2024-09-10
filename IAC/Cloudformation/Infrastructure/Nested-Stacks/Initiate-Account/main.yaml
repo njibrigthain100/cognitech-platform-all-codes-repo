@@ -714,9 +714,9 @@ Resources:
       Parameters: 
         pAppName: !Ref pAppName
         pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
-        pSharedServicesVPCId: 
+        pApp1VPCId: 
           Fn::GetAtt: 
-            - rSharedServicesVpcStack
+            - rVpcStack
             - Outputs.oVPC
 
 ###################################Active Directory Master Server#################################################################
