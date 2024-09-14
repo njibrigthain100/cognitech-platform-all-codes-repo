@@ -134,6 +134,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
 
   rLinuxAppserverVolume:
     Type: AWS::EC2::Volume
@@ -183,6 +185,8 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+            # Update gpu 
+            gpupdate /force
           </powershell>
       Tags: 
         - Key: Name 
@@ -203,6 +207,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
   
   rWindowsAppserverVolume:
     Type: AWS::EC2::Volume

@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the security groups for all commercial off the shelf resources 
+
+Parameters: 
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech
+
+  # pSharedServicesVPCCidr: 
+  #   Description: The shared services vpc Id 
+  #   Type: String 
+
+  pApp1VPCId:
+    Description: The Id of the App1 VPC
+    Type: String
+
+  pLinuxAppSecurityGroup:
+    Description: The security group Id of the linux app server
+    Type: String
+  
+
+Resources: 
+  rNestedefssg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The efs share security group 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref pLinuxAppSecurityGroup
+          Description: "Allow NFS access from the linux app security group"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+      VpcId: !Ref pApp1VPCId
+ 
+Outputs:
+  oNestedefssg:
+    Description: The security group Id of the efs share
+    Value: !Ref rNestedefssg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+  
+  

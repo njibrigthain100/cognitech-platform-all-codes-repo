@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates the EFS share for the linux app servers
+
+Parameters:
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech 
+
+  pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
+    Type: String
+
+  pApp1PrivateSubnet2Id:
+    Description: The Id of the second App1 private subnet
+    Type: String
+  
+  pApp1EFSSecurityGroup:
+    Description: The security group for the EFS share
+    Type: String
+
+Resources: 
+  rNestedEFSShare:
+    Type: 'AWS::EFS::FileSystem'
+    Properties:
+      BackupPolicy:
+        Status: ENABLED
+      PerformanceMode: maxIO
+      Encrypted: true
+      LifecyclePolicies:
+        - TransitionToIA: AFTER_30_DAYS
+        - TransitionToPrimaryStorageClass: AFTER_1_ACCESS
+      FileSystemTags:
+        - Key: Name
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-EFS
+      KmsKeyId: !GetAtt 
+        - rNestedEFSKmskey
+        - Arn
+  rNestedEFSKmskey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-kms-key
+        Statement:
+          - Sid: Allow administration of the key
+            Effect: Allow
+            Principal:
+              AWS: !Join 
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':root'
+            Action:
+              - 'kms:*'
+            Resource: 
+              - '*'
+
+  rNestedEFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref rNestedEFSShare
+      SubnetId: !Ref pApp1PrivateSubnet1Id
+      SecurityGroups: !Ref pApp1EFSSecurityGroup
+
+  rNestedEFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref rNestedEFSShare
+      SubnetId: !Ref pApp1PrivateSubnet2Id
+      SecurityGroups: !Ref pApp1EFSSecurityGroup
+ 
+  AccessPointResource:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      FileSystemId: !Ref FileSystemResource
+      PosixUser:
+        Uid: "1001"
+        Gid: "1001"
+        SecondaryGids:
+          - "1344"
+          - "1452"
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "708798"
+          OwnerUid: "7987987"
+          Permissions: "0755"
+        Path: "/app/cognitech"
+
+Outputs:

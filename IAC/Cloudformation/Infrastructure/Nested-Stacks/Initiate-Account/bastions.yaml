@@ -45,6 +45,14 @@ Parameters:
   pDocumentName:
     Description: The domain join document for the server
     Type: String
+  
+  pBastionAdminUser:
+    Description: The admin user used to access the bastion servers
+    Type: String
+
+  pBastionAdminUserPassword:
+    Description: The admin user password
+    Type: String
 
 Mappings:
   mAccountVariables:
@@ -59,7 +67,7 @@ Mappings:
       pInstanceType: t2.micro
     "485147667400":
       pKeyPair: windowscomputer 
-      pInstanceType: t2.small 
+      pInstanceType: t2.large 
     "526645041140":
       pKeyPair: TBD
       pInstanceType: t2.micro
@@ -96,20 +104,35 @@ Resources:
       SubnetId: !Ref pSharedSeervicesPublicSubnetId
       UserData:  
         Fn::Base64: !Sub | 
-          #!/bin/bash
-          # Set the default AWS region
-          export AWS_DEFAULT_REGION="us-east-1"
-          # Get a token for IMDSv2
-          TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-          # Get the instance ID using the token
-          instance_id=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
-          # Check if instance_id is retrieved successfully
-          if [ -z "$instance_id" ]; then
-            echo "Failed to retrieve instance ID."
-            exit 1
+          #!/bin/bash -xe
+          # Set username and password
+          USER="${pBastionAdminUser}"
+          PASSWOR"${pBastionAdminUserPassword}"
+          # Create the user without prompts
+          if id "$USER" &>/dev/null; then
+              echo "User $USER already exists."
+          else
+              useradd -m -s /bin/bash "$USER"
+              echo "User $USER created."
           fi
-          # Create an SSM association
-          aws ssm create-association --instance-id "$instance_id" --name "${pDocumentName}"
+          # Set a password for the user
+          echo "$USER:$PASSWORD" | chpasswd
+          # Add the user to the sudoers file for passwordless sudo
+          if ! grep -q "^$USER ALL=(ALL) NOPASSWD:ALL" /etc/sudoers; then
+              echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+              echo "User $USER added to sudoers file with passwordless authentication."
+          fi
+          # Enable password authentication in the SSH config
+          sed -i 's/^#PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          # Restart SSH service to apply changes
+          systemctl restart sshd
+          # Disable requiretty for sudo (optional, for some cloud environments)
+          if ! grep -q "^Defaults !requiretty" /etc/sudoers; then
+              echo "Defaults !requiretty" >> /etc/sudoers
+              echo "requiretty disabled for sudo."
+          fi
+          echo "User creation and configuration completed."
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-SSH-bastion 
@@ -146,19 +169,23 @@ Resources:
       UserData:  
         Fn::Base64: !Sub | 
           <powershell>
-            # Get a token for IMDSv2
-            $token = Invoke-RestMethod -Method Put -Uri http://169.254.169.254/latest/api/token -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="21600"}
-            # Get the instance ID using the token
-            $instance_id = Invoke-RestMethod -Uri http://169.254.169.254/latest/meta-data/instance-id -Headers @{"X-aws-ec2-metadata-token"=$token}
-            # Check if instance_id is retrieved successfully
-            if (-not $instance_id) {
-            Write-Host "Failed to retrieve instance ID."
-            exit 1
-            }
-            # Set the default AWS region
-            Set-DefaultAWSRegion -Region "us-east-1"
-            # Create an SSM association
-            New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+            $Username = "${pBastionAdminUser}"
+            $Password = "${pBastionAdminUserPassword}" | ConvertTo-SecureString -AsPlainText -Force
+            $RdpPort = 3389
+            # --- Create New User ---
+            New-LocalUser -Name $Username -Password $Password -FullName "New User" -Description "User created via EC2 user data" -PasswordNeverExpires
+            # --- Add User to Remote Desktop Users Group ---
+            Add-LocalGroupMember -Group "Remote Desktop Users" -Member $Username
+            # --- Add User to Administrators Group ---
+            Add-LocalGroupMember -Group "Administrators" -Member $Username
+            # --- Enable RDP Access ---
+            # Set the registry key to enable RDP
+            Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+            # --- Configure Windows Firewall to Allow RDP ---
+            # Allow RDP inbound rule in Windows Firewall
+            New-NetFirewallRule -DisplayName "Allow RDP" -Direction Inbound -Protocol TCP -LocalPort $RdpPort -Action Allow
+            # --- Confirm RDP and User Setup ---
+            Write-Host "RDP access enabled, new user $Username created, added to Remote Desktop Users and Administrators groups."
           </powershell>
       Tags: 
         - Key: Name 

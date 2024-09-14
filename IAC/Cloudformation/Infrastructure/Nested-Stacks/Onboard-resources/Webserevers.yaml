@@ -145,6 +145,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
   
   rLinuxWebserver1Volume:
     Type: AWS::EC2::Volume
@@ -223,6 +225,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
   
   rLinuxWebserver2Volume:
     Type: AWS::EC2::Volume
@@ -275,6 +279,8 @@ Resources:
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
             # Install Web-Server feature with management tools
             Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+            # Update gpu 
+            gpupdate /force
             #Restart machine
             shutdown -r -t 10;
           </powershell>
@@ -297,6 +303,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
   
   rWindowsWebserver1Volume:
     Type: AWS::EC2::Volume
@@ -348,6 +356,8 @@ Resources:
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
             # Install Web-Server feature with management tools
             Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+            # Update gpu 
+            gpupdate /force
             #Restart machine
             shutdown -r -t 10;
           </powershell>
@@ -370,6 +380,8 @@ Resources:
           Value: yes
         - Key: PatchGroup 
           Value: Windows-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
  
   rWindowsWebserver2Volume:
     Type: AWS::EC2::Volume

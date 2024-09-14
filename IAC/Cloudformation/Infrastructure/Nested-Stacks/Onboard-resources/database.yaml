@@ -105,6 +105,8 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+            # Update gpu 
+            gpupdate /force
           </powershell>
       Tags: 
         - Key: Name 
@@ -123,6 +125,8 @@ Resources:
           Value: DB
         - Key: DomainJoin 
           Value: yes
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
    
   rWindowsDBserverVolume:
     Type: AWS::EC2::Volume

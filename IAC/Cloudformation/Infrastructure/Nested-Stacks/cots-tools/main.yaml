@@ -1,0 +1,134 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an aws 3 tier arcitecture with nested stacks
+Metadata: # This is putr in an s3 bucket
+  AWS::CloudFormation::Interface:
+    ParameterGroups: # This groups all the parameter acording to resources created
+    - Label:
+        default: "Account values"
+      Parameters: 
+        - pAwsAccount
+        - pAwsAccountLC
+        - pBucketName
+        - pAppName
+    - Label: 
+        default: "Cots Security configurations" 
+      Parameters:
+        - pApp1VPCId
+        - pLinuxAppSecurityGroup
+    - Label: 
+        default: "EFS configurations" 
+      Parameters:
+        - pApp1PrivateSubnet1Id
+        - pApp1PrivateSubnet2Id
+        - pApp1EFSSecurityGroup
+    ParameterLabels: # The default values will be presented on the console 
+      pAwsAccount: 
+        default: pAwsAccount 
+      pAwsAccountLC: 
+        default: pAwsAccountLC 
+      pBucketName: 
+        default: pBucketName 
+      pAppName: 
+        default: pAppName
+  ###########################Cots Security Group parameter labels#########################################
+      pApp1VPCId: 
+        default: pApp1VPCId 
+      pLinuxAppSecurityGroup: 
+        default: pLinuxAppSecurityGroup
+  ###########################EFS parameter labels############################################
+      pApp1PrivateSubnet1Id: 
+        default: pApp1PrivateSubnet1Id 
+      pApp1PrivateSubnet2Id: 
+        default: pApp1PrivateSubnet2Id
+      pApp1EFSSecurityGroup: 
+        default: pApp1EFSSecurityGroup 
+
+Parameters: 
+####################### General parameter for all stacks #######################
+  pAwsAccount:
+    Description: The account name in upper case. 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account name in lower case 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pBucketName:
+    Description: The name of the bucket storing all the children stacks 
+    Type: String
+    Default: prod-nested-stack-us-east-1
+  
+  pAppName:
+    Description: The appplication being created
+    Type: String
+    Default: cognitech
+
+############################################Cots Security Group########################
+  pApp1VPCId:
+    Description: The Id of the App1 VPC
+    Type: String
+
+  pLinuxAppSecurityGroup:
+    Description: The security group Id of the linux app server
+    Type: String
+
+############################################EFS########################################  
+  pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
+    Type: String
+
+  pApp1PrivateSubnet2Id:
+    Description: The Id of the second App1 private subnet
+    Type: String
+  
+  pApp1EFSSecurityGroup:
+    Description: The security group for the EFS share
+    Type: String
+
+
+Resources: 
+  rCotSecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/cots-security-group.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pAppName: !Ref pAppName 
+        pLinuxAppSecurityGroup: 
+           Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+  
+  rEFSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/efs.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pAppName: !Ref pAppName
+        pApp1PrivateSubnet1Id: 
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+        pApp1PrivateSubnet2Id: 
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
+        pApp1EFSSecurityGroup: 
+          Fn::GetAtt: 
+            - rCotSecurityGroupStack 
+            - Outputs.oNestedefssg 
+    DependsOn: 
+      - rCotSecurityGroupStack
+        
+
+
+
+
+        
+        
+        
+  
+          
+
+
+  

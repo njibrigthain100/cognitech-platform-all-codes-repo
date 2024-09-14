@@ -71,6 +71,9 @@ Metadata: # This is putr in an s3 bucket
         - pBastionRDPSecurityGroup
         - pBastionSSHSecurityGroup
         - pSharedSeervicesPublicSubnetId
+        - pBastionAdminUser
+        - pBastionAdminUserPassword
+
     - Label: 
         default: "SSM documnet configurations" 
       Parameters:
@@ -205,6 +208,10 @@ Metadata: # This is putr in an s3 bucket
         default: pBastionSSHSecurityGroup
       pSharedSeervicesPublicSubnetId: 
         default: pSharedSeervicesPublicSubnetId
+      pBastionAdminUser: 
+        default: pBastionAdminUser
+      pBastionAdminUserPassword: 
+        default: pBastionAdminUserPassword
 
 ###################################SSM Domain join docunment###############################
       pDirectoryId: 
@@ -488,6 +495,16 @@ Parameters:
     Description: The subnet Id for the shared services public subnet
     Type: String
 
+  pBastionAdminUser:
+    Description: The admin user used to access the bastion servers
+    Type: String
+    Default: BastionUser
+
+  pBastionAdminUserPassword:
+    Description: The admin user password
+    Type: String
+    Default: j##8TWnnx8GcrEZLzt5&2M
+
 ############################################SSM domain join document#######################################  
   pDirectoryId:
     Description: The ID of the AWS Directory Service directory
@@ -714,6 +731,10 @@ Resources:
       Parameters: 
         pAppName: !Ref pAppName
         pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
+        pSharedServicesVPCId: 
+          Fn::GetAtt: 
+            - rSharedServicesVpcStack
+            - Outputs.oVPC
         pApp1VPCId: 
           Fn::GetAtt: 
             - rVpcStack
@@ -780,6 +801,8 @@ Resources:
           Fn::GetAtt:
             - rSSMDomainJoin
             - Outputs.oDomainJoinDocument
+        pBastionAdminUser: !Ref pBastionAdminUser
+        pBastionAdminUserPassword: !Ref pBastionAdminUserPassword
     DependsOn: 
       - rSupportRoles
       - rSharedServicesVpcStack
@@ -802,7 +825,7 @@ Resources:
         pDomainJoinUserName: !Ref pDomainJoinUserName
         pAdminPassowrd: !Ref pAdminPassowrd
     DependsOn: 
-        - rDirectoryService
+      - rDirectoryService
 
 ###################################Domain Join Association#################################################################
   rDomainJoinAutomation:
@@ -818,18 +841,10 @@ Resources:
           Fn::GetAtt:
            - rSSMDomainJoin
            - Outputs.oDomainJoinDocument
-        pWindowsDocumentName:
-          Fn::GetAtt:
-           - rSSMMDomainJoinDocuments
-           - Outputs.oWindowsDomainJoinDoc
-        pLinuxDocumentName:
-          Fn::GetAtt:
-           - rSSMMDomainJoinDocuments
-           - Outputs.oLinuxDomainJoinDoc
     DependsOn: 
-        - rDirectoryService
-        - rSSMDomainJoin
-        - rSSMMDomainJoinDocuments
+      - rDirectoryService
+      - rSSMDomainJoin
+      - rSSMMDomainJoinDocuments
 
 ###################################SSM Maintenance Window#################################################################
   rSSMMaintenanceWindow:

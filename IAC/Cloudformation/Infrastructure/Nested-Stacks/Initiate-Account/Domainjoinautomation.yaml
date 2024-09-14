@@ -25,43 +25,12 @@ Parameters:
     Description: The document used for the association 
     Type: String
 
-  
-  pWindowsDocumentName:
-    Description: The document used window server association in case of failuer upon launching 
-    Type: String
-
-  pLinuxDocumentName:
-    Description: The document used window server association in case of failuer upon launching 
-    Type: String 
-
   pCronexpression:
     Description: The cron expression used for the association 
     Type: String
     Default: cron(0 14 * * ? *)
 
 Resources: 
-  rNestedDomainjoinautomation:
-    Type: AWS::SSM::Association
-    Properties:
-      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-WindowsDomainJoin
-      Name: !Ref pWindowsDocumentName
-      ScheduleExpression: !Ref pCronexpression
-      Targets:
-      - Key: tag:DomainJoin
-        Values:
-        - yes   
-  
-  rNestedLinuxjoinautomation:
-    Type: AWS::SSM::Association
-    Properties:
-      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-WindowsDomainJoin
-      Name: !Ref pLinuxDocumentName
-      ScheduleExpression: !Ref pCronexpression
-      Targets:
-      - Key: tag:DomainJoin
-        Values:
-        - yes
-  
   rNestedWindowsjoinautomation:
     Type: AWS::SSM::Association
     Properties:
@@ -71,4 +40,4 @@ Resources:
       Targets:
       - Key: tag:DomainJoin
         Values:
-        - false  
+        - yes 
