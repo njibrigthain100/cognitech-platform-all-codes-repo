@@ -186,6 +186,11 @@ Resources:
               - rNestednlbsg
               - GroupId
           Description: "Allow HTTP access from the NLB"
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5025
+          CidrIp: 0.0.0.0/0
+          Description: "Allow access from the internet on tcp port 5000-5025"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg

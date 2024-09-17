@@ -40,33 +40,31 @@ Resources:
             name: "runBashScript"
             inputs:
               runCommand:
-                  - "#!/bin/bash"
-                  - ""
-                  - "# Variables"
-                  - "AD_GROUP='${pADAdminGroupName}'"
-                  - "DOMAIN='${pADName}'"
-                  - "SUDOERS_FILE='/etc/sudoers'"
-                  - "AD_GROUP_ENTRY='%${DOMAIN}\\\\${AD_GROUP} ALL=(ALL) NOPASSWD: ALL'"
-                  - ""
-                  - "# Check if the group exists in Active Directory"
-                  - "if id \"${DOMAIN}\\\\${AD_GROUP}\" &>/dev/null; then"
-                  - "    echo \"Group ${DOMAIN}\\\\${AD_GROUP} exists in Active Directory.\""
-                  - ""
-                  - "    # Check if the group is already in the sudoers file"
-                  - "    if grep -q \"${DOMAIN}\\\\\\\\${AD_GROUP}\" \"$SUDOERS_FILE\"; then"
-                  - "        echo \"Group ${DOMAIN}\\\\${AD_GROUP} is already in the sudoers file.\""
-                  - "    else"
-                  - "        echo \"Group ${DOMAIN}\\\\${AD_GROUP} is not in the sudoers file. Adding it...\""
-                  - "        echo \"$AD_GROUP_ENTRY\" >> \"$SUDOERS_FILE\""
-                  - "        if [ $? -eq 0 ]; then"
-                  - "            echo \"Successfully added ${DOMAIN}\\\\${AD_GROUP} to the sudoers file with NOPASSWD.\""
-                  - "        else"
-                  - "            echo \"Failed to add ${DOMAIN}\\\\${AD_GROUP} to the sudoers file.\""
-                  - "        fi"
-                  - "    fi"
-                  - "else"
-                  - "    echo \"Group ${DOMAIN}\\\\${AD_GROUP} does not exist in Active Directory.\""
-                  - "fi"
+              - !Sub | 
+                    #!/bin/bash                    
+                    # Variables
+                    AD_GROUP='${pADAdminGroupName}'
+                    DOMAIN='${pADName}'
+                    SUDOERS_FILE='/etc/sudoers'
+                    AD_GROUP_ENTRY="%${DomainName}\\\\${AdGroup} ALL=(ALL) NOPASSWD: ALL"
+                    # Check if the group exists in Active Directory
+                    if id "${DomainName}\\\\${AdGroup}" &>/dev/null; then
+                        echo "Group ${DomainName}\\\\${AdGroup} exists in Active Directory."
+                        # Check if the group is already in the sudoers file
+                        if grep -q "${DomainName}\\\\\\\\${AdGroup}" "$SUDOERS_FILE"; then
+                            echo "Group ${DomainName}\\\\${AdGroup} is already in the sudoers file."
+                        else
+                            echo "Group ${DomainName}\\\\${AdGroup} is not in the sudoers file. Adding it..."
+                            echo "$AD_GROUP_ENTRY" >> "$SUDOERS_FILE"
+                            if [ $? -eq 0 ]; then
+                                echo "Successfully added ${DomainName}\\\\${AdGroup} to the sudoers file with NOPASSWD."
+                            else
+                                echo "Failed to add ${DomainName}\\\\${AdGroup} to the sudoers file."
+                            fi
+                        fi
+                    else
+                        echo "Group ${DomainName}\\\\${AdGroup} does not exist in Active Directory."
+                    fi
 Outputs:
   oNestedLinuxSudoersFile:
     Description: Document for Linux servers to be added to the sudoers file

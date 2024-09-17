@@ -41,6 +41,11 @@ Resources:
           ToPort: 3389
           CidrIp: !Ref pSharedServicesVPCCidr
           Description: "Allow RDP access from the bastion security group"
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5025
+          CidrIp: 0.0.0.0/0
+          Description: "Allow access from the internet on tcp port 5000-5025"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-AD-sg
