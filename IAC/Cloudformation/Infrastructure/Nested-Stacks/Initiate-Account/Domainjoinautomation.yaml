@@ -25,6 +25,10 @@ Parameters:
     Description: The document used for the association 
     Type: String
 
+  pDocumentName2:
+    Description: The document used for the association 
+    Type: String
+
   pCronexpression:
     Description: The cron expression used for the association 
     Type: String
@@ -39,5 +43,15 @@ Resources:
       ScheduleExpression: !Ref pCronexpression
       Targets:
       - Key: tag:DomainJoin
+        Values:
+        - yes 
+  rNestedLinuxSudoersFileautomation:
+    Type: AWS::SSM::Association
+    Properties:
+      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-LinuxSudoersFile
+      Name: !Ref pDocumentName2
+      ScheduleExpression: !Ref pCronexpression
+      Targets:
+      - Key: tag:LinuxSudoers
         Values:
         - yes 

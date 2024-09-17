@@ -71,19 +71,21 @@ Resources:
     Properties:
       FileSystemId: !Ref rNestedEFSShare
       SubnetId: !Ref pApp1PrivateSubnet1Id
-      SecurityGroups: !Ref pApp1EFSSecurityGroup
+      SecurityGroups: 
+        - !Ref pApp1EFSSecurityGroup
 
   rNestedEFSMountTarget2:
     Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: !Ref rNestedEFSShare
       SubnetId: !Ref pApp1PrivateSubnet2Id
-      SecurityGroups: !Ref pApp1EFSSecurityGroup
+      SecurityGroups: 
+        - !Ref pApp1EFSSecurityGroup
  
   AccessPointResource:
     Type: 'AWS::EFS::AccessPoint'
     Properties:
-      FileSystemId: !Ref FileSystemResource
+      FileSystemId: !Ref rNestedEFSShare
       PosixUser:
         Uid: "1001"
         Gid: "1001"
@@ -97,4 +99,3 @@ Resources:
           Permissions: "0755"
         Path: "/app/cognitech"
 
-Outputs:

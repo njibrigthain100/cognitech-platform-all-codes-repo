@@ -277,12 +277,11 @@ Resources:
             Set-DefaultAWSRegion -Region "us-east-1"
             # Create an SSM association
             New-SSMAssociation -InstanceId $instance_id -Name "${pDocumentName}"
+            
             # Install Web-Server feature with management tools
             Install-WindowsFeature -Name Web-Server -IncludeManagementTools
             # Update gpu 
             gpupdate /force
-            #Restart machine
-            shutdown -r -t 10;
           </powershell>
       Tags: 
         - Key: Name 
@@ -358,8 +357,6 @@ Resources:
             Install-WindowsFeature -Name Web-Server -IncludeManagementTools
             # Update gpu 
             gpupdate /force
-            #Restart machine
-            shutdown -r -t 10;
           </powershell>
       Tags: 
         - Key: Name 

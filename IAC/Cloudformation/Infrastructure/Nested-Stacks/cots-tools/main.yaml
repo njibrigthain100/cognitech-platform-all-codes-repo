@@ -96,6 +96,9 @@ Resources:
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName 
+        pApp1VPCId: 
+           Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc  
         pLinuxAppSecurityGroup: 
            Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg

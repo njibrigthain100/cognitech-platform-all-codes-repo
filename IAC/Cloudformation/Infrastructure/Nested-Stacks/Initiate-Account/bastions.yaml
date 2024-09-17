@@ -107,7 +107,7 @@ Resources:
           #!/bin/bash -xe
           # Set username and password
           USER="${pBastionAdminUser}"
-          PASSWOR"${pBastionAdminUserPassword}"
+          PASSWORD="${pBastionAdminUserPassword}"
           # Create the user without prompts
           if id "$USER" &>/dev/null; then
               echo "User $USER already exists."

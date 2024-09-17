@@ -75,11 +75,15 @@ Metadata: # This is putr in an s3 bucket
         - pBastionAdminUserPassword
 
     - Label: 
-        default: "SSM documnet configurations" 
+        default: "SSM document configurations" 
       Parameters:
         - pDirectoryId
         - pDirectoryName
         - pDNSIpAddresses
+    - Label: 
+        default: "SSM Linux sudoers documnet configurations" 
+      Parameters:
+        - pADAdminGroupName
     - Label: 
         default: "Secrets Manager configurations" 
       Parameters:
@@ -89,6 +93,7 @@ Metadata: # This is putr in an s3 bucket
       Parameters:
         - pAssociationName
         - pCronexpression
+        - pDocumentName2
     - Label: 
         default: "Maintenance Window configurations" 
       Parameters:
@@ -220,6 +225,12 @@ Metadata: # This is putr in an s3 bucket
         default: pDirectoryName
       pDNSIpAddresses: 
         default: pDNSIpAddresses
+      pDocumentName2:
+        default: pDocumentName2
+
+###################################SSM Linux Sudoers file Document###############################
+      pADAdminGroupName: 
+        default: pADAdminGroupName
 
 ###################################Secrets Manager###############################
       pDomainJoinUserName: 
@@ -436,12 +447,12 @@ Parameters:
   pAdminPassowrd:
     Description: The password for the default administartive admin user 
     Type: String 
-    Default: Shilohangel@2024
+    # Default: Shilohangel@2024
   
   pADName:
     Description: The directory DNS name
     Type: String
-    Default: kahbrigthllc.com
+    # Default: kahbrigthllc.com
    
   pADShortName:
     Description: The NetBios name for the domain
@@ -498,12 +509,12 @@ Parameters:
   pBastionAdminUser:
     Description: The admin user used to access the bastion servers
     Type: String
-    Default: BastionUser
+    # Default: BastionUser
 
   pBastionAdminUserPassword:
     Description: The admin user password
     Type: String
-    Default: j##8TWnnx8GcrEZLzt5&2M
+    # Default: j##8TWnnx8GcrEZLzt5&2M
 
 ############################################SSM domain join document#######################################  
   pDirectoryId:
@@ -517,6 +528,11 @@ Parameters:
   pDNSIpAddresses:
     Description: The IP addresses of the DNS servers in the directory
     Type: CommaDelimitedList
+
+############################################SSM Linux suoders document#######################################  
+  pADAdminGroupName:
+    Description: The name for the linux admin users
+    Type: String
 
 ############################################Secrets Manager#######################################  
   pDomainJoinUserName:
@@ -534,6 +550,10 @@ Parameters:
     Description: The cron expression used for the association
     Type: String
     Default: cron(0 14 * * ? *)
+
+  pDocumentName2:
+    Description: The document used for the association 
+    Type: String
 
 ############################################SSM Maintenence Window#######################################  
   pWindowsPatchWindow:
@@ -669,8 +689,8 @@ Resources:
       TimeoutInMinutes: 40
       Parameters:
         pAppName: !Ref pAppName
-        pAdminPassowrd: !Ref pAdminPassowrd 
-        pADName: !Ref pADName 
+        pAdminPassowrd: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADPassword}}"
+        pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
         pApp1PrivateSubnet1Id: 
           Fn::GetAtt: 
             - rVpcStack 
@@ -713,6 +733,18 @@ Resources:
     DependsOn: 
       - rDirectoryService
 
+###################################SSM Linux suders file document#################################################################
+  rSSMLinuxSuders:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMLinuxSudoersFile.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+        pADAdminGroupName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:pADAdminGroupName}}"
+        pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
+    DependsOn: 
+      - rDirectoryService
 #############################################AD IAM Role###########################################################################
   rSupportRoles:
     Type: AWS::CloudFormation::Stack
@@ -748,8 +780,8 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
-        pAdminPassowrd: !Ref pAdminPassowrd
-        pDomainJoinUserName: !Ref pDomainJoinUserName
+        pAdminPassowrd: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADPassword}}"
+        pDomainJoinUserName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADUserName}}"
         pADServerInstanceProfile:
           Fn::GetAtt:
            - rSupportRoles
@@ -801,8 +833,8 @@ Resources:
           Fn::GetAtt:
             - rSSMDomainJoin
             - Outputs.oDomainJoinDocument
-        pBastionAdminUser: !Ref pBastionAdminUser
-        pBastionAdminUserPassword: !Ref pBastionAdminUserPassword
+        pBastionAdminUser: !Sub "{{resolve:secretsmanager:NestedBastionCredentials:SecretString:pBastionAdminUser}}"
+        pBastionAdminUserPassword: !Sub "{{resolve:secretsmanager:NestedBastionCredentials:SecretString:pBastionAdminUserPassword}}"
     DependsOn: 
       - rSupportRoles
       - rSharedServicesVpcStack
@@ -822,8 +854,8 @@ Resources:
           Fn::GetAtt:
            - rDirectoryService
            - Outputs.oDirectoryId
-        pDomainJoinUserName: !Ref pDomainJoinUserName
-        pAdminPassowrd: !Ref pAdminPassowrd
+        pDomainJoinUserName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADUserName}}"
+        pAdminPassowrd: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADPassword}}"
     DependsOn: 
       - rDirectoryService
 
@@ -841,6 +873,10 @@ Resources:
           Fn::GetAtt:
            - rSSMDomainJoin
            - Outputs.oDomainJoinDocument
+        pDocumentName2:
+          Fn::GetAtt:
+           - rSSMLinuxSuders
+           - Outputs.oNestedLinuxSudoersFile
     DependsOn: 
       - rDirectoryService
       - rSSMDomainJoin
@@ -866,7 +902,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
-        pADName: !Ref pADName
+        pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
         pDocumentName: !Ref pDocumentName
     DependsOn:
          - rSSMDomainJoin
