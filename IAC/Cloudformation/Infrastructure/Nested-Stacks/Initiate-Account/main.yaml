@@ -101,6 +101,14 @@ Metadata: # This is putr in an s3 bucket
         - pLinuxPatchWindow
         - pMaintenanceWindowSchedule
 
+    - Label: 
+        default: "Bastion DNS record configurations" 
+      Parameters:
+        - pHostedZoneId
+        - pWindwsbastionIp
+        - pLinuxbastionIp
+        - pADServerIp
+
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: pAwsAccount 
@@ -249,6 +257,16 @@ Metadata: # This is putr in an s3 bucket
         default: pLinuxPatchWindow
       pMaintenanceWindowSchedule: 
         default: pMaintenanceWindowSchedule
+
+###################################Bastion DNS A record###############################
+      pHostedZoneId: 
+        default:  pHostedZoneId
+      pWindwsbastionIp: 
+        default: pWindwsbastionIp
+      pLinuxbastionIp: 
+        default: pLinuxbastionIp
+      pADServerIp: 
+        default: pADServerIp
 Parameters: 
 ####################### General parameter for all stacks #######################
   pAwsAccount:
@@ -570,6 +588,24 @@ Parameters:
     Description: The schedule for when the maintenance window happens
     Type: String
     Default: cron(0 0 ? * SUN *)
+
+############################################Bastion DNS A Record#######################################  
+  pHostedZoneId:
+    Description: The hosted zone Id
+    Type: String
+    Default: Z0334718LG87PKPVYABM
+
+  pWindwsbastionIp:
+    Description: The Ip of the windows bastion server
+    Type: String
+
+  pLinuxbastionIp:
+    Description: The Ip of the linux bastion server
+    Type: String
+
+  pADServerIp:
+    Description: The Ip of the AD server
+    Type: String
 
 Resources: 
   rVpcStack:
@@ -906,6 +942,31 @@ Resources:
         pDocumentName: !Ref pDocumentName
     DependsOn:
          - rSSMDomainJoin
+
+#######################################Support host DNS A Record################################################
+  rSSMMDomainJoinDocuments:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SupportHostDNS.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pHostedZoneId: !Ref pHostedZoneId 
+        pWindwsbastionIp: 
+          Fn::GetAtt:
+            - rBastions
+            - Outputs.oRDPBastionInstanceIp
+        pLinuxbastionIp: 
+          Fn::GetAtt:
+            - rBastions
+            - Outputs.oSSHBastionInstanceIp
+        pADServerIp: 
+          Fn::GetAtt:
+            - rADMasterServer
+            - Outputs.oActiveDirectoryInstanceIp
+
+    DependsOn:
+         - rADMasterServer
+         - rBastions
 
         
         

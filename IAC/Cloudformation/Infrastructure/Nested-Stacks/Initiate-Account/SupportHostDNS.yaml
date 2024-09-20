@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an A record for the bastion servers
+
+Parameters:
+  pHostedZoneId:
+    Description: The hosted zone Id
+    Type: String
+
+  pWindwsbastionIp:
+    Description: The Ip of the windows bastion server
+    Type: String
+
+  pLinuxbastionIp:
+    Description: The Ip of the linux bastion server
+    Type: String
+
+  pADServerIp:
+    Description: The Ip of the AD server
+    Type: String
+
+
+Resources: 
+  rNestedRDPBastionRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: rdpbastion.
+      Type: A 
+      TTL: 900 
+      HostedZoneId: !Ref pHostedZoneId
+      ResourceRecords: 
+        - !Ref pWindwsbastionIp
+
+  rNestedSSHBastionRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: sshbastion.
+      Type: A 
+      TTL: 900 
+      HostedZoneId: !Ref pHostedZoneId
+      ResourceRecords: 
+        - !Ref pLinuxbastionIp
+
+  rNestedADRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: admaster.
+      Type: A 
+      TTL: 900 
+      HostedZoneId: !Ref pHostedZoneId
+      ResourceRecords: 
+        - !Ref pADServerIp
+

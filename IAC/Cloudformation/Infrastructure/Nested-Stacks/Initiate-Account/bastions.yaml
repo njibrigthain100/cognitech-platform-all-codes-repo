@@ -215,6 +215,18 @@ Outputs:
     Value: !Ref rRDPBastion
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-Id
+
+  oSSHBastionInstanceIp:
+    Description: The IP of the ssh bastion 
+    Value: !GetAtt rSSHBastion.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-IP
+
+  oRDPBastionInstanceIp:
+    Description: The IP of the rdp bastion
+    Value: !GetAtt rRDPBastion.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-IP
   
 
     

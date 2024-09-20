@@ -160,7 +160,7 @@ Outputs:
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ADId
   
-  ooActiveDirectoryInstanceIp:
+  oActiveDirectoryInstanceIp:
     Description: The instance IP of the active directory windows server 
     Value: !GetAtt  rActiveDirectoryServer.PrivateIp
     Export:
