@@ -81,7 +81,7 @@ Metadata: # This is putr in an s3 bucket
         - pDirectoryName
         - pDNSIpAddresses
     - Label: 
-        default: "SSM Linux sudoers documnet configurations" 
+        default: "SSM Linux sudoers document configurations" 
       Parameters:
         - pADAdminGroupName
     - Label: 
@@ -944,7 +944,7 @@ Resources:
          - rSSMDomainJoin
 
 #######################################Support host DNS A Record################################################
-  rSSMMDomainJoinDocuments:
+  rSupportHostDNSRecords:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SupportHostDNS.yaml

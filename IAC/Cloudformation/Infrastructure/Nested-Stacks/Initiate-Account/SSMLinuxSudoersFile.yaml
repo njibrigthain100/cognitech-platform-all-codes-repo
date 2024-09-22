@@ -16,49 +16,83 @@ Parameters:
     Description: The app cosuming these resources
     Type: String  
 
-  pADName:
-    Description: The directory DNS name
+  pSSHDConfigFilePath:
+    Description: Path to the sshd_config file
     Type: String
+    Default: /etc/ssh/sshd_config
 
-  pADAdminGroupName:
-    Description: The name for the linux admin users
+  pSudoersFilePath:
+    Description: Path to the sudoers file
     Type: String
-    
+    Default: /etc/sudoers
+
+  pCloudAdminsGroup:
+    Description: The Cloudadmins group to be added to the sudoers file
+    Type: String
+    Default: Cloudadmins@kahbrigthllc.com
  
 Resources: 
   rNestedLinuxSudoersFile:
     Type: AWS::SSM::Document
     Properties: 
       Name: !Sub ${ pAwsAccount }-${ pAppName }-SudoersFileDoc
-      DocumentFormat: JSON
+      DocumentFormat: YAML
       DocumentType: Command
       Content: 
         schemaVersion: '2.2'
         description: "Document to add domain joined linux servers group to sudoers file"
+        parameters: 
+            pSSHDConfigFilePath:
+              description: Path to the sshd_config file
+              type: String
+              default: !Ref pSSHDConfigFilePath
+
+            pSudoersFilePath:
+              description: Path to the sudoers file
+              type: String
+              default: !Ref pSudoersFilePath
+
+            pCloudAdminsGroup:
+              description: The Cloudadmins group to be added to the sudoers file
+              type: String
+              default: !Ref pCloudAdminsGroup
         mainSteps:
           - action: "aws:runShellScript"
-            name: "runBashScript"
+            name: "InstallADDomainGroup"
             inputs:
               runCommand:
-              - !Sub | 
-                  #!/bin/bash
-                  # Variables
-                  AD_GROUP='${pADAdminGroupName}'
-                  DOMAIN='${pADName}'
-                  SUDOERS_FILE='/etc/sudoers'
-                  AD_GROUP_ENTRY="%${AD_GROUP}@${DOMAIN} ALL=(ALL) NOPASSWD: ALL"
-                  # Check if the group is already in the sudoers file
-                  if grep -q "${DOMAIN}\\\\\\\\${AD_GROUP}" "$SUDOERS_FILE"; then
-                      echo "Group ${DOMAIN}\\\\${AD_GROUP} is already in the sudoers file."
-                  else
-                      echo "Group ${DOMAIN}\\\\${AD_GROUP} is not in the sudoers file. Adding it..."
-                      echo "$AD_GROUP_ENTRY" >> "$SUDOERS_FILE"
-                      if [ $? -eq 0 ]; then
-                          echo "Successfully added ${DOMAIN}\\\\${AD_GROUP} to the sudoers file with NOPASSWD."
-                      else
-                          echo "Failed to add ${DOMAIN}\\\\${AD_GROUP} to the sudoers file."
-                      fi
-                  fi
+                - !Sub |
+                        #!/bin/bash -xe
+                          ##########################################
+                          #  DOMAIN GROUP ADDING TO SUDOERS FILE  #
+                          ##########################################
+                          # Enable PasswordAuthentication if not already enabled
+                          if sudo grep -q "^PasswordAuthentication yes" ${pSSHDConfigFilePath}; then
+                              echo "PasswordAuthentication is already set to yes."
+                          else
+                              echo "Setting PasswordAuthentication to yes..."
+                              sudo sed -i 's/^#PasswordAuthentication no/PasswordAuthentication yes/' ${pSSHDConfigFilePath}
+                              sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' ${pSSHDConfigFilePath}
+                              echo "PasswordAuthentication has been set to yes."
+                              # Restart SSH service to apply changes
+                              sudo systemctl restart sshd
+                          fi
+
+                          # Check if the Cloudadmins group is already in the sudoers file
+                          if sudo grep -q "%${pCloudAdminsGroup}" ${pSudoersFilePath}; then
+                              echo "The group ${pCloudAdminsGroup} is already in the sudoers file."
+                          else
+                              echo "Adding ${pCloudAdminsGroup} to the sudoers file with NOPASSWD..."
+                              # Add the Cloudadmins group to the sudoers file with NOPASSWD
+                              echo "%${pCloudAdminsGroup} ALL=(ALL) NOPASSWD:ALL" | sudo tee -a ${pSudoersFilePath} > /dev/null
+                              # Verify the sudoers file
+                              if sudo visudo -cf ${pSudoersFilePath}; then
+                                  echo "Sudoers file is valid."
+                              else
+                                  echo "Sudoers file is invalid, please check."
+                                  exit 1
+                              fi
+                          fi
 Outputs:
   oNestedLinuxSudoersFile:
     Description: Document for Linux servers to be added to the sudoers file
