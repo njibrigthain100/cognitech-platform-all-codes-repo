@@ -218,13 +218,13 @@ Outputs:
 
   oSSHBastionInstanceIp:
     Description: The IP of the ssh bastion 
-    Value: !GetAtt rSSHBastion.PrivateIp
+    Value: !GetAtt rSSHBastion.PublicIp
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ssh-bastion-IP
 
   oRDPBastionInstanceIp:
     Description: The IP of the rdp bastion
-    Value: !GetAtt rRDPBastion.PrivateIp
+    Value: !GetAtt rRDPBastion.PublicIp
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-rdp-bastion-IP
   
