@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates a customized schedule and period for the instance scheduler
+
+Parameters:
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech 
+
+  ServiceInstanceScheduleServiceTokenARN:
+    Description: (Required) service token arn taken from InstanceScheduler outputs
+    Type: String
+    Default: arn:aws:lambda:us-east-1:485147667400:function:Instance-Scheduler-newest-version-InstanceSchedulerMain 
+
+
+Resources: 
+  rNestedLinuxAppSchedule1:
+    Type: 'Custom::ServiceInstanceSchedule'
+    Properties:
+      ServiceToken: !Ref ServiceInstanceScheduleServiceTokenARN
+      NoStackPrefix: 'True'
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-App
+      Description: Creates a schedule to keep app servers up monday through friday
+      Timezone: America/New_York
+      Enforced: 'True'
+      Hibernate: 'True'
+      RetainRunning: 'True'
+      StopNewInstances: 'True'
+      UseMaintenanceWindow: 'True'
+      SsmMaintenanceWindow: 'mw-0cd532c1bc0923d6c'
+      Periods:
+      - Description: Runs from 9-5 Monday through Thursday
+        BeginTime: '9:00'
+        EndTime: '17:00'
+        WeekDays: 'Mon-Thu'
+        MonthDays: '1-4'
+      - Description: Runs all day from 6-11pm on Friday for Nessus scanning
+        BeginTime: '06:00'
+        EndTime: '23:00'
+        WeekDays: 'Fri'
+
