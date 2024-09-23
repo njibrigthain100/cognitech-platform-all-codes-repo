@@ -147,6 +147,8 @@ Resources:
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
+        - Key: LinuxSudoers 
+          Value: yes
   
   rLinuxWebserver1Volume:
     Type: AWS::EC2::Volume
@@ -227,6 +229,8 @@ Resources:
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
+        - Key: LinuxSudoers 
+          Value: yes
   
   rLinuxWebserver2Volume:
     Type: AWS::EC2::Volume

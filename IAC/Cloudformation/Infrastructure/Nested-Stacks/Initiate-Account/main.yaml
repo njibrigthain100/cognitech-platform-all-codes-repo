@@ -572,6 +572,7 @@ Parameters:
   pDocumentName2:
     Description: The document used for the association 
     Type: String
+    Default: LinuxCloudAdmins
 
 ############################################SSM Maintenence Window#######################################  
   pWindowsPatchWindow:
@@ -769,18 +770,18 @@ Resources:
     DependsOn: 
       - rDirectoryService
 
-###################################SSM Linux suders file document#################################################################
-  rSSMLinuxSuders:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMLinuxSudoersFile.yaml
-      TimeoutInMinutes: 20
-      Parameters: 
-        pAppName: !Ref pAppName
-        pADAdminGroupName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:pADAdminGroupName}}"
-        pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
-    DependsOn: 
-      - rDirectoryService
+# ###################################SSM Linux suders file document#################################################################
+#   rSSMLinuxSuders:
+#     Type: AWS::CloudFormation::Stack
+#     Properties:
+#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMLinuxSudoersFile.yaml
+#       TimeoutInMinutes: 20
+#       Parameters: 
+#         pAppName: !Ref pAppName
+#         pADAdminGroupName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:pADAdminGroupName}}"
+#         pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
+#     DependsOn: 
+#       - rDirectoryService
 #############################################AD IAM Role###########################################################################
   rSupportRoles:
     Type: AWS::CloudFormation::Stack
@@ -909,10 +910,7 @@ Resources:
           Fn::GetAtt:
            - rSSMDomainJoin
            - Outputs.oDomainJoinDocument
-        pDocumentName2:
-          Fn::GetAtt:
-           - rSSMLinuxSuders
-           - Outputs.oNestedLinuxSudoersFile
+        pDocumentName2: !Ref pDocumentName2
     DependsOn: 
       - rDirectoryService
       - rSSMDomainJoin

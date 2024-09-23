@@ -23,7 +23,7 @@ Resources:
   rNestedRDPBastionRecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: rdpbastion.
+      Name: rdpbastion.kahbrigthllc.com
       Type: A 
       TTL: 900 
       HostedZoneId: !Ref pHostedZoneId
@@ -33,7 +33,7 @@ Resources:
   rNestedSSHBastionRecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: sshbastion.
+      Name: sshbastion.kahbrigthllc.com
       Type: A 
       TTL: 900 
       HostedZoneId: !Ref pHostedZoneId
@@ -43,7 +43,7 @@ Resources:
   rNestedADRecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: admaster.
+      Name: admaster.kahbrigthllc.com
       Type: A 
       TTL: 900 
       HostedZoneId: !Ref pHostedZoneId
