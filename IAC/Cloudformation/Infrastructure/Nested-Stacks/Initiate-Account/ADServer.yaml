@@ -162,7 +162,7 @@ Outputs:
   
   oActiveDirectoryInstanceIp:
     Description: The instance IP of the active directory windows server 
-    Value: !GetAtt  rActiveDirectoryServer.PublicIp
+    Value: !GetAtt  rActiveDirectoryServer.PrivateIp
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ADIp
 

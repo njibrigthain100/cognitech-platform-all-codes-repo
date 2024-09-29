@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an FSX share for the windows servers
+
+Parameters:
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Description: The app cosuming these resources
+    Type: String
+    Default: cognitech 
+
+  pApp1PrivateSubnet1Id:
+    Description: The Id of the first App1 private subnet 
+    Type: String
+
+  pApp1PrivateSubnet2Id:
+    Description: The Id of the second App1 private subnet
+    Type: String
+  
+  pApp1FSXSecurityGroup:
+    Description: The security group for the EFS share
+    Type: String
+  
+  pADDomainId:
+    Description: The Id of the active directory domain
+    Type: String
+
+  pDomainName:
+    Description: The name of the active directory domain
+    Type: String
+
+Resources:
+  rNestedWindowsFSXShare:
+    Type: 'AWS::FSx::FileSystem'
+    Properties:
+      FileSystemType: WINDOWS
+      StorageCapacity: 300
+      StorageType: SSD
+      SubnetIds:
+        - !Ref pApp1PrivateSubnet1Id
+        - !Ref pApp1PrivateSubnet2Id
+      SecurityGroupIds:
+        - !Ref pApp1FSXSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-share
+      WindowsConfiguration:
+        ActiveDirectoryId: !Ref pADDomainId
+        ThroughputCapacity: 8
+        Aliases: 
+            - !Sub fsx.${ pDomainName }
+        WeeklyMaintenanceStartTime: '7:00:00'
+        DailyAutomaticBackupStartTime: '00:00'
+        AutomaticBackupRetentionDays: 90
+        DeploymentType: MULTI_AZ_1
+        PreferredSubnetId: !Ref pApp1PrivateSubnet1Id
+        CopyTagsToBackups: false
+Outputs:
+  rNestedWindowsFSXShareId:
+    Value: !Ref rNestedWindowsFSXShare
+
+  

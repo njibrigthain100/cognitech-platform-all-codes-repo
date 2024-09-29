@@ -24,13 +24,13 @@ parameters:
     
     pJoinAccount:
       description: The account that has domain priviliges 
-      type: StringList
-      default: ["{{ssm:/standard/pDomainJoinAccount}}"]
+      type: String
+      default: "{{ssm:/standard/pDomainJoinAccount}}"
 
     pJoinPassword:
       description: The password used for instance domain join 
-      type: StringList
-      default: ["{{ssm://standard/pDomainJoinPassword}}"]
+      type: String
+      default: "{{ssm:/standard/pDomainJoinPassword}}"
 mainSteps:
           - action: aws:runShellScript
             name: InstallClouAdminGroup
@@ -48,8 +48,6 @@ mainSteps:
                         ParamSudoersFilePath='{{ pSudoersFilePath }}'  
                         ParamCloudAdminsGroup='{{ pCloudAdminsGroup }}'
                         ParamDomain='{{ pDomain }}'
-                        ParamJoinAccount='{{ pJoinAccount }}'
-                        ParamJoinPassword='{{ pJoinPassword }}'
 
                         ###############################################
                         #   TAILORED FUNCTION #
@@ -63,7 +61,7 @@ mainSteps:
                         echo "Joining the domain $ParamDomain..."
 
                         # Pass the password to the realm join command securely
-                        echo "$ParamJoinPassword" | sudo realm join -U "$ParamJoinAccount" "$ParamDomain" --verbose --install=sssd --install=krb5-workstation --install=adcli --install=samba-common-tools --install=realmd
+                        echo "{{pJoinPassword}}" | sudo realm join -U "{{pJoinAccount}}" "$ParamDomain" --verbose --install=sssd --install=krb5-workstation --install=adcli --install=samba-common-tools --install=realmd
 
                         # Verify domain join
                         if [ $? -eq 0 ]; then

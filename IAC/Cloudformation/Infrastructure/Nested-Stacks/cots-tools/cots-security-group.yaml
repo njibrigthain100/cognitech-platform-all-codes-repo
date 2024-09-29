@@ -46,6 +46,22 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
       VpcId: !Ref pApp1VPCId
+
+  rNestedefsxsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The efs share security group 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref pLinuxAppSecurityGroup
+          Description: "Allow NFS access from the linux app security group"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+      VpcId: !Ref pApp1VPCId
  
 Outputs:
   oNestedefssg:
@@ -53,5 +69,11 @@ Outputs:
     Value: !Ref rNestedefssg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+
+  oNestedfsxsg:
+    Description: The security group Id of the fsx share
+    Value: !Ref rNestedefssg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-sg
   
   

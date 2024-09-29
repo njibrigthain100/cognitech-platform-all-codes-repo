@@ -21,6 +21,13 @@ Metadata: # This is putr in an s3 bucket
         - pApp1PrivateSubnet1Id
         - pApp1PrivateSubnet2Id
         - pApp1EFSSecurityGroup
+    - Label: 
+        default: "FSX configurations" 
+      Parameters:
+        - pApp1FSXSecurityGroup
+        - pADDomainId
+        - pDomainName
+
     ParameterLabels: # The default values will be presented on the console 
       pAwsAccount: 
         default: pAwsAccount 
@@ -42,6 +49,13 @@ Metadata: # This is putr in an s3 bucket
         default: pApp1PrivateSubnet2Id
       pApp1EFSSecurityGroup: 
         default: pApp1EFSSecurityGroup 
+  ###########################FSX parameter labels############################################
+      pApp1FSXSecurityGroup: 
+        default: pApp1FSXSecurityGroup 
+      pADDomainId: 
+        default: pADDomainId
+      pDomainName: 
+        default: pDomainName 
 
 Parameters: 
 ####################### General parameter for all stacks #######################
@@ -87,6 +101,19 @@ Parameters:
     Description: The security group for the EFS share
     Type: String
 
+############################################FSX########################################  
+  pApp1FSXSecurityGroup:
+    Description: The security group for the EFS share
+    Type: String
+  
+  pADDomainId:
+    Description: The Id of the active directory domain
+    Type: String
+
+  pDomainName:
+    Description: The name of the active directory domain
+    Type: String
+
 
 Resources: 
   rCotSecurityGroupStack:
@@ -120,6 +147,29 @@ Resources:
           Fn::GetAtt: 
             - rCotSecurityGroupStack 
             - Outputs.oNestedefssg 
+    DependsOn: 
+      - rCotSecurityGroupStack
+
+  rFSXStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/fsx.yaml
+      TimeoutInMinutes: 20
+      Parameters:
+        pAppName: !Ref pAppName
+        pApp1PrivateSubnet1Id: 
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet1
+        pApp1PrivateSubnet2Id: 
+          Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
+        pApp1EFSSecurityGroup: 
+          Fn::GetAtt: 
+            - rCotSecurityGroupStack 
+            - Outputs.oNestedfsxsg 
+        pADDomainId:
+        pDomainName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
+
     DependsOn: 
       - rCotSecurityGroupStack
         
