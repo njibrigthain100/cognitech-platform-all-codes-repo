@@ -162,7 +162,7 @@ Resources:
   rCotSecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/cots-security-group.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Cots-Tools//cots-security-group.yaml
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName 
@@ -185,7 +185,7 @@ Resources:
   rEFSStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/efs.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Cots-Tools//efs.yaml
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName
@@ -205,7 +205,7 @@ Resources:
   rFSXStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/fsx.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Cots-Tools//fsx.yaml
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName

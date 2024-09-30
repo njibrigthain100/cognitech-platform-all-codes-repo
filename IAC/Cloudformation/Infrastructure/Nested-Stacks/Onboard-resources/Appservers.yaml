@@ -130,8 +130,8 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: App
-        - Key: DomainJoin 
-          Value: yes
+        # - Key: DomainJoin 
+        #   Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
         - Key: Schedule 

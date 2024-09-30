@@ -622,7 +622,7 @@ Resources:
   rIAMStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/iam.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/iam.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -630,7 +630,7 @@ Resources:
   rSecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/security-group.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/security-group.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -645,7 +645,7 @@ Resources:
   rAppServers:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Appservers.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/Appservers.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -674,7 +674,7 @@ Resources:
   rWebServers:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Webserevers.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/Webserevers.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -703,7 +703,7 @@ Resources:
   rDBServers:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/database.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/database.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -727,7 +727,7 @@ Resources:
   rALB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/alb.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/alb.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -782,7 +782,7 @@ Resources:
   rNLB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/nlb.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/nlb.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -821,7 +821,7 @@ Resources:
   rDNS:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/dns.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Onboard-Resources/dns.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName

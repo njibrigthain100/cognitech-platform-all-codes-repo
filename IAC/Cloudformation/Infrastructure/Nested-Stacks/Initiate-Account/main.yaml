@@ -612,7 +612,7 @@ Resources:
   rVpcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/vpc.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/vpc.yaml
       TimeoutInMinutes: 20
       Parameters:
         pVPCCidr: !Ref pVPCCidr 
@@ -629,7 +629,7 @@ Resources:
   rSharedServicesVpcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/sharedvpc.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/sharedvpc.yaml
       TimeoutInMinutes: 20
       Parameters:
         pSharedServicesAccount: !Ref pSharedServicesAccount
@@ -647,7 +647,7 @@ Resources:
   rTransitGatewayStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/TransitGateway.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/TransitGateway.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -722,7 +722,7 @@ Resources:
   rDirectoryService:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ActiveDirectory.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/ActiveDirectory.yaml
       TimeoutInMinutes: 40
       Parameters:
         pAppName: !Ref pAppName
@@ -751,7 +751,7 @@ Resources:
   rSSMDomainJoin:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/DomainJoinSSMDocument.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/DomainJoinSSMDocument.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -774,7 +774,7 @@ Resources:
 #   rSSMLinuxSuders:
 #     Type: AWS::CloudFormation::Stack
 #     Properties:
-#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMLinuxSudoersFile.yaml
+#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SSMLinuxSudoersFile.yaml
 #       TimeoutInMinutes: 20
 #       Parameters: 
 #         pAppName: !Ref pAppName
@@ -786,7 +786,7 @@ Resources:
   rSupportRoles:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SupportRoles.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SupportRoles.yaml
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName
@@ -795,7 +795,7 @@ Resources:
   rSecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ADSecurityGroup.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/ADSecurityGroup.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -813,7 +813,7 @@ Resources:
   rADMasterServer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/ADServer.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/ADServer.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -846,7 +846,7 @@ Resources:
   rBastions:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/bastions.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/bastions.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -883,7 +883,7 @@ Resources:
   rSecretsManager:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SecretsManager.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SecretsManager.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -900,7 +900,7 @@ Resources:
   rDomainJoinAutomation:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Domainjoinautomation.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/Domainjoinautomation.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -920,7 +920,7 @@ Resources:
   rSSMMaintenanceWindow:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMMaintenanceWindow.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SSMMaintenanceWindow.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -932,7 +932,7 @@ Resources:
   rSSMMDomainJoinDocuments:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SSMDomainJoinAssociation.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SSMDomainJoinAssociation.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
@@ -945,7 +945,7 @@ Resources:
   rSupportHostDNSRecords:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/SupportHostDNS.yaml
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SupportHostDNS.yaml
       TimeoutInMinutes: 20
       Parameters: 
         pHostedZoneId: !Ref pHostedZoneId 
