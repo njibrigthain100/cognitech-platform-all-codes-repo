@@ -15,6 +15,12 @@ Metadata: # This is putr in an s3 bucket
       Parameters:
         - pApp1VPCId
         - pLinuxAppSecurityGroup
+        - pLinuxWebSecurityGroup
+        - pWindowsAppSecurityGroup
+        - pWindowsWebSecurityGroup
+        - pDCIp1
+        - pDCIp2
+        - pADServerIp
     - Label: 
         default: "EFS configurations" 
       Parameters:
@@ -42,6 +48,19 @@ Metadata: # This is putr in an s3 bucket
         default: pApp1VPCId 
       pLinuxAppSecurityGroup: 
         default: pLinuxAppSecurityGroup
+      pLinuxWebSecurityGroup: 
+        default: pLinuxWebSecurityGroup
+      pWindowsAppSecurityGroup: 
+        default: pWindowsAppSecurityGroup 
+      pWindowsWebSecurityGroup: 
+        default: pWindowsWebSecurityGroup 
+      pDCIp1: 
+        default: pDCIp1
+      pDCIp2: 
+        default: pDCIp2 
+      pADServerIp: 
+        default: pADServerIp
+
   ###########################EFS parameter labels############################################
       pApp1PrivateSubnet1Id: 
         default: pApp1PrivateSubnet1Id 
@@ -88,6 +107,30 @@ Parameters:
     Description: The security group Id of the linux app server
     Type: String
 
+  pLinuxWebSecurityGroup:
+    Description: The security group Id of the linux web server
+    Type: String
+
+  pWindowsAppSecurityGroup:
+    Description: The security group Id of the windows app server
+    Type: String
+
+  pWindowsWebSecurityGroup:
+    Description: The security group Id of the windows web server
+    Type: String
+  
+  pDCIp1:
+    Description: The domain contoller first Ip
+    Type: String
+
+  pDCIp2:
+    Description: The domain controller second ip
+    Type: String
+
+  pADServerIp:
+    Description: The Active directory master server Ip
+    Type: String
+
 ############################################EFS########################################  
   pApp1PrivateSubnet1Id:
     Description: The Id of the first App1 private subnet 
@@ -128,7 +171,16 @@ Resources:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-vpc  
         pLinuxAppSecurityGroup: 
            Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-App-server-sg
+        pLinuxWebSecurityGroup: 
+           Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+        pWindowsAppSecurityGroup: 
+           Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-App-server-sg
+        pWindowsWebSecurityGroup: 
+           Fn::ImportValue:
+            !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
   
   rEFSStack:
     Type: AWS::CloudFormation::Stack

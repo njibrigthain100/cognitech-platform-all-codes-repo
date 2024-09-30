@@ -28,7 +28,30 @@ Parameters:
   pLinuxAppSecurityGroup:
     Description: The security group Id of the linux app server
     Type: String
+
+  pLinuxWebSecurityGroup:
+    Description: The security group Id of the linux web server
+    Type: String
+
+  pWindowsAppSecurityGroup:
+    Description: The security group Id of the windows app server
+    Type: String
+
+  pWindowsWebSecurityGroup:
+    Description: The security group Id of the windows web server
+    Type: String
   
+  pDCIp1:
+    Description: The domain contoller first Ip
+    Type: String
+
+  pDCIp2:
+    Description: The domain controller second ip
+    Type: String
+
+  pADServerIp:
+    Description: The Active directory master server Ip
+    Type: String
 
 Resources: 
   rNestedefssg:
@@ -42,6 +65,11 @@ Resources:
           ToPort: 2049
           SourceSecurityGroupId: !Ref pLinuxAppSecurityGroup
           Description: "Allow NFS access from the linux app security group"
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref pLinuxWebSecurityGroup
+          Description: "Allow NFS access from the linux web security group"
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
@@ -54,13 +82,38 @@ Resources:
       GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
       SecurityGroupIngress: 
         - IpProtocol: tcp
-          FromPort: 2049
-          ToPort: 2049
-          SourceSecurityGroupId: !Ref pLinuxAppSecurityGroup
-          Description: "Allow NFS access from the linux app security group"
+          FromPort: 445
+          ToPort: 445
+          SourceSecurityGroupId: !Ref pWindowsAppSecurityGroup
+          Description: "Allow Inbound traffic on tcp port 445 from Windows app server security group"
+        - IpProtocol: tcp
+          FromPort: 139
+          ToPort: 139
+          SourceSecurityGroupId: !Ref pWindowsAppSecurityGroup
+          Description: "Allow Inbound traffic on tcp port 139 from Windows app server security group"
+        - IpProtocol: tcp
+          FromPort: 445
+          ToPort: 445
+          SourceSecurityGroupId: !Ref pWindowsWebSecurityGroup
+          Description: "Allow Inbound traffic on tcp port 445 from Windows web server security group"
+        - IpProtocol: tcp
+          FromPort: 139
+          ToPort: 139
+          SourceSecurityGroupId: !Ref pWindowsWebSecurityGroup
+          Description: "Allow Inbound traffic on tcp port 139 from Windows web server security group"
+      SecurityGroupEngress:
+        - IpProtocol: -1 
+          CidrIp: !Ref pDCIp1 
+          Description: "Allow Outbound traffic to the first domain controller on all ports"
+        - IpProtocol: -1 
+          CidrIp: !Ref pDCIp2
+          Description: "Allow Outbound traffic to the second domain controller on all ports"
+        - IpProtocol: -1 
+          CidrIp: !Ref pDCIp2
+          Description: "Allow Outbound traffic to the internet on all ports"       
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-sg
       VpcId: !Ref pApp1VPCId
  
 Outputs:
