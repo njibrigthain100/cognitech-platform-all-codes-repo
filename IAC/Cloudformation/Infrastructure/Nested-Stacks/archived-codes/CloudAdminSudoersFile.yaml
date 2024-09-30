@@ -15,7 +15,7 @@ parameters:
     pCloudAdminsGroup:
       description: The Cloudadmins group to be added to the sudoers file
       type: String
-      default: "cloudadmins"
+      default: "CloudAdmins@kahbrigthllc.com"
 
     pDomain:
       description: The doamin to be joined by the instance 
@@ -52,7 +52,26 @@ mainSteps:
                         ###############################################
                         #   TAILORED FUNCTION #
                         ###############################################
-                        # Step 1: Enable PasswordAuthentication if not already enabled
+                        # # Step 1: Update the system and install necessary packages
+                        # echo "Updating system and installing required packages..."
+                        # sudo yum -y update
+                        # sudo yum install -y samba-common-tools realmd oddjob sssd adcli krb5-workstation
+
+                        # # Step 2: Automate the domain join process
+                        # echo "Joining the domain $ParamDomain..."
+
+                        # # Pass the password to the realm join command securely
+                        # echo "{{pJoinPassword}}" | sudo realm join -U "{{pJoinAccount}}" "$ParamDomain" --verbose 
+
+                        # # Verify domain join
+                        # if [ $? -eq 0 ]; then
+                        #     echo "Successfully joined the domain $ParamDomain"
+                        # else
+                        #     echo "Failed to join the domain $ParamDomain"
+                        #     exit 1
+                        # fi
+
+                        # Step 3: Enable PasswordAuthentication if not already enabled
                         if sudo grep -q "^PasswordAuthentication yes" "$ParamSSHDConfigFilePath"; then
                             echo "PasswordAuthentication is already set to yes."
                         else
@@ -64,13 +83,13 @@ mainSteps:
                             sudo systemctl restart sshd
                         fi
 
-                        # Step 2: Check if the Cloudadmins group is already in the sudoers file
+                        # Step 4: Check if the Cloudadmins group is already in the sudoers file
                         if sudo grep -q "%$ParamCloudAdminsGroup" "$ParamSudoersFilePath"; then
                             echo "The group $ParamCloudAdminsGroup is already in the sudoers file."
                         else
                             echo "Adding $ParamCloudAdminsGroup to the sudoers file with NOPASSWD..."
                             # Add the Cloudadmins group to the sudoers file with NOPASSWD
-                            echo "%$ParamDomain\\\\$ParamCloudAdminsGroup ALL=(ALL) NOPASSWD:ALL" | sudo tee -a "$ParamSudoersFilePath" > /dev/null
+                            echo "%$ParamDomain\\$ParamCloudAdminsGroup ALL=(ALL) NOPASSWD:ALL" | sudo tee -a "$ParamSudoersFilePath" > /dev/null
                             # Verify the sudoers file
                             if sudo visudo -cf "$ParamSudoersFilePath"; then
                                 echo "Sudoers file is valid."
