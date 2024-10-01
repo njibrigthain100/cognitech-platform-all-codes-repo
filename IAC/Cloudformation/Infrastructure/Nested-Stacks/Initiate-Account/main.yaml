@@ -928,19 +928,6 @@ Resources:
         pLinuxPatchWindow: !Ref pLinuxPatchWindow
         pMaintenanceWindowSchedule: !Ref pMaintenanceWindowSchedule
 
-# ########################################SSM Domain Join association documnet################################################
-#   rSSMMDomainJoinDocuments:
-#     Type: AWS::CloudFormation::Stack
-#     Properties:
-#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SSMDomainJoinAssociation.yaml
-#       TimeoutInMinutes: 20
-#       Parameters: 
-#         pAppName: !Ref pAppName
-#         pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
-#         pDocumentName: !Ref pDocumentName
-#     DependsOn:
-#          - rSSMDomainJoin
-
 #######################################Support host DNS A Record################################################
   rSupportHostDNSRecords:
     Type: AWS::CloudFormation::Stack
