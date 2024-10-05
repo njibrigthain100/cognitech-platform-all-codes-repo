@@ -52,9 +52,92 @@ mainSteps:
                         ###############################################
                         #   TAILORED FUNCTION #
                         ###############################################
-                        # Step 1: Update all packages 
-                        sudo yum update -y
-                        # Install efs 
-                        sudo yum install -y amazon-efs-utils
+                          # Update the package index
+                          echo "Updating package index..."
+                          sudo yum update -y
+
+                          # Install UFW (Uncomplicated Firewall)
+                          echo "Installing UFW..."
+                          sudo yum install -y ufw
+                          sudo ufw enable
+                          sudo ufw allow ssh
+                          sudo ufw allow http
+                          echo "UFW installed and configured."
+
+                          # Install Fail2Ban
+                          echo "Installing Fail2Ban..."
+                          sudo amazon-linux-extras install -y epel
+                          sudo yum install -y fail2ban
+
+                          # Configure Fail2Ban for SSH
+                          cat <<EOL | sudo tee /etc/fail2ban/jail.local
+                          [sshd]
+                          enabled = true
+                          port = ssh
+                          filter = sshd
+                          logpath = /var/log/secure
+                          maxretry = 5
+                          EOL
+
+                          # Start and enable Fail2Ban
+                          sudo systemctl start fail2ban
+                          sudo systemctl enable fail2ban
+                          echo "Fail2Ban installed and configured."
+
+                          # Install ClamAV
+                          echo "Installing ClamAV..."
+                          sudo yum install -y clamav clamav-update
+                          sudo freshclam
+                          echo "ClamAV installed."
+
+                          # Install Lynis
+                          echo "Installing Lynis..."
+                          sudo amazon-linux-extras install -y epel
+                          sudo yum install -y lynis
+                          echo "Lynis installed."
+
+                          # Install AIDE
+                          echo "Installing AIDE..."
+                          sudo yum install -y aide
+
+                          # Initialize the AIDE database
+                          sudo aide --init
+                          sudo mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+                          echo "AIDE installed and initialized."
+
+                          # Install OSSEC (optional, requires more setup)
+                          echo "Installing OSSEC..."
+                          wget https://github.com/ossec/ossec-hids/archive/3.6.0.tar.gz
+                          tar -xvzf 3.6.0.tar.gz
+                          cd ossec-hids-3.6.0
+                          sudo ./install.sh
+                          sudo /var/ossec/bin/ossec-control start
+                          echo "OSSEC installed and started."
+
+                          # Install auditd
+                          echo "Installing auditd..."
+                          sudo yum install -y audit
+                          sudo systemctl start auditd
+                          sudo systemctl enable auditd
+                          echo "auditd installed and started."
+
+                          # Set up automatic security updates
+                          echo "Setting up automatic security updates..."
+                          sudo yum install -y yum-cron
+                          sudo systemctl enable --now yum-cron
+
+                          # Output completion message
+                          echo "All security tools have been installed and configured successfully."
+
+
+
+
+
+
+
+
+
+
+
 
                         
