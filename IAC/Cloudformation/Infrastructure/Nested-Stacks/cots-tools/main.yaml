@@ -216,7 +216,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Cots-Tools//fsx.yaml
-      TimeoutInMinutes: 40
+      TimeoutInMinutes: 60
       Parameters:
         pAppName: !Ref pAppName
         pApp1PrivateSubnet1Id: 

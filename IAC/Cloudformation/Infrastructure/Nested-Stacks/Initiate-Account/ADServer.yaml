@@ -16,10 +16,14 @@ Parameters:
     Type: String
     Default: cognitech
   
-  pWindows2019LatestAmiId:
-    Description: The latest ami Id for windows 2019 
-    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  # pWindows2019LatestAmiId:
+  #   Description: The latest ami Id for windows 2019 
+  #   Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+  #   Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  
+  pWindows2019ADAmiId:
+    Description: The latest ami Id for the ctive directory domain controller 
+    Type : 'AWS::SSM::Parameter::Value<String>'
   
   pADServerInstanceProfile:
     Description: The instance profile for the active directory master server

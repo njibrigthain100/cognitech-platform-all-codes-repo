@@ -59,7 +59,7 @@ Metadata: # This is putr in an s3 bucket
     - Label: 
         default: "Active Directory master server configurations" 
       Parameters:
-        - pWindows2019LatestAmiId
+        - pWindows2019ADAmiId
         - pADServerInstanceProfile
         - pWindowsADSecurityGroup
         - pADSharedservicesPrivateSubnetId
@@ -201,8 +201,8 @@ Metadata: # This is putr in an s3 bucket
         default: pEdition
       
 ###################################Active directory Master server###############################
-      pWindows2019LatestAmiId: 
-        default: pWindows2019LatestAmiId 
+      pWindows2019ADAmiId: 
+        default: pWindows2019ADAmiId 
       pADServerInstanceProfile: 
         default: pADServerInstanceProfile
       pWindowsADSecurityGroup: 
@@ -486,10 +486,15 @@ Parameters:
       - "Standard"
 
 ############################################Active directory Master server########################################  
-  pWindows2019LatestAmiId:
-    Description: The latest ami Id for windows 2019 
-    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  # pWindows2019LatestAmiId:
+  #   Description: The latest ami Id for windows 2019 
+  #   Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+  #   Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+
+  pWindows2019ADAmiId:
+    Description: The latest ami Id for the ctive directory domain controller 
+    Type : 'AWS::SSM::Parameter::Value<String>'
+    Default: ami-004f3efa7dfcd503f
   
   pADServerInstanceProfile:
     Description: The instance profile for the active directory master server
@@ -817,6 +822,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pWindows2019ADAmiId: !Ref pWindows2019ADAmiId
         pAdminPassowrd: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADPassword}}"
         pDomainJoinUserName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:ADUserName}}"
         pADServerInstanceProfile:

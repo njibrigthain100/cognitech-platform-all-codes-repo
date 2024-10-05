@@ -2,18 +2,18 @@
 schemaVersion: '2.2'
 description: "Document to install any security and software related packages"
 parameters: 
-    pSSHDConfigFilePath:
-      description: Path to the sshd_config file
+    pAgent1:
+      description: The first security agent to install 
       type: String
-      default: "/etc/ssh/sshd_config"
+      default: "Fail2Ban"
 
-    pSudoersFilePath:
-      description: Path to the sudoers file
+    pAgent2:
+      description: The second security agent to be installed 
       type: String
-      default: "/etc/sudoers"
+      default: "clamav clamav-update"
 
     pCloudAdminsGroup:
-      description: The Cloudadmins group to be added to the sudoers file
+      description: T
       type: String
       default: "cloudadmins"
 
@@ -40,14 +40,12 @@ mainSteps:
               runCommand:
                   - |
                        #!/bin/bash -xe
-                        ##########################################
-                        #  DOMAIN GROUP ADDING TO SUDOERS FILE  #
-                        ##########################################
+                        ########################################################
+                        #  INSTALLING AND CONFIGURING VARIOUS SECURITY TOOLS  #
+                        ########################################################
                         # Parameters
-                        ParamSSHDConfigFilePath='{{ pSSHDConfigFilePath }}' 
-                        ParamSudoersFilePath='{{ pSudoersFilePath }}'  
-                        ParamCloudAdminsGroup='{{ pCloudAdminsGroup }}'
-                        ParamDomain='{{ pDomain }}'
+                        ParamAgent1='{{ pAgent1 }}' 
+                        ParamAgent2='{{ pAgent2 }}'  
 
                         ###############################################
                         #   TAILORED FUNCTION #
@@ -56,18 +54,10 @@ mainSteps:
                             echo "Updating package index..."
                             sudo yum update -y
 
-                            # Install UFW (Uncomplicated Firewall)
-                            echo "Installing UFW..."
-                            sudo yum install -y ufw
-                            sudo ufw enable
-                            sudo ufw allow ssh
-                            sudo ufw allow http
-                            echo "UFW installed and configured."
-
                             # Install Fail2Ban
                             echo "Installing Fail2Ban..."
                             sudo amazon-linux-extras install -y epel
-                            sudo yum install -y fail2ban
+                            sudo yum install -y "$ParamAgent1"
 
                             # Configure Fail2Ban for SSH
                             cat <<EOL | sudo tee /etc/fail2ban/jail.local
@@ -86,7 +76,7 @@ mainSteps:
 
                             # Install ClamAV
                             echo "Installing ClamAV..."
-                            sudo yum install -y clamav clamav-update
+                            sudo yum install -y "$ParamAgent2"
                             sudo freshclam
                             echo "ClamAV installed."
 
