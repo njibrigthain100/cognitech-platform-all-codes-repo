@@ -225,7 +225,7 @@ Resources:
         pApp1PrivateSubnet2Id: 
           Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-private-subnet2
-        pApp1EFSSecurityGroup: 
+        pApp1FSXSecurityGroup: 
           Fn::GetAtt: 
             - rCotSecurityGroupStack 
             - Outputs.oNestedfsxsg 

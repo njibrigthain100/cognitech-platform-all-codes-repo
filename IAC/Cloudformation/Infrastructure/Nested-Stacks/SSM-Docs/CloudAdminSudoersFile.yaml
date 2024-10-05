@@ -1,0 +1,83 @@
+
+schemaVersion: '2.2'
+description: "Document to add domain joined linux servers group to sudoers file"
+parameters: 
+    pSSHDConfigFilePath:
+      description: Path to the sshd_config file
+      type: String
+      default: "/etc/ssh/sshd_config"
+
+    pSudoersFilePath:
+      description: Path to the sudoers file
+      type: String
+      default: "/etc/sudoers"
+
+    pCloudAdminsGroup:
+      description: The Cloudadmins group to be added to the sudoers file
+      type: String
+      default: "cloudadmins"
+
+    pDomain:
+      description: The doamin to be joined by the instance 
+      type: String
+      default: "kahbrigthllc.com"
+    
+    pJoinAccount:
+      description: The account that has domain priviliges 
+      type: String
+      default: "{{ssm:/standard/pDomainJoinAccount}}"
+
+    pJoinPassword:
+      description: The password used for instance domain join 
+      type: String
+      default: "{{ssm:/standard/pDomainJoinPassword}}"
+mainSteps:
+          - action: aws:runShellScript
+            name: InstallClouAdminGroup
+            description:  |
+              Adds the CloudAdmin grup into the sudoers file 
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ##########################################
+                        #  DOMAIN GROUP ADDING TO SUDOERS FILE  #
+                        ##########################################
+                        # Parameters
+                        ParamSSHDConfigFilePath='{{ pSSHDConfigFilePath }}' 
+                        ParamSudoersFilePath='{{ pSudoersFilePath }}'  
+                        ParamCloudAdminsGroup='{{ pCloudAdminsGroup }}'
+                        ParamDomain='{{ pDomain }}'
+
+                        ###############################################
+                        #   TAILORED FUNCTION #
+                        ###############################################
+                        # Step 1: Enable PasswordAuthentication if not already enabled
+                        if sudo grep -q "^PasswordAuthentication yes" "$ParamSSHDConfigFilePath"; then
+                            echo "PasswordAuthentication is already set to yes."
+                        else
+                            echo "Setting PasswordAuthentication to yes..."
+                            sudo sed -i 's/^#PasswordAuthentication no/PasswordAuthentication yes/' "$ParamSSHDConfigFilePath"
+                            sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' "$ParamSSHDConfigFilePath"
+                            echo "PasswordAuthentication has been set to yes."
+                            # Restart SSH service to apply changes
+                            sudo systemctl restart sshd
+                        fi
+
+                        # Step 2: Check if the Cloudadmins group is already in the sudoers file
+                        if sudo grep -q "%$ParamCloudAdminsGroup" "$ParamSudoersFilePath"; then
+                            echo "The group $ParamCloudAdminsGroup is already in the sudoers file."
+                        else
+                            echo "Adding $ParamCloudAdminsGroup to the sudoers file with NOPASSWD..."
+                            # Add the Cloudadmins group to the sudoers file with NOPASSWD
+                            echo "%$ParamDomain\\\\$ParamCloudAdminsGroup ALL=(ALL) NOPASSWD:ALL" | sudo tee -a "$ParamSudoersFilePath" > /dev/null
+                            # Verify the sudoers file
+                            if sudo visudo -cf "$ParamSudoersFilePath"; then
+                                echo "Sudoers file is valid."
+                            else
+                                echo "Sudoers file is invalid, please check."
+                                exit 1
+                            fi
+                        fi
+
+                        echo "SSM document execution complete!"

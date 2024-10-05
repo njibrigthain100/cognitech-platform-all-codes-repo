@@ -75,11 +75,11 @@ Resources:
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
       VpcId: !Ref pApp1VPCId
 
-  rNestedefsxsg:
+  rNestedfsxsg:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: The efs share security group 
-      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-efs-sg
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-sg
       SecurityGroupIngress: 
         - IpProtocol: tcp
           FromPort: 445

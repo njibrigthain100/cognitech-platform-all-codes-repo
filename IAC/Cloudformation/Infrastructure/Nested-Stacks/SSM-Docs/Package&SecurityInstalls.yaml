@@ -1,0 +1,60 @@
+
+schemaVersion: '2.2'
+description: "Document to install any security and software related packages"
+parameters: 
+    pSSHDConfigFilePath:
+      description: Path to the sshd_config file
+      type: String
+      default: "/etc/ssh/sshd_config"
+
+    pSudoersFilePath:
+      description: Path to the sudoers file
+      type: String
+      default: "/etc/sudoers"
+
+    pCloudAdminsGroup:
+      description: The Cloudadmins group to be added to the sudoers file
+      type: String
+      default: "cloudadmins"
+
+    pDomain:
+      description: The doamin to be joined by the instance 
+      type: String
+      default: "kahbrigthllc.com"
+    
+    pJoinAccount:
+      description: The account that has domain priviliges 
+      type: String
+      default: "{{ssm:/standard/pDomainJoinAccount}}"
+
+    pJoinPassword:
+      description: The password used for instance domain join 
+      type: String
+      default: "{{ssm:/standard/pDomainJoinPassword}}"
+mainSteps:
+          - action: aws:runShellScript
+            name: InstallClouAdminGroup
+            description:  |
+              Adds the CloudAdmin grup into the sudoers file 
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ##########################################
+                        #  DOMAIN GROUP ADDING TO SUDOERS FILE  #
+                        ##########################################
+                        # Parameters
+                        ParamSSHDConfigFilePath='{{ pSSHDConfigFilePath }}' 
+                        ParamSudoersFilePath='{{ pSudoersFilePath }}'  
+                        ParamCloudAdminsGroup='{{ pCloudAdminsGroup }}'
+                        ParamDomain='{{ pDomain }}'
+
+                        ###############################################
+                        #   TAILORED FUNCTION #
+                        ###############################################
+                        # Step 1: Update all packages 
+                        sudo yum update -y
+                        # Install efs 
+                        sudo yum install -y amazon-efs-utils
+
+                        
