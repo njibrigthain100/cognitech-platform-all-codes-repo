@@ -181,6 +181,13 @@ Resources:
         pWindowsWebSecurityGroup: 
            Fn::ImportValue:
             !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-W-web-server-sg
+        pDCIp1: 
+          !Select [0, !Split [",", Fn::ImportValue:
+             !Sub "${ pAwsAccount }-${ AWS::Region }-${ pAppName }-DNSIpaddresses"]]
+        pDCIp2: 
+          !Select [1, !Split [",", Fn::ImportValue:
+              !Sub "${ pAwsAccount }-${ AWS::Region }-${ pAppName }-DNSIpaddresses"]]
+
   
   rEFSStack:
     Type: AWS::CloudFormation::Stack
