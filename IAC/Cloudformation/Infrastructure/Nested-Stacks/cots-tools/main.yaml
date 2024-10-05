@@ -220,6 +220,8 @@ Resources:
             - rCotSecurityGroupStack 
             - Outputs.oNestedfsxsg 
         pADDomainId:
+          Fn::ImportValue:
+              !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-directoryId 
         pDomainName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
 
     DependsOn: 
