@@ -914,7 +914,6 @@ Resources:
     DependsOn: 
       - rDirectoryService
       - rSSMDomainJoin
-      - rSSMMDomainJoinDocuments
 
 ###################################SSM Maintenance Window#################################################################
   rSSMMaintenanceWindow:
