@@ -187,6 +187,9 @@ Resources:
         pDCIp2: 
           !Select [1, !Split [",", Fn::ImportValue:
               !Sub "${ pAwsAccount }-${ AWS::Region }-${ pAppName }-DNSIpaddresses"]]
+        pADServerIp: 
+          Fn::ImportValue:
+            !Sub !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-ADIp
 
   
   rEFSStack:
