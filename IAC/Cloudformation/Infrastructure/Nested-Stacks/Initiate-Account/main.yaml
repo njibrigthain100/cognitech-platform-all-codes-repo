@@ -494,7 +494,7 @@ Parameters:
   pWindows2019ADAmiId:
     Description: The latest ami Id for the ctive directory domain controller 
     Type : 'AWS::SSM::Parameter::Value<String>'
-    Default: ami-004f3efa7dfcd503f
+    Default: /standard/ADami
   
   pADServerInstanceProfile:
     Description: The instance profile for the active directory master server
@@ -774,19 +774,6 @@ Resources:
             - Outputs.oDirectoryDNSIpaddresses
     DependsOn: 
       - rDirectoryService
-
-# ###################################SSM Linux suders file document#################################################################
-#   rSSMLinuxSuders:
-#     Type: AWS::CloudFormation::Stack
-#     Properties:
-#       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/SSMLinuxSudoersFile.yaml
-#       TimeoutInMinutes: 20
-#       Parameters: 
-#         pAppName: !Ref pAppName
-#         pADAdminGroupName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:pADAdminGroupName}}"
-#         pADName: !Sub "{{resolve:secretsmanager:NestedADCredentials:SecretString:Domain}}"
-#     DependsOn: 
-#       - rDirectoryService
 #############################################AD IAM Role###########################################################################
   rSupportRoles:
     Type: AWS::CloudFormation::Stack
