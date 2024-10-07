@@ -53,8 +53,12 @@ mainSteps:
                             # Update the package index
                             echo "Updating package index..."
                             sudo yum update -y
+                          
+                            # Installing efs on all linux hosts 
+                            mkdir /efs
+                            sudo yum install -y amazon-efs-utils
 
-                            # Install Fail2Ban
+                           # Install Fail2Ban
                             echo "Installing Fail2Ban..."
                             sudo amazon-linux-extras install -y epel
                             sudo yum install -y "$ParamAgent1"

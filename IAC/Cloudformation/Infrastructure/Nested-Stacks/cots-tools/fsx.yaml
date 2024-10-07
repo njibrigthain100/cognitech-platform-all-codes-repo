@@ -42,7 +42,7 @@ Resources:
     Type: 'AWS::FSx::FileSystem'
     Properties:
       FileSystemType: WINDOWS
-      StorageCapacity: 300
+      StorageCapacity: 32
       StorageType: SSD
       SubnetIds:
         - !Ref pApp1PrivateSubnet1Id
@@ -55,8 +55,8 @@ Resources:
       WindowsConfiguration:
         ActiveDirectoryId: !Ref pADDomainId
         ThroughputCapacity: 8
-        Aliases: 
-            - !Sub fsx.${ pDomainName }
+        # Aliases: 
+        #     - !Sub fsx.${ pDomainName }
         WeeklyMaintenanceStartTime: '7:00:00'
         DailyAutomaticBackupStartTime: '00:00'
         AutomaticBackupRetentionDays: 90

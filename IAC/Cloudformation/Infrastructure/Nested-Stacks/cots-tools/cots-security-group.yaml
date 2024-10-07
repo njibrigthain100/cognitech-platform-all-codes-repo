@@ -101,6 +101,12 @@ Resources:
           ToPort: 139
           SourceSecurityGroupId: !Ref pWindowsWebSecurityGroup
           Description: "Allow Inbound traffic on tcp port 139 from Windows web server security group"
+        - IpProtocol: -1
+          SourceSecurityGroupId: !Ref pWindowsWebSecurityGroup
+          Description: "Allow Inbound traffic on all ports from Windows web server security group"
+        - IpProtocol: -1
+          SourceSecurityGroupId: !Ref pWindowsAppSecurityGroup
+          Description: "Allow Inbound traffic on all ports from Windows App server security group"
       SecurityGroupEngress:
         - IpProtocol: -1 
           CidrIp: !Ref pDCIp1 
@@ -109,8 +115,14 @@ Resources:
           CidrIp: !Ref pDCIp2
           Description: "Allow Outbound traffic to the second domain controller on all ports"
         - IpProtocol: -1 
-          CidrIp: !Ref pDCIp2
-          Description: "Allow Outbound traffic to the internet on all ports"       
+          CidrIp: !Ref pADServerIp
+          Description: "Allow Outbound traffic to the internet on all ports"  
+        - IpProtocol: -1
+          DestinationSecurityGroupId: !Ref pWindowsWebSecurityGroup
+          Description: "Allow Outbound traffic to all ports to Windows web server security group"
+        - IpProtocol: -1
+          DestinationSecurityGroupId: !Ref pWindowsAppSecurityGroup
+          Description: "Allow Outbound traffic to all ports to Windows App server security group"     
       Tags: 
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-sg
@@ -125,7 +137,7 @@ Outputs:
 
   oNestedfsxsg:
     Description: The security group Id of the fsx share
-    Value: !Ref rNestedefssg
+    Value: !Ref rNestedfsxsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-fsx-sg
   
