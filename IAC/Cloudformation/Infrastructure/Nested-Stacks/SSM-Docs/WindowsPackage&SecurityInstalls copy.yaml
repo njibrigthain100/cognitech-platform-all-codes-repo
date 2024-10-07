@@ -1,0 +1,42 @@
+
+schemaVersion: '2.2'
+description: "Document to install any security and software related packages"
+parameters: 
+    pAgent1:
+      description: The first security agent to install 
+      type: String
+      default: "Fail2Ban"
+
+    pAgent2:
+      description: The second security agent to be installed 
+      type: String
+      default: "clamav clamav-update"
+
+mainSteps:
+          - action: aws:runShellScript
+            name: InstallClouAdminGroup
+            description:  |
+              Adds the CloudAdmin grup into the sudoers file 
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ########################################################
+                        #  INSTALLING AND CONFIGURING VARIOUS SECURITY TOOLS  #
+                        ########################################################
+                        # Parameters
+                        ParamAgent1='{{ pAgent1 }}' 
+                        ParamAgent2='{{ pAgent2 }}'  
+
+                        ###############################################
+                        #   TAILORED FUNCTION #
+                        ###############################################
+                            # Install aws cli in silent mode 
+                            msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi /qn
+
+                            # Update time to EST 
+                            Set-TimeZone -Id "Eastern Standard Time"
+
+
+                          
+                           
