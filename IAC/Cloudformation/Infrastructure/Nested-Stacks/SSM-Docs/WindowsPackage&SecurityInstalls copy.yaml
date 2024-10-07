@@ -37,6 +37,20 @@ mainSteps:
                             # Update time to EST 
                             Set-TimeZone -Id "Eastern Standard Time"
 
+                            # Install sysmon 
+                             Invoke-WebRequest -Uri "https://download.sysinternals.com/files/Sysmon.zip" -OutFile "C:\Temp\Sysmon.zip"
+                             Expand-Archive -Path "C:\Temp\Sysmon.zip" -DestinationPath "C:\Temp\Sysmon"
+                             Start-Process -FilePath "C:\Temp\Sysmon\Sysmon.exe" -ArgumentList "/accepteula /i" -NoNewWindow -Wait
+
+                            # Install AWS Inspector 
+                              Invoke-WebRequest -Uri "https://d1wk0tztpsntt1.cloudfront.net/windows/awsagent.msi" -OutFile "C:\Temp\awsagent.msi"
+                              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i C:\Temp\awsagent.msi /quiet" -Wait
+
+                            # Install Crowdstrike 
+                              Start-Process -FilePath "C:\Temp\CrowdStrikeSensorSetup.exe" -ArgumentList "-silent" -Wait
+
+                              
+
 
                           
                            
