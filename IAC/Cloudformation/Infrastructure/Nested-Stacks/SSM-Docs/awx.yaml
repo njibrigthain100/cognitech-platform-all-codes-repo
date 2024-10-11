@@ -1,0 +1,94 @@
+
+schemaVersion: '2.2'
+description: "Document to install AWX on ubuntu server"
+parameters: 
+mainSteps:
+          - action: aws:runShellScript
+            name: AWXUbuntuInstallation
+            description:  |
+              Installs various linux packages based on os type 
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ##############################################################
+                              #  INSTALLS AND CONFIGURES AWX ON UBUNTU  #
+                        ##############################################################
+                        # Update and upgrade the system
+                          sudo apt update && sudo apt upgrade -y
+
+                          # Install aws cli 
+                          sudo apt install -y unzip curl
+                          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                          unzip awscliv2.zip
+                          sudo ./aws/install
+
+                          # Install k3s (Lightweight Kubernetes)
+                          curl -sfL https://get.k3s.io | sh -
+
+                          # Install kustomize
+                          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+                          sudo mv kustomize /usr/local/bin/
+
+                          # Create the kustomization.yaml file
+                          cat <<EOF > kustomization.yaml
+                          apiVersion: kustomize.config.k8s.io/v1beta1
+                          kind: Kustomization
+                          resources:
+                            - github.com/ansible/awx-operator/config/default?ref=2.19.0
+
+                          images:
+                            - name: quay.io/ansible/awx-operator
+                              newTag: 2.19.0
+
+                          namespace: awx
+                          EOF
+
+                          # Change permission and ownership of /etc/rancher file 
+                          sudo chown ubuntu:ubuntu /etc/rancher/k3s/k3s.yaml
+
+                          # Apply the kustomization to install AWX Operator
+                          sudo kustomize build . | kubectl apply -f -
+
+                          # Check the AWX namespace pods
+                          kubectl get pods --namespace awx
+
+                          # Create the awx.yaml file for AWX deployment
+                          cat <<EOF > awx.yaml
+                          apiVersion: awx.ansible.com/v1beta1
+                          kind: AWX
+                          metadata:
+                            name: awx-demo
+                          spec:
+                            service_type: nodeport
+                            nodeport_port: 30080
+                          EOF
+
+                          # Delete and recreate the kustomization file 
+                          rm -rf kustomization.yaml
+                          # Create the kustomization.yaml file
+                          cat <<EOF > kustomization.yaml
+                          apiVersion: kustomize.config.k8s.io/v1beta1
+                          kind: Kustomization
+                          resources:
+                            - github.com/ansible/awx-operator/config/default?ref=2.19.0
+                            - awx.yaml
+
+                          images:
+                            - name: quay.io/ansible/awx-operator
+                              newTag: 2.19.0
+
+                          namespace: awx
+                          EOF
+
+                          # Apply the changes again to deploy AWX
+                          sudo kustomize build . | kubectl apply -f -
+
+                          # Retrieve the admin password for AWX
+                          sudo kubectl get secrets --namespace=awx awx-demo-admin-password -ojsonpath='{.data.password}' | base64 -d > password
+
+                          # Get the public IP address of the instance
+                          PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $(curl -s http://169.254.169.254/latest/meta-data/instance-id) --query 'Reservations[].Instances[].PublicIpAddress' --output text)
+
+                          # Add the AWS CLI command to create the secret in Secrets Manager
+                          aws secretsmanager create-secret --name awx-credentials --secret-string "{\"username\":\"admin\",\"password\":\"$(cat password)\",\"port\":\"30080\",\"url\":\"http://$PUBLIC_IP:30080\"}"

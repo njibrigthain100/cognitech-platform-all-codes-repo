@@ -1,0 +1,73 @@
+
+schemaVersion: '2.2'
+description: "Document to install any security and software related packages"
+parameters: 
+mainSteps:
+          - action: aws:runShellScript
+            name: Installlinuxpackages
+            description:  |
+              Installs various linux packages based on os type 
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ##############################################################
+                        #  INSTALLING AND CONFIGURING VARIOUS LINUX PACKAGES TOOLS  #
+                        ##############################################################
+                        
+                        # Function to install amazon-efs-utils based on the OS type
+                        install_efs_utils() {
+                            echo "Updating system and installing amazon-efs-utils on $1"
+                            
+                            if [[ "$1" == "RHEL" ]]; then
+                                # Update system and install amazon-efs-utils for RHEL
+                                sudo yum update -y
+                                sudo yum install -y amazon-efs-utils
+
+                            elif [[ "$1" == "AmazonLinux2" ]]; then
+                                # Update system and install amazon-efs-utils for Amazon Linux 2
+                                sudo yum update -y
+                                sudo yum install -y amazon-efs-utils
+
+                            elif [[ "$1" == "Ubuntu" ]]; then
+                                # Update system and install amazon-efs-utils for Ubuntu
+                                sudo apt-get update -y
+                                sudo apt-get upgrade -y
+                                sudo apt-get install -y amazon-efs-utils
+
+                            else
+                                echo "Unsupported OS"
+                                exit 1
+                            fi
+                        }
+
+                        # Function to check the Linux OS
+                        check_os() {
+                            if [ -f /etc/os-release ]; then
+                                . /etc/os-release
+                                if [[ "$ID" == "rhel" ]]; then
+                                    echo "RHEL"
+                                elif [[ "$ID" == "amzn" ]]; then
+                                    echo "AmazonLinux2"
+                                elif [[ "$ID" == "ubuntu" ]]; then
+                                    echo "Ubuntu"
+                                else
+                                    echo "Unsupported OS"
+                                fi
+                            else
+                                echo "Unsupported OS"
+                                exit 1
+                            fi
+                        }
+
+                        # Main script execution
+                        os_type=$(check_os)
+
+                        # Create efs directory
+                        mkdir -p /mnt/efs
+                        echo "Created directory /mnt/efs"
+
+                        # Update system and install amazon-efs-utils based on detected OS
+                        install_efs_utils "$os_type"
+
+                        echo "Script completed."

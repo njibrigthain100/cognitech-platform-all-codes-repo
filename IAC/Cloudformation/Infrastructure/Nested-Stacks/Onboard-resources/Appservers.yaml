@@ -138,6 +138,8 @@ Resources:
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
         - Key: LinuxSudoers 
           Value: yes
+        - Key: Linuxpackageinstall 
+          Value: yes
 
   rLinuxAppserverVolume:
     Type: AWS::EC2::Volume

@@ -93,6 +93,8 @@ Metadata: # This is putr in an s3 bucket
         - pAssociationName
         - pCronexpression
         - pDocumentName2
+        - pDocumentName3
+        - pDocumentName4
     - Label: 
         default: "Maintenance Window configurations" 
       Parameters:
@@ -232,6 +234,10 @@ Metadata: # This is putr in an s3 bucket
         default: pDNSIpAddresses
       pDocumentName2:
         default: pDocumentName2
+      pDocumentName3:
+        default: pDocumentName3
+      pDocumentName4:
+        default: pDocumentName4
 
 ###################################SSM Linux Sudoers file Document###############################
       pADAdminGroupName: 
@@ -571,6 +577,16 @@ Parameters:
     Type: String
     Default: LinuxCloudAdmins
 
+  pDocumentName3:
+    Description: The document used linux package update 
+    Type: String
+    Default: Linuxpackageinstall
+
+  pDocumentName4:
+    Description: The document used to install awx
+    Type: String
+    Default: awxinstallation
+
 ############################################SSM Maintenence Window#######################################  
   pWindowsPatchWindow:
     Description: The name of the window for windows patching 
@@ -895,6 +911,8 @@ Resources:
            - rSSMDomainJoin
            - Outputs.oDomainJoinDocument
         pDocumentName2: !Ref pDocumentName2
+        pDocumentName3: !Ref pDocumentName3
+        pDocumentName4: !Ref pDocumentName4
     DependsOn: 
       - rDirectoryService
       - rSSMDomainJoin

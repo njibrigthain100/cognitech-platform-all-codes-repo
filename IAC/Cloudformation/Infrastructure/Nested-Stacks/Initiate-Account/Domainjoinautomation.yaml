@@ -26,7 +26,15 @@ Parameters:
     Type: String
 
   pDocumentName2:
-    Description: The document used for the association 
+    Description: The document used for adding users to sudoers file 
+    Type: String
+
+  pDocumentName3:
+    Description: The document used linux package update 
+    Type: String
+
+  pDocumentName4:
+    Description: The document used to install awx
     Type: String
 
   pCronexpression:
@@ -55,3 +63,25 @@ Resources:
       - Key: tag:LinuxSudoers
         Values:
         - yes 
+
+  rNestedLinuxpackageinstallautomation:
+    Type: AWS::SSM::Association
+    Properties:
+      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linuxpackageinstall
+      Name: !Ref pDocumentName3
+      ScheduleExpression: !Ref pCronexpression
+      Targets:
+      - Key: tag:Linuxpackageinstall
+        Values:
+        - yes 
+
+  rNestedawxinstallautomation:
+    Type: AWS::SSM::Association
+    Properties:
+      AssociationName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-awxinstall
+      Name: !Ref pDocumentName4
+      ScheduleExpression: !Ref pCronexpression
+      Targets:
+      - Key: tag:awxinstall
+        Values:
+        - yes

@@ -149,6 +149,9 @@ Resources:
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
         - Key: LinuxSudoers 
           Value: yes
+        - Key: Linuxpackageinstall 
+          Value: yes
+      
   
   rLinuxWebserver1Volume:
     Type: AWS::EC2::Volume
@@ -230,6 +233,8 @@ Resources:
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
         - Key: LinuxSudoers 
+          Value: yes
+        - Key: Linuxpackageinstall 
           Value: yes
   
   rLinuxWebserver2Volume:
