@@ -55,6 +55,7 @@ Metadata: # This is putr in an s3 bucket
         - pProtocol
         - pLinuxTarget1
         - pLinuxTarget2
+        - pLinuxTarget3
         - pWindowsTarget1
         - pWindowsTarget2
         - pTargetType
@@ -80,6 +81,7 @@ Metadata: # This is putr in an s3 bucket
         - pWindowsip02
         - pDomainName1
         - pDomainName2
+        - pDomainName3
         - pDomainIISName
         - palbDNSName
         - pDomainNLBName
@@ -176,6 +178,8 @@ Metadata: # This is putr in an s3 bucket
         default: pLinuxTarget1
       pLinuxTarget2:
         default: pLinuxTarget2
+      pLinuxTarget3:
+        default: pLinuxTarget3
       pWindowsTarget1:
         default: pWindowsTarget1
       pWindowsTarget2:
@@ -220,6 +224,8 @@ Metadata: # This is putr in an s3 bucket
         default: pDomainName1
       pDomainName2:
         default: pDomainName2
+      pDomainName3:
+        default: pDomainName3
       pDomainIISName:
         default: pDomainIISName 
       palbDNSName: 
@@ -310,6 +316,11 @@ Parameters:
     Description: The latest ami Id for windows 2019 
     Type : String 
     Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+
+  pUbuntu24AmiId:
+    Description: The latest ami Id for ubuntu 24
+    Type: String
+    Default: '/aws/service/canonical/ubuntu/server/noble/stable/current/amd64/hvm/ebs-gp3/ami-id'
 
 ################################### App servers #####################################
   pAppServerInstanceProfile:
@@ -423,6 +434,10 @@ Parameters:
   pWindowsTarget2:
     Description: The second windows instance ID behind the target group
     Type: String
+
+  pLinuxTarget3:
+    Description: The ubuntu linux instance ID behind the target group
+    Type: String
   
   pTargetType:
     Description: The type of target that you must specify when registering targets with this target group
@@ -518,6 +533,11 @@ Parameters:
     Description: The domain 2nd name
     Type: String 
     Default: dotnet.kahbrigthllc.com.
+
+  pDomainName3:
+    Description: The domain name
+    Type: String 
+    Default: awx.kahbrigthllc.com.
 
   pDomainIISName:
     Description: The domain 3rd name
@@ -681,6 +701,7 @@ Resources:
         pAvailabilityZones: !Ref pAvailabilityZones
         pAmznLnx2LatestAmiId: !Ref pAmznLnx2LatestAmiId
         pWindows2019LatestAmiId: !Ref pWindows2019LatestAmiId
+        pUbuntu24AmiId: !Ref pUbuntu24AmiId
         pWebServerInstanceProfile: 
           Fn::GetAtt: 
             - rIAMStack
@@ -747,6 +768,10 @@ Resources:
           Fn::GetAtt: 
             - rWebServers
             - Outputs.oLinuxWebServerInstanceId01
+        pLinuxTarget3: 
+          Fn::GetAtt: 
+            - rWebServers
+            - Outputs.oLinuxawxInstanceId
         pWindowsTarget1: 
           Fn::GetAtt: 
             - rWebServers
@@ -845,6 +870,7 @@ Resources:
             - Outputs.oWindowsWebServerIP02 
         pDomainName1: !Ref pDomainName1 
         pDomainName2: !Ref pDomainName2 
+        pDomainName3: !Ref pDomainName3 
         pDomainIISName: !Ref pDomainIISName 
         pDomainNLBName: !Ref pDomainNLBName
         palbDNSName:

@@ -20,6 +20,11 @@ Parameters:
     Description: The latest ami Id for amazon linux 2
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+  pUbuntu24AmiId:
+    Description: The latest ami Id for ubuntu 24
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/canonical/ubuntu/server/noble/stable/current/amd64/hvm/ebs-gp3/ami-id'
   
   pWindows2019LatestAmiId:
     Description: The latest ami Id for windows 2019 
@@ -253,7 +258,50 @@ Resources:
       InstanceId: !Ref rLinuxWebserver02
       VolumeId: !Ref rLinuxWebserver2Volume
 
-
+rLinuxAWX:
+    Type: AWS::EC2::Instance
+    Properties: 
+      IamInstanceProfile: !Ref pWebServerInstanceProfile
+      ImageId: !Ref pUbuntu24AmiId
+      InstanceType: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pInstanceType
+      KeyName: !FindInMap 
+        - mAccountVariables
+        - !Ref AWS::AccountId 
+        - pKeyPair
+      SecurityGroupIds: 
+        - !Ref pLinuxWebServerSecurityGroup
+      SubnetId: !Ref pWebServerPrivateSubnetId
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
+        - Key: backup
+          Value: !Sub ${ AWS::Region}-daily 
+        - Key: Patch Group
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux 
+        - Key: Cost Center 
+          Value: 1.0.0.1
+        - Key: DNSSuffix 
+          Value: kahbrigthllc.com
+        - Key: DNSHostName 
+          Value: !Sub ${ pAwsAccountLC }lapp 
+        - Key: Type  
+          Value: Web
+        - Key: DomainJoin 
+          Value: yes
+        - Key: PatchGroup 
+          Value: Linux-PatchGroup
+        - Key: Schedule 
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
+        - Key: LinuxSudoers 
+          Value: yes
+        - Key: Linuxpackageinstall 
+          Value: yes
+        - Key: awxinstall
+          Value: yes
+  
   rWindowsWebserver01:
     Type: AWS::EC2::Instance
     Properties: 
@@ -418,6 +466,12 @@ Outputs:
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-02
 
+  oLinuxawxInstanceId:
+    Description: The Id of the ubuntu server 
+    Value: !Ref rLinuxAWX
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-Id
+
   oWindowsWebServerInstanceId01:
     Description: The Id of the windows Web server
     Value: !Ref rWindowsWebserver01
@@ -441,6 +495,12 @@ Outputs:
     Value: !GetAtt  rLinuxWebserver01.PrivateIp
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-ip-02
+
+  oLinuxAWXIP:
+    Description: The instance IP of the AWX server
+    Value: !GetAtt  rLinuxAWX.PrivateIp
+    Export:
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-ip
 
   oWindowsWebServerIP01:
     Description: The instance IP of the first windows webserver

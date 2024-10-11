@@ -51,6 +51,11 @@ Parameters:
     Type: String 
     Default: dotnet.kahbrigthllc.com.
 
+  pDomainName3:
+    Description: The domain name
+    Type: String 
+    Default: awx.kahbrigthllc.com.
+
   pDomainIISName:
     Description: The domain name 
     Type: String 
@@ -129,6 +134,17 @@ Resources:
         HostedZoneName: !Ref pHostedZoneName
         Comment: The ALB CNAME Record
         Name: !Ref pDomainName2
+        Type: CNAME
+        TTL: '900'
+        ResourceRecords:
+          - !Ref palbDNSName
+  
+  rNestedawxrecord:
+      Type: 'AWS::Route53::RecordSet'
+      Properties:
+        HostedZoneName: !Ref pHostedZoneName
+        Comment: The ALB CNAME Record
+        Name: !Ref pDomainName3
         Type: CNAME
         TTL: '900'
         ResourceRecords:
