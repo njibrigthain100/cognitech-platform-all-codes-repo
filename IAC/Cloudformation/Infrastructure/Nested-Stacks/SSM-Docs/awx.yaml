@@ -18,12 +18,19 @@ mainSteps:
                           sudo apt update && sudo apt upgrade -y
 
                           # Install aws cli 
-                          sudo apt install -y unzip curl
-                          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                          unzip awscliv2.zip
-                          sudo ./aws/install
-
-                          # Install k3s (Lightweight Kubernetes)
+                          # Check if AWS CLI is already installed
+                          if ! command -v aws &> /dev/null
+                          then
+                              echo "AWS CLI not found. Installing AWS CLI..."                              
+                              # Install aws cli without prompt for third-party licenses 
+                              sudo apt install -y unzip curl
+                              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                              unzip awscliv2.zip
+                              sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+                          else
+                              echo "AWS CLI is already installed. Skipping installation."
+                          fi
+                         # Install k3s (Lightweight Kubernetes)
                           curl -sfL https://get.k3s.io | sh -
 
                           # Install kustomize
