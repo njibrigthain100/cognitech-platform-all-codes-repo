@@ -83,7 +83,7 @@
 
 * This project contains resources that may accrue charges if left on. Proceed with caution.
 
-### LAUNCHING THE STACKS:
+### TASK DETAIL:
 
 ###### *Repository Clonning:*
 
@@ -115,3 +115,29 @@
 ![pic-5](./Pictures/stack-pic-5.png)
 
 ![pic-6](./Pictures/stack-pic-6.png)
+
+###### *SSM Document creation:*
+
+* The system manager document are used for a variety of reasons ranging from domain joining of the newly created instances, to adding the newly created linux servers to the sudoers. These documents are created via cli commands as shown below.
+* All ssm documents are located in the SSM-Doc folder.
+* Once all files and folders have been downloaded to your local computer navigate to the SSM-Docs directory and run the following commands to create the documents.
+
+  * LinuxCloudAdmins:
+    * aws ssm create-document --content [file://CloudAdminSudoersFile.yaml](file://CloudAdminSudoersFile.yaml) --name "LinuxCloudAdmins" --document-type "Command" --document-format YAML
+  * Linuxpackageinstall:
+    * aws ssm create-document --content [file://Linuxpackageinstall.yaml](file://Linuxpackageinstall.yaml) --name "Linuxpackageinstall" --document-type "Command" --document-format YAML
+  * AWXInstallation:
+    * aws ssm create-document --content [file://awx.yaml](file://awx.yaml) --name "awxinstallation" --document-type "Command" --document-format YAML
+* FYI: The documents have to be named exactly as shown above as they are all referenced in the cloudforation template as seen below:
+
+  ![pic-7](./Pictures/stack-pic-7.png)
+
+###### *Create a route 53 domain:*
+
+* A domain is needed to house all the dns records that will be created during the project. PLease see [Register a new domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) on how to create a new domain in aws route 53
+* Once the domain has been created and verifed create a public hosted zone. Please see [Creating a public hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) on how to create a public hosted zone.
+* Once done add the hosted zone Id to the main.yaml file in the Initiate-Account and Onboard-resources as shown below
+
+  ![pic-8](./Pictures/stack-pic-8.png)
+
+![pic-9](./Pictures/stack-pic-9.png)
