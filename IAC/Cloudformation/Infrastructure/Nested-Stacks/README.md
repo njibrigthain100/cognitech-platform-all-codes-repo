@@ -51,14 +51,18 @@
 * DNS A records for bastion and active directory server
 * AWS Backup
 
+### WARNING:
+
+* This project includes resources that may incur charges if left running. Please proceed with caution
+
 ### STACKS LAYOUT EXPLAINED:
 
 * The project is divided into three distinct folders: ***Initiate-Account***, ***Onboard-resources***, and ***cots-tools***. Each folder relies on the successful deployment of the previous one and should be deployed sequentially. There are specific tasks that must be completed before progressing to the next stack, which will be detailed below. The deployment order is as follows
+
   1. initiate-account
   2. onboard-resources
   3. cots-tools
-
-* Each folder contains several files along with a main.yaml file, which orchestrates the deployment of all child stacks. Each file is named according to the resources it creates; for example, backup.yaml provisions the AWS Backup service, while bastions.yaml sets up the bastion servers. This naming convention simplifies the identification of where each resource is being created. The files are invoked in the main.yaml file as illustrated below. 
+* Each folder contains several files along with a main.yaml file, which orchestrates the deployment of all child stacks. Each file is named according to the resources it creates; for example, backup.yaml provisions the AWS Backup service, while bastions.yaml sets up the bastion servers. This naming convention simplifies the identification of where each resource is being created. The files are invoked in the main.yaml file as illustrated below.
 
 ### PREREQUISITES:
 
@@ -136,9 +140,6 @@
     * SSM-Docs folder:
       * This folder contains all the system manager document needed for the project
 
-### WARNING:
-
-* This project contains resources that may accrue charges if left on. Proceed with caution.
 
 ###### *SSM Parameter creation:*
 
