@@ -215,7 +215,7 @@ Resources:
          - rApp1VpcTransitGatewayAttachment
     Properties: 
       # DestinationCidrBlock: !Ref pTransitGatewayCIDR
-      DestinationCidrBlock: !Ref pSharedServicesVPCCid
+      DestinationCidrBlock: !Ref pSharedServicesVPCCidr
       RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
