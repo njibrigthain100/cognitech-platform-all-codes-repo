@@ -360,7 +360,8 @@ Resources:
     DependsOn:
          - rSharedServicesVpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      # DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pVPCCidr
       RouteTableId: !Ref rNestedSSPublicSubnet1RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
@@ -369,7 +370,8 @@ Resources:
     DependsOn:
          - rSharedServicesVpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      # DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pVPCCidr
       RouteTableId: !Ref rNestedSSPublicSubnet2RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
       
