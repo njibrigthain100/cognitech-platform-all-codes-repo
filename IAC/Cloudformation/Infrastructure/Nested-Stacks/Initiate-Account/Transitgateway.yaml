@@ -127,8 +127,13 @@ Parameters:
     Description: The Id of the second Nat gateway 
     Type: String 
   
+  pVPCCidr:
+    Description: The cidr block of the vpc being created
+    Type: String
 
-  
+  pSharedServicesVPCCidr:
+    Description: The cidr block of the vpc being created
+    Type: String
   
 Resources:
 ############################Transit gateway######################################
@@ -209,7 +214,8 @@ Resources:
     DependsOn:
          - rApp1VpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      # DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pSharedServicesVPCCid
       RouteTableId: !Ref rNestedPrivateSubnet1RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
@@ -219,7 +225,8 @@ Resources:
     DependsOn:
          - rApp1VpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      #DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pSharedServicesVPCCidr
       RouteTableId: !Ref rNestedPrivateSubnet2RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
@@ -288,7 +295,8 @@ Resources:
     DependsOn:
          - rSharedServicesVpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      # DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pVPCCidr
       RouteTableId: !Ref rNestedSSPrivateSubnet1RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 
@@ -297,7 +305,8 @@ Resources:
     DependsOn:
          - rSharedServicesVpcTransitGatewayAttachment
     Properties: 
-      DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      # DestinationCidrBlock: !Ref pTransitGatewayCIDR
+      DestinationCidrBlock: !Ref pVPCCidr
       RouteTableId: !Ref rNestedSSPrivateSubnet2RouteTable
       TransitGatewayId: !Ref rNestedTransitGateway
 

@@ -671,7 +671,9 @@ Resources:
         pRouteTableAssociation: !Ref pRouteTableAssociation 
         pDNSSupport: !Ref pDNSSupport 
         pVPNSupport: !Ref pVPNSupport 
-        pTransitGatewayCIDR: !Ref pTransitGatewayCIDR
+        # pTransitGatewayCIDR: !Ref pTransitGatewayCIDR
+        pVPCCidr: !Ref pVPCCidr 
+        pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
 
 ###############################Shared services variables#####################################
         pSharedServicesPrivateSubnet1Id: 
