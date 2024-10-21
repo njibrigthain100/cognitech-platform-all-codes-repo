@@ -192,14 +192,14 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
       HealthCheckPath: !Ref pHealthCheckPath
-      HealthCheckPort: !Ref 30080
+      HealthCheckPort: '30080'
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
         HttpCode: '200'
-      Name: !Sub ${ pAwsAccount }-${ pAppName }-cobsine-alb-tg
-      Port: !Ref pPort
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
+      Port: '30080'
       Protocol: !Ref pProtocol
       TargetGroupAttributes: 
         - Key: deregistration_delay.timeout_seconds 

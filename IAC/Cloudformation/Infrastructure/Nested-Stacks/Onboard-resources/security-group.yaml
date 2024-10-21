@@ -225,6 +225,14 @@ Resources:
               - GroupId
           Description: "Allow HTTP access from the ALB"
         - IpProtocol: tcp
+          FromPort: 30080
+          ToPort: 30080
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedalbsg
+              - GroupId
+          Description: "Allow HTTP access from ALB on port 30080 for AWX"
+        - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: 

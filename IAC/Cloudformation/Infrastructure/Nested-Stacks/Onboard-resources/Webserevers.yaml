@@ -258,7 +258,7 @@ Resources:
       InstanceId: !Ref rLinuxWebserver02
       VolumeId: !Ref rLinuxWebserver2Volume
 
-rLinuxAWX:
+  rLinuxAWX:
     Type: AWS::EC2::Instance
     Properties: 
       IamInstanceProfile: !Ref pWebServerInstanceProfile
@@ -276,7 +276,7 @@ rLinuxAWX:
       SubnetId: !Ref pWebServerPrivateSubnetId
       Tags: 
         - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-02
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx
         - Key: backup
           Value: !Sub ${ AWS::Region}-daily 
         - Key: Patch Group
