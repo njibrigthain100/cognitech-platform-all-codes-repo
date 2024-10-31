@@ -64,8 +64,8 @@ mainSteps:
                         os_type=$(check_os)
 
                         # Create efs directory
-                        mkdir -p /root/efs
-                        echo "Created directory /root/efs"
+                        mkdir -p /mnt/efs
+                        echo "Created directory /mnt/efs"
 
                         # Update system and install amazon-efs-utils based on detected OS
                         install_efs_utils "$os_type"

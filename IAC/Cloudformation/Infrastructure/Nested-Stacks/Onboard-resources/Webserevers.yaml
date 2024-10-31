@@ -152,9 +152,9 @@ Resources:
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
-        - Key: LinuxSudoers 
+        - Key: Linuxpackageinstall
           Value: yes
-        - Key: Linuxpackageinstall 
+        - Key: SudoersFile
           Value: yes
       
   
@@ -231,15 +231,15 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: Web
-        - Key: DomainJoin 
+        - Key: DomainJoin
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
-        - Key: LinuxSudoers 
+        - Key: Linuxpackageinstall
           Value: yes
-        - Key: Linuxpackageinstall 
+        - Key: SudoersFile
           Value: yes
   
   rLinuxWebserver2Volume:
@@ -289,17 +289,17 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: Web
-        - Key: DomainJoin 
+        - Key: DomainJoin
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
-        - Key: LinuxSudoers 
-          Value: yes
-        - Key: Linuxpackageinstall 
-          Value: yes
         - Key: awxinstall
+          Value: yes
+        - Key: Linuxpackageinstall
+          Value: yes
+        - Key: SudoersFile
           Value: yes
   
   rWindowsWebserver01:

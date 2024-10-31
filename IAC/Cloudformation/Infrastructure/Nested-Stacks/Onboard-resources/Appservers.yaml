@@ -130,15 +130,15 @@ Resources:
           Value: !Sub ${ pAwsAccountLC }lapp 
         - Key: Type  
           Value: App
-        - Key: DomainJoin 
+        - Key: LinuxDomainJoin 
           Value: yes
         - Key: PatchGroup 
           Value: Linux-PatchGroup
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
-        - Key: LinuxSudoers 
+        - Key: Linuxpackageinstall
           Value: yes
-        - Key: Linuxpackageinstall 
+        - Key: SudoersFile
           Value: yes
 
   rLinuxAppserverVolume:

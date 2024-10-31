@@ -931,6 +931,15 @@ Resources:
         pLinuxPatchWindow: !Ref pLinuxPatchWindow
         pMaintenanceWindowSchedule: !Ref pMaintenanceWindowSchedule
 
+###################################AWS Backup#################################################################
+  rSSMMaintenanceWindow:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/backup.yaml
+      TimeoutInMinutes: 20
+      Parameters: 
+        pAppName: !Ref pAppName
+
 #######################################Support host DNS A Record################################################
   rSupportHostDNSRecords:
     Type: AWS::CloudFormation::Stack

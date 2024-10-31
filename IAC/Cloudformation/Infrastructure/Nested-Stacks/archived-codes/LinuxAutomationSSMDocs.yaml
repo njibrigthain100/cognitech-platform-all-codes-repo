@@ -24,27 +24,39 @@ Parameters:
     Description: The ssm document to add linux users to sudoers file
     Type: String
 
+  pLinuxPackageInstall:
+    Description: Installs linux packages 
+    Type: String
+
 Resources:
   rLinuxSSMDocument:
     Type: AWS::SSM::Document
     Properties:
       DocumentType: Automation
       Content:
-        SchemaVersion: '0.3'
-        Description: Joins the linux server to the domain
-        MainSteps:
-          - Name: AddLinuxInstancetoDomain
-            Action: 'aws:executeAutomation'
+        schemaVersion: '0.3'
+        description: Joins the linux server to the domain
+        mainSteps:
+          - name: AddLinuxInstancetoDomain
+            action: 'aws:executeAutomation'
             OnFailure: Abort
-            Inputs:
+            inputs:
               DocumentName: !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
             NextStep: Addservertosudoersfile
             
-          - Name: Addservertosudoersfile
-            Action: 'aws:executeAwsApi'
+          - name: Addservertosudoersfile
+            action: 'aws:executeAutomation'
             OnFailure: Abort
-            Inputs:
+            inputs:
               DocumentName: !Ref pSSMSudoersFile
+            NextStep: InstallLinuxPackages
+
+          - name: InstallLinuxPackages
+            action: aws:executeAutomation'
+            OnFailure: Abort
+            inputs:
+              DocumentName: !Ref pLinuxPackageInstall
+
 
 Outputs:
   orLinuxSSMDocument:

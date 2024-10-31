@@ -60,7 +60,7 @@ Resources:
       Name: !Ref pDocumentName2
       ScheduleExpression: !Ref pCronexpression
       Targets:
-      - Key: tag:LinuxSudoers
+      - Key: tag:SudoersFile
         Values:
         - yes 
 

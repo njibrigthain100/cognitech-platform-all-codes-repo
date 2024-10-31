@@ -197,7 +197,7 @@ Resources:
       HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
-        HttpCode: '200'
+        HttpCode: '200,302'
       Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
       Port: '30080'
       Protocol: !Ref pProtocol
