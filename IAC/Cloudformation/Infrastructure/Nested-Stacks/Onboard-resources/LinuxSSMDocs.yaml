@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SSM Automation Document for all linux servers to join domain and add to sudoers file
+
+Parameters:
+  pAwsAccount:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccount
+  
+  pAwsAccountLC:
+    Description: The account in which the resources will be created
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /standard/AWSAccountLC
+
+  pAppName:
+    Type: String
+    Default: cognitech
+
+  pSSMDomainJoinDoc:
+    Description: The Domain join document 
+    Type: String
+
+  pSSMSudoersFile:
+    Description: The ssm document to add linux users to sudoers file
+    Type: String
+
+Resources:
+  rLinuxSSMDocument:
+    Type: AWS::SSM::Document
+    Properties:
+      DocumentType: Automation
+      Content:
+        SchemaVersion: '0.3'
+        Description: Joins the linux server to the domain
+        MainSteps:
+          - Name: AddLinuxInstancetoDomain
+            Action: 'aws:executeAutomation'
+            OnFailure: Abort
+            Inputs:
+              DocumentName: !Sub ${ pAwsAccount }-${ pAppName }-DomainJoinDoc
+            NextStep: Addservertosudoersfile
+            
+          - Name: Addservertosudoersfile
+            Action: 'aws:executeAwsApi'
+            OnFailure: Abort
+            Inputs:
+              DocumentName: !Ref pSSMSudoersFile
+
+Outputs:
+  orLinuxSSMDocument:
+    Description: The name of the SSM Automation Document
+    Value: !Ref rLinuxSSMDocument
