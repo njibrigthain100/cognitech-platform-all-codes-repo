@@ -1,14 +1,5 @@
-
----
-
-
-
-# 
+### 
     DEPLOYING A 3 TIER ARCHITECTURE AND SUPPORTING SERVICES USING CLOUDFORMATION NESTED STACKS
-
----
-
-
 
 ![1727753012796](image/README/1727753012796.png)
 
@@ -99,7 +90,7 @@
   * now add the name of the s3 bucket to the main.yaml file in each of the folders as shown below:
     ![pic-2](./Pictures/stack-pic-2.png)
 
-  #### * **3. Parameter creation:***
+  #### ***3. Parameter creation:***
 
   * To streamline the process and avoid repeatedly referencing commonly used parameters across multiple templates, we will store them in the parameter store. The parameters include::
   * /standard/AWSAccount
@@ -137,7 +128,6 @@
     ```
 
     ![pic-7](./Pictures/stack-pic-7.png)
-
 
 #### *5. Route 53 domain creation:*
 
@@ -235,7 +225,7 @@
 
   ![pic-2](./Pictures/init-pic-2.png)
 
-    ![pic-3](./Pictures/init-pic-3.png)
+  ![pic-3](./Pictures/init-pic-3.png)
 
 ![pic-4](./Pictures/init-pic-4.png)
 
@@ -254,3 +244,38 @@
 ***ACCESS THROUGH SSH BASTION:***
 
 * Access through the SSH bastion is achieved using PuTTY and requires tunneling. Please see below for instructions on how to tunnel into a server using PuTTY
+
+  ![pic-11](./Pictures/init-pic-11.png)
+
+  ![pic-12](./Pictures/init-pic-12.png)
+
+  ![pic-13](./Pictures/init-pic-13.png)
+
+  ![pic-14](./Pictures/init-pic-14.png)
+
+  ![pic-15](./Pictures/init-pic-15.png)
+
+![pic-16](./Pictures/init-pic-16.png)
+
+![pic-17](./Pictures/init-pic-17.png)
+
+![pic-18](./Pictures/init-pic-18.png)
+
+![pic-19](./Pictures/init-pic-19.png)
+
+![pic-20](./Pictures/init-pic-20.png)
+
+![pic-21](./Pictures/init-pic-21.png)
+
+
+
+
+
+
+
+
+
+
+
+
+---
