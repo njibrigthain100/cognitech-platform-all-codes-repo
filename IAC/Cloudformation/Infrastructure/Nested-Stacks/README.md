@@ -1,6 +1,14 @@
-### ***
 
-    DEPLOYING A 3 TIER ARCHITECTURE AND SUPPORTING SERVICES USING CLOUDFORMATION NESTED STACKS***
+---
+
+
+
+# 
+    DEPLOYING A 3 TIER ARCHITECTURE AND SUPPORTING SERVICES USING CLOUDFORMATION NESTED STACKS
+
+---
+
+
 
 ![1727753012796](image/README/1727753012796.png)
 
@@ -10,7 +18,7 @@
 
 ### **RESOURCES TO BE CREATED UPON COMPLETION OF THE PROJECT:**
 
-#####    *Networking:*
+##### *Networking:*
 
 * 2 vpcs ( shared services and app vpc)
 * 2 private and 2 public subnets per vpc
@@ -18,7 +26,7 @@
 * 2 nat gateways in each public subnet per vpc
 * 1 transit gateway for connection between app and shared services vpc
 
-#####    *Compute:*
+##### *Compute:*
 
 * 1 windows active directory server
 * 1 ssh bastion security group
@@ -41,7 +49,7 @@
 * 1 EFS share
 * Instance scheduler
 
-#####  *Support:*
+##### *Support:*
 
 * AWS Mnaged Microsoft directory service
 * 3 system manager documents
@@ -130,7 +138,16 @@
 
     ![pic-7](./Pictures/stack-pic-7.png)
 
-#### ***5. SSL Certificate creation:***
+
+#### *5. Route 53 domain creation:*
+
+* A domain is needed to house all the dns records that will be created during the project. Please see [Register a new domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) on how to create a new domain in aws route 53
+* Once the domain has been created and verifed create a public hosted zone. Please see [Creating a public hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) on how to create a public hosted zone.
+* Once done add the hosted zone Id to the main.yaml file in the Initiate-Account and Onboard-resources as shown below
+
+![pic-8](./Pictures/stack-pic-8.png)![pic-9](./Pictures/stack-pic-9.png)
+
+#### ***6. SSL Certificate creation:***
 
 * An SSL certificate must be associated with the application and network load balancers during their creation. This SSL certificate can be generated using AWS Certificate Manager (ACM) as outlined below. Once the certificate is created, its ARN should be added to the main.yaml file in the onboard-resources folder. For more information on creating an ssl certificate using AWS certificate manager please see [here](https://medium.com/@sonynwoye/creating-ssl-certificates-using-aws-certificate-manager-acm-1c359e70ce4d).
 * The certificate ARN should now be added to the `main.yaml` file within the `onboard-resources` directory, as demonstrated below.
@@ -140,7 +157,7 @@
 
   ![pic-9](./Pictures/stack-pic-14.png)
 
-#### ***6. Secrets manager secret creation:***
+#### ***7. Secrets manager secret creation:***
 
 * Several secrets are required during the creation of all resources in this project. Some are generated during stack deployment, while others need to be created beforehand. Below are the secrets that must be created prior to stack deployment, as the information they hold is essential for the process
 * For more information on creating secrets in Secrets Manager, please refer to the following [documentation](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html)
@@ -156,28 +173,22 @@
 
   ![pic-9](./Pictures/stack-pic-17.png)
 
-### HOW TO DEPLOY THE INFRASTRUCTURE:
+### ORDER OF STACK DEPLOYMENT:
 
-* The resources on this project are deployed in 3 steps. There are 3 folders containing the yaml files for deployment of all the resources for each step. They are:
-  * Initiate Account folder:
-    * This folder contains the yaml files for creation of the foundation resources such as vpc, subnet, internet gateway, nat gateway etc. Most resources to be created will have a depenedency on these so ensure that there are no errors during this process
-    * Onboard-resources folder:
-      * This folder contains the yaml files for creation for the compute resources such as the app, web and database servers and much more
-    * Cots-tools folder:
-      * This folder contains the yaml files for the creation of support resources such as windows file share (fsx), linux file share (efs), instance scheduler and more
-    * SSM-Docs folder:
-      * This folder contains all the system manager document needed for the project
+* The resources in this project are deployed in three steps. There are three folders containing the YAML files for the deployment of all resources for each step. They are:
+  * ***Initiate Account folder***:
 
-###### *SSM Parameter creation:*
+    * This folder contains the YAML files for creating foundational resources such as VPCs, subnets, internet gateways, NAT gateways, and more. Most resources that will be created will depend on these, so make sure there are no errors during this process.
+  * ***Onboard-resources folder:***
 
-###### *SSM Document creation:*
+    * This folder contains the YAML files for the creation of compute resources, including application servers, web servers, database servers, and more.
+  * ***Cots-tools folder:***
 
-###### *Create a route 53 domain:*
+    * This folder contains the YAML files for creating support resources, including Windows File Shares (FSx), Linux File Shares (EFS), instance schedulers, and more.
+  * ***SSM-Docs folder:***
 
-* A domain is needed to house all the dns records that will be created during the project. PLease see [Register a new domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) on how to create a new domain in aws route 53
-* Once the domain has been created and verifed create a public hosted zone. Please see [Creating a public hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) on how to create a public hosted zone.
-* Once done add the hosted zone Id to the main.yaml file in the Initiate-Account and Onboard-resources as shown below
+    * This folder contains all the Systems Manager documents required for the project.
 
-  ![pic-8](./Pictures/stack-pic-8.png)
+### DEPLOYING  THE STACKS:
 
-![pic-9](./Pictures/stack-pic-9.png)
+* Please see belwo on steps on how to deploy all the stacks for the project.
