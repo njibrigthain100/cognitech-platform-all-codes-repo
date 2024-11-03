@@ -215,19 +215,21 @@ The following preconditions will have to be met for succesfull completion of the
 #### ACCESSING THE ACTIVE DIRECTORY SERVER FOR CONFIGURATIONS:
 
 * This step must be completed before launching the next set of stacks, as they depend on the configurations made here
-* The Active Directory master server has been configured as a domain controller and therefore contains all the necessary packages for Active Directory managemen
+* The Active Directory master server has been configured as a domain controller and therefore contains all the necessary packages for Active Directory management
 * All users, groups and GPOs (group policy objects) will be created from this server.
 * Access to the servers can only be obtained through the bastions. There are two bastions: one for SSH and another for RDP
 * RDP bastions are designated for Windows access, and SSH bastions are for Linux access. However, we will be using the SSH bastion to tunnel into our Windows servers, since RDP bastions can only support two concurrent users with a licensePlease, whereas SSH bastions can handle around 50 users at once
 * See below for instructions on access and active dircetory setup
 
-  ***ACCESS THROUGH RDP BASTION:***
+###### **ACCESS THROUGH RDP BASTION:**
 
-  ![pic-1](./Pictures/init-pic-1.png)
+- See below on how to access the servers using the rdp bastion
 
-  ![pic-2](./Pictures/init-pic-2.png)
+![pic-1](./Pictures/init-pic-1.png)
 
-  ![pic-3](./Pictures/init-pic-3.png)
+![pic-2](./Pictures/init-pic-2.png)
+
+![pic-3](./Pictures/init-pic-3.png)
 
 ![pic-4](./Pictures/init-pic-4.png)
 
@@ -243,7 +245,7 @@ The following preconditions will have to be met for succesfull completion of the
 
 ![pic-10](./Pictures/init-pic-10.png)
 
-***ACCESS THROUGH SSH BASTION:***
+###### **ACCESS THROUGH SSH BASTION:**
 
 * Access through the SSH bastion is achieved using PuTTY and requires tunneling. Please see below for instructions on how to tunnel into a server using PuTTY
 
