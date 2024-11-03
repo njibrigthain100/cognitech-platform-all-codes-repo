@@ -1,4 +1,3 @@
-### 
     DEPLOYING A 3 TIER ARCHITECTURE AND SUPPORTING SERVICES USING CLOUDFORMATION NESTED STACKS
 
 ![1727753012796](image/README/1727753012796.png)
@@ -70,66 +69,69 @@
 
 ### PREREQUISITES:
 
-- The following preconditions will have to be met for succesfull completion of the project:
 
-  #### 1. *Cloning the repo:*
+The following preconditions will have to be met for succesfull completion of the project:
+
+#### 1. *Cloning the repo:*
+
+* The repository is available [here](https://github.com/njibrigthain100/cognitech-platform-all-codes-repo) and contains all the necessary stacks for the project. You can refer to this [Git cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf) for frequently used github commands
+* After successfully cloning the repository, download all files and folders from the IAC\Cloudformation\Infrastructure\Nested-Stacks directory.
+
+#### ***2. S3 bucket creation:***
+
+* All resources for stack creation are going to be stored in an s3 bucket. Please see [here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/GetStartedWithS3.html) on how to create an s3 bucket.
+* Create multiple folders as shown below in the bucket. These folders will be used to store the yaml files for resource creation
+  ![pic-1](./Pictures/stack-pic-1.png)
+* The above folders have to be named exactly as shown as these are referenced in the cloudformation templates.
+* For each of the above folders upload all the files in the corresponfing folders from the github repository that was downloaded in the first step. For instance all files in Initiate account from the github repository should be uploaded to the Initiate-Account in the s3 bucket folder as shown below.
+
+  ![pic-9](./Pictures/stack-pic-12.png)
+* now add the name of the s3 bucket to the main.yaml file in each of the folders as shown below:
+  ![pic-2](./Pictures/stack-pic-2.png)
+
+#### ***3. Parameter creation:***
+
+* To streamline the process and avoid repeatedly referencing commonly used parameters across multiple templates, we will store them in the parameter store. The parameters include::
+* /standard/AWSAccount
+* /standard/AWSAccountLC
+* /standard/SharedServicesVpc
+* Below are the steps to create a parameter in AWS Systems Manager Parameter Store and how to integrate it into your CloudFormation template:
+
+  ![pic-3](./Pictures/stack-pic-3.png)
+
+  ![pic-4](./Pictures/stack-pic-4.png)
+
+  ![pic-5](./Pictures/stack-pic-5.png)
+
+  ![pic-6](./Pictures/stack-pic-6.png)
+
+####  **4. System manager document creation:**
+
+* The Systems Manager documents serve various purposes, such as domain joining newly created instances and adding new Linux servers to the sudoers file. These documents are created via CLI commands, as demonstrated below.
+* All SSM documents are located in the SSM-Doc folder.
+* After downloading all files and folders to your local machine, navigate to the SSM-Docs directory and run the following commands to create the documents
+* LinuxCloudAdmins:
+
+```bash
+  aws ssm create-document --content file://CloudAdminSudoersFile.yaml --name "LinuxCloudAdmins" --document-type "Command" --document-format YAML
+```
+
+* LinuxPackageInstall:
+
+```bash
+  aws ssm create-document --content file://Linuxpackageinstall.yaml --name "Linuxpackageinstall" --document-type "Command" --document-format YAML
+```
+
+* AWXInstallation:
+
+```bash
+  aws ssm create-document --content file://awx.yaml --name "awxinstallation" --document-type "Command" --document-format YAML
+```
+
+![pic-7](./Pictures/stack-pic-7.png)
 
 
-  * The repository is available [here](https://github.com/njibrigthain100/cognitech-platform-all-codes-repo) and contains all the necessary stacks for the project. You can refer to this [Git cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf) for frequently used github commands
-  * After successfully cloning the repository, download all files and folders from the IAC\Cloudformation\Infrastructure\Nested-Stacks directory.
-
-  #### ***2. S3 bucket creation:***
-
-  * All resources for stack creation are going to be stored in an s3 bucket. Please see [here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/GetStartedWithS3.html) on how to create an s3 bucket.
-  * Create multiple folders as shown below in the bucket. These folders will be used to store the yaml files for resource creation
-    ![pic-1](./Pictures/stack-pic-1.png)
-  * The above folders have to be named exactly as shown as these are referenced in the cloudformation templates.
-  * For each of the above folders upload all the files in the corresponfing folders from the github repository that was downloaded in the first step. For instance all files in Initiate account from the github repository should be uploaded to the Initiate-Account in the s3 bucket folder as shown below.
-
-    ![pic-9](./Pictures/stack-pic-12.png)
-  * now add the name of the s3 bucket to the main.yaml file in each of the folders as shown below:
-    ![pic-2](./Pictures/stack-pic-2.png)
-
-  #### ***3. Parameter creation:***
-
-  * To streamline the process and avoid repeatedly referencing commonly used parameters across multiple templates, we will store them in the parameter store. The parameters include::
-  * /standard/AWSAccount
-  * /standard/AWSAccountLC
-  * /standard/SharedServicesVpc
-  * Below are the steps to create a parameter in AWS Systems Manager Parameter Store and how to integrate it into your CloudFormation template:
-
-    ![pic-3](./Pictures/stack-pic-3.png)
-
-    ![pic-4](./Pictures/stack-pic-4.png)
-
-    ![pic-5](./Pictures/stack-pic-5.png)
-
-    ![pic-6](./Pictures/stack-pic-6.png)
-
-  #### ***4. System manager document creation:***
-
-  * The Systems Manager documents serve various purposes, such as domain joining newly created instances and adding new Linux servers to the sudoers file. These documents are created via CLI commands, as demonstrated below.
-  * All SSM documents are located in the SSM-Doc folder.
-  * After downloading all files and folders to your local machine, navigate to the SSM-Docs directory and run the following commands to create the documents
-  * LinuxCloudAdmins:
-
-    ```bash
-      aws ssm create-document --content file://CloudAdminSudoersFile.yaml --name "LinuxCloudAdmins" --document-type "Command" --document-format YAML
-    ```
-  * LinuxPackageInstall:
-
-    ```bash
-      aws ssm create-document --content file://Linuxpackageinstall.yaml --name "Linuxpackageinstall" --document-type "Command" --document-format YAML
-    ```
-  * AWXInstallation:
-
-    ```bash
-      aws ssm create-document --content file://awx.yaml --name "awxinstallation" --document-type "Command" --document-format YAML
-    ```
-
-    ![pic-7](./Pictures/stack-pic-7.png)
-
-#### *5. Route 53 domain creation:*
+####  *5. Route 53 domain creation:*
 
 * A domain is needed to house all the dns records that will be created during the project. Please see [Register a new domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) on how to create a new domain in aws route 53
 * Once the domain has been created and verifed create a public hosted zone. Please see [Creating a public hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) on how to create a public hosted zone.
@@ -266,16 +268,5 @@
 ![pic-20](./Pictures/init-pic-20.png)
 
 ![pic-21](./Pictures/init-pic-21.png)
-
-
-
-
-
-
-
-
-
-
-
 
 ---
