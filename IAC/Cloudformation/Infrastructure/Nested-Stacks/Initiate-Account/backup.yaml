@@ -25,10 +25,11 @@ Resources:
         BackupPlanRule:
           - RuleName: daily-backups
             TargetBackupVault: !Ref 'rNestedBackupVault'
-            ScheduleExpression: cron(0 5 ? * * *)
+            ScheduleExpression: cron(0 * * * ? *)  #cron(0 5 ? * * *)
             StartWindowMinutes: 60
+            CompletionWindowMinutes: 120
             Lifecycle:
-              DeleteAfterDays: 60
+              DeleteAfterDays: 7
 
   rNestedBackupVault:
     Type: AWS::Backup::BackupVault
