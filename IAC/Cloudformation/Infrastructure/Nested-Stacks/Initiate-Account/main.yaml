@@ -932,7 +932,7 @@ Resources:
         pMaintenanceWindowSchedule: !Ref pMaintenanceWindowSchedule
 
 ###################################AWS Backup#################################################################
-  rSSMMaintenanceWindow:
+  rAWSBackup:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://${pBucketName}.s3.amazonaws.com/Initiate-Accounts/backup.yaml
