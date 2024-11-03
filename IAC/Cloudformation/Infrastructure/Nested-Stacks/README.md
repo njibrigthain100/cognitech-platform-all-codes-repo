@@ -192,3 +192,65 @@
 ### DEPLOYING  THE STACKS:
 
 * Please see belwo on steps on how to deploy all the stacks for the project.
+
+![pic-1](./Pictures/cfn-pic-1.png)
+
+![pic-2](./Pictures/cfn-pic-2.png)
+
+![pic-3](./Pictures/cfn-pic-3.png)
+
+![pic-4](./Pictures/cfn-pic-4.png)
+
+![pic-5](./Pictures/cfn-pic-5.png)
+
+![pic-6](./Pictures/cfn-pic-6.png)
+
+* You should see the following resources upon succesful deployment of the stacks:
+  * An app and shared services vpc with 2 private and 2 public subnets in each vpc
+  * 4 ealstic Ip, 4 Nategateway and 2 internet gateway
+  * 1 rdp and 1 ssh bastion
+  * 1 active directory server
+  * IAM roles for active directory and bastions
+  * Security groups for bastions and active directory server
+  * AWS Backup
+  * System manager maintenance window
+  * Directory service
+  * Secrets for Linux server domain join
+  * SSM associations for domain join, linux package install, linux user addition to sudoers file and awx installation
+  * Transit gateway for vpc peering between both vpcs
+  * DNS records for active directory master, rdp and ssh bastions
+
+#### ACCESSING THE ACTIVE DIRECTORY SERVER FOR CONFIGURATIONS:
+
+* This step must be completed before launching the next set of stacks, as they depend on the configurations made here
+* The Active Directory master server has been configured as a domain controller and therefore contains all the necessary packages for Active Directory managemen
+* All users, groups and GPOs (group policy objects) will be created from this server.
+* Access to the servers can only be obtained through the bastions. There are two bastions: one for SSH and another for RDP
+* RDP bastions are designated for Windows access, and SSH bastions are for Linux access. However, we will be using the SSH bastion to tunnel into our Windows servers, since RDP bastions can only support two concurrent users with a licensePlease, whereas SSH bastions can handle around 50 users at once
+* See below for instructions on access and active dircetory setup
+
+  ***ACCESS THROUGH RDP BASTION:***
+
+  ![pic-1](./Pictures/init-pic-1.png)
+
+  ![pic-2](./Pictures/init-pic-2.png)
+
+    ![pic-3](./Pictures/init-pic-3.png)
+
+![pic-4](./Pictures/init-pic-4.png)
+
+![pic-5](./Pictures/init-pic-5.png)
+
+![pic-6](./Pictures/init-pic-6.png)
+
+![pic-7](./Pictures/init-pic-7.png)
+
+![pic-8](./Pictures/init-pic-8.png)
+
+![pic-9](./Pictures/init-pic-9.png)
+
+![pic-10](./Pictures/init-pic-10.png)
+
+***ACCESS THROUGH SSH BASTION:***
+
+* Access through the SSH bastion is achieved using PuTTY and requires tunneling. Please see below for instructions on how to tunnel into a server using PuTTY
