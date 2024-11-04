@@ -258,49 +258,49 @@ Resources:
       InstanceId: !Ref rLinuxWebserver02
       VolumeId: !Ref rLinuxWebserver2Volume
 
-  rLinuxAWX:
-    Type: AWS::EC2::Instance
-    Properties: 
-      IamInstanceProfile: !Ref pWebServerInstanceProfile
-      ImageId: !Ref pUbuntu24AmiId
-      InstanceType: !FindInMap 
-        - mAccountVariables
-        - !Ref AWS::AccountId 
-        - pInstanceType
-      KeyName: !FindInMap 
-        - mAccountVariables
-        - !Ref AWS::AccountId 
-        - pKeyPair
-      SecurityGroupIds: 
-        - !Ref pLinuxWebServerSecurityGroup
-      SubnetId: !Ref pWebServerPrivateSubnetId
-      Tags: 
-        - Key: Name 
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx
-        - Key: backup
-          Value: !Sub ${ AWS::Region}-daily 
-        - Key: Patch Group
-          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux 
-        - Key: Cost Center 
-          Value: 1.0.0.1
-        - Key: DNSSuffix 
-          Value: kahbrigthllc.com
-        - Key: DNSHostName 
-          Value: !Sub ${ pAwsAccountLC }lapp 
-        - Key: Type  
-          Value: Web
-        - Key: DomainJoin
-          Value: yes
-        - Key: PatchGroup 
-          Value: Linux-PatchGroup
-        - Key: Schedule 
-          Value: !Sub ${ pAwsAccount }-${ pAppName }-App
-        - Key: awxinstall
-          Value: yes
-        - Key: Linuxpackageinstall
-          Value: yes
-        - Key: SudoersFile
-          Value: yes
+  # rLinuxAWX:
+  #   Type: AWS::EC2::Instance
+  #   Properties: 
+  #     IamInstanceProfile: !Ref pWebServerInstanceProfile
+  #     ImageId: !Ref pUbuntu24AmiId
+  #     InstanceType: !FindInMap 
+  #       - mAccountVariables
+  #       - !Ref AWS::AccountId 
+  #       - pInstanceType
+  #     KeyName: !FindInMap 
+  #       - mAccountVariables
+  #       - !Ref AWS::AccountId 
+  #       - pKeyPair
+  #     SecurityGroupIds: 
+  #       - !Ref pLinuxWebServerSecurityGroup
+  #     SubnetId: !Ref pWebServerPrivateSubnetId
+  #     Tags: 
+  #       - Key: Name 
+  #         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx
+  #       - Key: backup
+  #         Value: !Sub ${ AWS::Region}-daily 
+  #       - Key: Patch Group
+  #         Value: !Sub ${ pAwsAccount }-${ AWS::Region}-Linux 
+  #       - Key: Cost Center 
+  #         Value: 1.0.0.1
+  #       - Key: DNSSuffix 
+  #         Value: kahbrigthllc.com
+  #       - Key: DNSHostName 
+  #         Value: !Sub ${ pAwsAccountLC }lapp 
+  #       - Key: Type  
+  #         Value: Web
+  #       - Key: DomainJoin
+  #         Value: yes
+  #       - Key: PatchGroup 
+  #         Value: Linux-PatchGroup
+  #       - Key: Schedule 
+  #         Value: !Sub ${ pAwsAccount }-${ pAppName }-App
+  #       - Key: awxinstall
+  #         Value: yes
+  #       - Key: Linuxpackageinstall
+  #         Value: yes
+  #       - Key: SudoersFile
+  #         Value: yes
   
   rWindowsWebserver01:
     Type: AWS::EC2::Instance
