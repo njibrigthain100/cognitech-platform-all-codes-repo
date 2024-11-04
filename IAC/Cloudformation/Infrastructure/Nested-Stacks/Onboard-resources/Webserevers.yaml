@@ -496,11 +496,11 @@ Outputs:
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-ip-02
 
-  oLinuxAWXIP:
-    Description: The instance IP of the AWX server
-    Value: !GetAtt  rLinuxAWX.PrivateIp
-    Export:
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-ip
+  # oLinuxAWXIP:
+  #   Description: The instance IP of the AWX server
+  #   Value: !GetAtt  rLinuxAWX.PrivateIp
+  #   Export:
+  #     Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-ip
 
   oWindowsWebServerIP01:
     Description: The instance IP of the first windows webserver
