@@ -524,7 +524,6 @@ Parameters:
     Description: The awx alb security group
     Type: String
 
-
   pAWXVPCId:
     Description: The Id of the AWX VPC
     Type: String
@@ -687,6 +686,7 @@ Resources:
       TimeoutInMinutes: 20
       Parameters: 
         pAppName: !Ref pAppName
+        pAWXVPCId: !Ref pAWXVPCId
         pSharedServicesVPCCidr: !Ref pSharedServicesVPCCidr
         pVpcid: 
           Fn::ImportValue:
