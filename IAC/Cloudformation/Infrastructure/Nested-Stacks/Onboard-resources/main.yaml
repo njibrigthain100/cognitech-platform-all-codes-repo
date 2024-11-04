@@ -438,6 +438,7 @@ Parameters:
   pLinuxTarget3:
     Description: The ubuntu linux instance ID behind the target group
     Type: String
+    Default: i-021a369f2b5591254
   
   pTargetType:
     Description: The type of target that you must specify when registering targets with this target group
@@ -768,10 +769,7 @@ Resources:
           Fn::GetAtt: 
             - rWebServers
             - Outputs.oLinuxWebServerInstanceId01
-        pLinuxTarget3: 
-          Fn::GetAtt: 
-            - rWebServers
-            - Outputs.oLinuxawxInstanceId
+        pLinuxTarget3: !Ref pLinuxTarget3
         pWindowsTarget1: 
           Fn::GetAtt: 
             - rWebServers

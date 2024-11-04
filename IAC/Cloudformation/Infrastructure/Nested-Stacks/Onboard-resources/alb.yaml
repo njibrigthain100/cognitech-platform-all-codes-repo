@@ -65,7 +65,7 @@ Parameters:
     Type: String
 
   pLinuxTarget3:
-    Description: The ubuntu linux instance ID behind the target group
+    Description: The instance Id of the awx server
     Type: String
 
   pWindowsTarget1:
@@ -192,14 +192,14 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
       HealthCheckPath: !Ref pHealthCheckPath
-      HealthCheckPort: '30080'
-      HealthCheckProtocol: HTTP
+      HealthCheckPort: '443'
+      HealthCheckProtocol: HTTPS
       HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
       HealthyThresholdCount: !Ref pHealthyThresholdCount
       Matcher: 
         HttpCode: '200,302'
       Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
-      Port: '30080'
+      Port: '443'
       Protocol: !Ref pProtocol
       TargetGroupAttributes: 
         - Key: deregistration_delay.timeout_seconds 

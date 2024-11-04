@@ -69,7 +69,6 @@
 
 ### PREREQUISITES:
 
-
 The following preconditions will have to be met for succesfull completion of the project:
 
 #### 1. *Cloning the repo:*
@@ -105,7 +104,7 @@ The following preconditions will have to be met for succesfull completion of the
 
   ![pic-6](./Pictures/stack-pic-6.png)
 
-####  **4. System manager document creation:**
+#### **4. System manager document creation:**
 
 * The Systems Manager documents serve various purposes, such as domain joining newly created instances and adding new Linux servers to the sudoers file. These documents are created via CLI commands, as demonstrated below.
 * All SSM documents are located in the SSM-Doc folder.
@@ -130,8 +129,7 @@ The following preconditions will have to be met for succesfull completion of the
 
 ![pic-7](./Pictures/stack-pic-7.png)
 
-
-####  *5. Route 53 domain creation:*
+#### *5. Route 53 domain creation:*
 
 * A domain is needed to house all the dns records that will be created during the project. Please see [Register a new domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) on how to create a new domain in aws route 53
 * Once the domain has been created and verifed create a public hosted zone. Please see [Creating a public hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) on how to create a public hosted zone.
@@ -270,5 +268,101 @@ The following preconditions will have to be met for succesfull completion of the
 ![pic-20](./Pictures/init-pic-20.png)
 
 ![pic-21](./Pictures/init-pic-21.png)
+
+###### CONFIGURING THE AD MASTER SERVER:
+
+* Several configurations must be completed on the domain controller before deploying the next set of stacks, as the servers created during this phase will inherit these configuration changes. The adjustments made will include...:
+  * Creating AD users and adding them to groups
+  * creating a GPO to allow remote RDP access to the newly created servers
+  * adding the CloudAdmins groups to the local administrator group and the CloudUsers to the local user groups
+  * See below on how to accomplish all 3 steps
+
+![pic-1](./Pictures/ad-pic-1.png)
+
+![pic-2](./Pictures/ad-pic-2.png)
+
+![pic-3](./Pictures/ad-pic-3.png)
+
+![pic-4](./Pictures/ad-pic-4.png)
+
+![pic-5](./Pictures/ad-pic-5.png)
+
+![pic-6](./Pictures/ad-pic-6.png)
+
+![pic-7](./Pictures/ad-pic-7.png)
+
+![pic-8](./Pictures/ad-pic-8.png)
+
+![pic-9](./Pictures/ad-pic-9.png)
+
+![pic-10](./Pictures/ad-pic-10.png)
+
+![pic-11](./Pictures/ad-pic-11.png)
+
+![pic-12](./Pictures/ad-pic-12.png)
+
+![pic-13](./Pictures/ad-pic-13.png)
+
+![pic-14](./Pictures/ad-pic-14.png)
+
+![pic-15](./Pictures/ad-pic-15.png)
+
+![pic-16](./Pictures/ad-pic-16.png)
+
+![pic-17](./Pictures/ad-pic-17.png)
+
+![pic-18](./Pictures/ad-pic-18.png)
+
+![pic-19](./Pictures/ad-pic-19.png)
+
+![pic-20](./Pictures/ad-pic-20.png)
+
+![pic-21](./Pictures/ad-pic-21.png)
+
+![pic-22](./Pictures/ad-pic-22.png)
+
+![pic-23](./Pictures/ad-pic-23.png)
+
+![pic-24](./Pictures/ad-pic-24.png)
+
+![pic-25](./Pictures/ad-pic-25.png)
+
+![pic-26](./Pictures/ad-pic-26.png)
+
+![pic-27](./Pictures/ad-pic-27.png)
+
+![pic-28](./Pictures/ad-pic-28.png)
+
+![pic-29](./Pictures/ad-pic-29.png)
+
+![pic-30](./Pictures/ad-pic-30.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
