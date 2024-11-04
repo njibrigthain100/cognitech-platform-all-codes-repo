@@ -65,11 +65,15 @@ Metadata: # This is putr in an s3 bucket
         - palbscheme
         - palbsubnet1
         - palbsubnet2
+        - palbsubnet3
+        - palbsubnet4
         - palbsecuritygroup
+        - pawxalbsecuritygroup
         - palbcertificate
         - pSslPolicy
         - palbport
         - palbprotocol
+        - pAWXVPCId
     - Label:
         default: "DNS configuration" 
       Parameters: 
@@ -206,6 +210,14 @@ Metadata: # This is putr in an s3 bucket
         default: palbport
       palbprotocol: 
         default: palbprotocol
+      palbsubnet3: 
+        default:  palbsubnet3
+      palbsubnet4:
+        default:  palbsubnet4
+      pawxalbsecuritygroup:
+        default: pawxalbsecuritygroup
+      pAWXVPCId:
+        default: pAWXVPCId
 
 #########################################DNS######################################
       pHostedZoneId: 
@@ -498,6 +510,26 @@ Parameters:
     Type: String
     Default: HTTPS
 
+  palbsubnet3:
+    Description: The first awx alb subnet
+    Type: String
+    Default: subnet-def3aad0
+
+  palbsubnet4:
+    Description: The second awx alb subnet
+    Type: String
+    Default: subnet-37ff9851
+
+  pawxalbsecuritygroup:
+    Description: The awx alb security group
+    Type: String
+
+
+  pAWXVPCId:
+    Description: The Id of the AWX VPC
+    Type: String
+    Default: vpc-9c53e0e1
+
 #############################################DNS######################################################
   pHostedZoneId:
     Description: The DNS hosted zone
@@ -761,6 +793,9 @@ Resources:
         pHealthyThresholdCount: !Ref pHealthyThresholdCount 
         pPort: !Ref pPort 
         pProtocol: !Ref pProtocol
+        palbsubnet3: !Ref palbsubnet3 
+        palbsubnet4: !Ref palbsubnet4
+        pAWXVPCId: !Ref pAWXVPCId
         pLinuxTarget1: 
           Fn::GetAtt: 
             - rWebServers
@@ -795,6 +830,10 @@ Resources:
           Fn::GetAtt: 
             - rSecurityGroupStack
             - Outputs.oNestedalbsg
+        pawxalbsecuritygroup:
+          Fn::GetAtt: 
+            - rSecurityGroupStack
+            - Outputs.oNestedawxalbsg
         palbcertificate: !Ref palbcertificate
         pSslPolicy: !Ref pSslPolicy
         palbport: !Ref palbport 

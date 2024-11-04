@@ -29,6 +29,10 @@ Parameters:
   pSharedServicesVPCCidr:
     Type: String
     Default: 10.1.2.0/24
+  
+  pAWXVPCId:
+    Description: The Id of the AWX VPC
+    Type: String
 
 
 
@@ -54,6 +58,29 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
       VpcId: !Ref pVpcid 
+
+#############################AWX ALB Security group#############################
+  rNestedawxalbsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: The awx alb security group  
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-awx-alb-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: "Allow HTTPS access from the internet"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: "Allow HTTP access from the internet"
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-awx-alb-sg
+      VpcId: !Ref pAWXVPCId
+
  ############################NLB Security group################################## 
   rNestednlbsg:
     Type: AWS::EC2::SecurityGroup
@@ -225,14 +252,6 @@ Resources:
               - GroupId
           Description: "Allow HTTP access from the ALB"
         - IpProtocol: tcp
-          FromPort: 30080
-          ToPort: 30080
-          SourceSecurityGroupId: 
-            Fn::GetAtt:
-              - rNestedalbsg
-              - GroupId
-          Description: "Allow HTTP access from ALB on port 30080 for AWX"
-        - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: 
@@ -252,6 +271,34 @@ Resources:
         - Key: Name 
           Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
       VpcId: !Ref pVpcid
+
+#############################AWX Web server security group##############################
+  rNestedawxlinuxwebserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for the linux web server 
+      GroupName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-awx-server-sg
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedawxalbsg
+              - GroupId
+          Description: "Allow HTTPS access from the AWX ALB"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: 
+            Fn::GetAtt:
+              - rNestedawxalbsg
+              - GroupId
+          Description: "Allow HTTP access from the AWX ALB" 
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-awx-server-sg
+      VpcId: !Ref pAWXVPCId
   
   ###########################Windows database Security group######################
   rNestedwindowsdatabaseserversg:
@@ -294,6 +341,12 @@ Outputs:
     Value: !Ref rNestedalbsg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-alb-sg
+
+  oNestedawxalbsg:
+    Description: The awx alb security group Id
+    Value: !Ref rNestedawxalbsg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-awx-alb-sg
   
   oNestednlbsg:
     Description: The nlb security group Id 
@@ -312,6 +365,12 @@ Outputs:
     Value: !Ref rNestedlinuxwebserversg
     Export: 
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-web-server-sg
+
+  oNestedawxlinuxwebsg:
+    Description: The awx webserver security group Id 
+    Value: !Ref rNestedawxlinuxwebserversg
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-L-awx-server-sg
 
   oNestedlinuxAppsg:
     Description: The linux Appserver security group Id 

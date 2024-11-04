@@ -337,6 +337,20 @@ The following preconditions will have to be met for succesfull completion of the
 
 ![pic-30](./Pictures/ad-pic-30.png)
 
+* Once all steps have been completed, proceed to deploy the set of stacks in the 'onboard-resources' folder.
+
+###### STACK DEPLOYMENT FOR ONBOARD-RESOURCES:
+
+* The onboard resources stack should only be launched after all the configurations have been done in the AD master server. Once succesfully deployed the follwing resources will be launched:
+  * An ALB with serveral listener rules
+  * one windows database server
+  * DNS Records for the alb and nlb
+  * IAM profile for App, Web and Database server
+  * One NLB for database access
+  * Securty group for App, Web and database servers
+  * One Linux and one windows App server
+  * 2 Linux and 2 windows web servers
+
 
 
 

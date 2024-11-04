@@ -84,6 +84,10 @@ Parameters:
   pApp1VPCId:
     Description: The Id of the App1 VPC
     Type: String
+
+  pAWXVPCId:
+    Description: The Id of the AWX VPC
+    Type: String
   
   pdeletionprotectionenabled:
     Description: Indicates whether deletion protection is enabled
@@ -112,9 +116,21 @@ Parameters:
   palbsubnet2:
     Description: The second alb subnet
     Type: String
+
+  palbsubnet3:
+    Description: The first awx alb subnet
+    Type: String
+
+  palbsubnet4:
+    Description: The second awx alb subnet
+    Type: String
   
   palbsecuritygroup:
     Description: The alb security group
+    Type: String
+
+  pawxalbsecuritygroup:
+    Description: The awx alb security group
     Type: String
   
   palbcertificate:
@@ -181,31 +197,6 @@ Resources:
           Value: '20'
       Targets: 
         - Id: !Ref pLinuxTarget2
-      TargetType: !Ref pTargetType
-      VpcId: !Ref pApp1VPCId
-      Tags: 
-        - Key: Name
-          Value: !Sub ${ pAwsAccount }-${ pAppName }-cobsine-alb-tg
-
-  rNestedawxTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
-      HealthCheckPath: !Ref pHealthCheckPath
-      HealthCheckPort: '443'
-      HealthCheckProtocol: HTTPS
-      HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
-      HealthyThresholdCount: !Ref pHealthyThresholdCount
-      Matcher: 
-        HttpCode: '200,302'
-      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
-      Port: '443'
-      Protocol: !Ref pProtocol
-      TargetGroupAttributes: 
-        - Key: deregistration_delay.timeout_seconds 
-          Value: '20'
-      Targets: 
-        - Id: !Ref pLinuxTarget3
       TargetType: !Ref pTargetType
       VpcId: !Ref pApp1VPCId
       Tags: 
@@ -317,7 +308,43 @@ Resources:
               - iis.kahbrigthllc.com
       ListenerArn: !Ref rNestedALBListener
       Priority: 9
-
+#############################################AWX ALB###########################################
+  rNestedAWXALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+       IpAddressType: ipv4
+       LoadBalancerAttributes:
+        - Key: deletion_protection.enabled
+          Value: !Ref pdeletionprotectionenabled        
+        - Key: access_logs.s3.enabled
+          Value: !Ref paccesslogss3enabled        
+       Name: !Sub ${ pAwsAccount }-${ pAppName }-AWX-alb
+       Scheme: !Ref palbscheme
+       Type: application
+       SecurityGroups: 
+         - !Ref pawxalbsecuritygroup
+       Subnets: 
+         - !Ref palbsubnet3 
+         - !Ref palbsubnet4
+       Tags: 
+        - Key: Name
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb 
+  
+  rNestedAWXALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+         Certificates: 
+           - CertificateArn: !Ref palbcertificate
+         DefaultActions: 
+            - Type: fixed-response
+              FixedResponseConfig:
+                ContentType: "text/plain"
+                MessageBody: "You've reached the kahbrightllc alb. Its working"
+                StatusCode: "503"
+         LoadBalancerArn: !Ref rNestedAWXALB
+         Port: !Ref palbport
+         Protocol: !Ref palbprotocol
+         SslPolicy: !Ref pSslPolicy 
   rNestedALBListenerLinuxRule4:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
@@ -329,8 +356,33 @@ Resources:
           HostHeaderConfig:
             Values:
               - awx.kahbrigthllc.com
-      ListenerArn: !Ref rNestedALBListener
-      Priority: 25
+      ListenerArn: !Ref rNestedAWXALBListener
+      Priority: 10
+
+  rNestedawxTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: !Ref pHealthCheckIntervalSeconds
+      HealthCheckPath: !Ref pHealthCheckPath
+      HealthCheckPort: '443'
+      HealthCheckProtocol: HTTPS
+      HealthCheckTimeoutSeconds: !Ref pHealthCheckTimeoutSeconds
+      HealthyThresholdCount: !Ref pHealthyThresholdCount
+      Matcher: 
+        HttpCode: '200,302'
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
+      Port: '443'
+      Protocol: !Ref pProtocol
+      TargetGroupAttributes: 
+        - Key: deregistration_delay.timeout_seconds 
+          Value: '20'
+      Targets: 
+        - Id: !Ref pLinuxTarget3
+      TargetType: !Ref pTargetType
+      VpcId: !Ref pAWXVPCId
+      Tags: 
+        - Key: Name
+          Value: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
 Outputs:
   oalbname:
     Description: The alb name
