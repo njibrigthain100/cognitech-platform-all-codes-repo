@@ -54,21 +54,55 @@ Signature: _________________________
 Date: _____________________________
 
 This offer letter outlines a formal and detailed job offer to EffulgenceTech. Let me know if you need to adjust any details!
+Fast Forward to Your Start Date
+You are now working with Dave, who has provided you with a tour of the environment. Due to recent layoffs, the team is facing a significant backlog, and Dave expects you to hit the ground running. Below are some of the key requests and tasks from your team:
 
-Fast forward to your start date, and you're now working with Dave, who has given you a tour of the environment. He expects you to hit the ground running, as the team has experienced several layoffs and is currently facing a backlog of tasks. Here are some of the requests made by your team
-1. The ETL team want a dedicated bucket for their application and does not want any other instance in the account getting access to this bucket. Can you please come up with a setup that can accomplish this?
-2. The WealthStream team is trying to move data from the stage to the prod account and vice versa as this data does not contain PHI. Can you please help them accomplish this? They will like to use an s3 bucket as they are used to this. 
-3. Dave noticed that you had created a new role to accomplish the task for the ETL team and was not too happy about this and will like you to use the current role they have in the account as that role might be overly permissive. Come up with a setup that accomplish the ETL team tasks. 
-4. Rakesh called you requesting your help copying the files using the above method you put together for the WealthStream team. Can you show him how to move files from stage to prod and prod to stage?
-5. Micheal is trying to copy a folder from the ETL server to an s3 bucket but is getting an error and will need your help. Upn looking you noticed that his folder name has spaces. How will you advice him to go about this? 
-6. Dave is currently on vacation and your manager Pat wants you to help with Jospehs onboarding to the account. He is a new cloud engineer who will need access to some accounts. He is still new to the environment and should only get READONLY access to 3 accounts in the organization. 
-Using IAM identity center please provide Joseph with access with all the accounts he needs to have access to (.ie INT, QA and Sandbox)
-7. You were asked to build a few servers and noticed that there is a long list of packages to install post build. These packages cannot be installed via user data as the images used are shared through the org and these packages are account specific. 
-Come up with a solution to automate this process not only for install based on os and also validation of package install. 
-8. During a call one of the team members from the dotnet team complains that he can no longer access the app page and is not sure what is happening. Please investigate and see if something happened?
-what steps will you take to find out what is happening?
-9. During your stand up call one of the team members from the cobsine app complains about being able to access the bastion using the dns name but is no longer able to do so. He says that he tried using the ip and was able to and was wondering if your could look into the issue. 
-10. For distaster recovery purposes the team wants to deploy 2 instances of each application behind the alb. using cloudformation can you create a second instance and place it behind the alb?
-Do this both for cobsine and dotnet. 
-11. One of the team members from the Window application complains that he no longer is able to see the IIS login page when vrowsing the URL. Can you track and find out what is happening? 
-12. 
+1. ETL Team – Dedicated S3 Bucket Setup
+The ETL team has requested a dedicated S3 bucket for their application. They want to ensure that no other instance in the account can access this bucket. Can you design a setup that achieves this level of isolation and security?
+
+2. WealthStream Team – Data Transfer Between Accounts
+The WealthStream team needs assistance with transferring data between their staging and production accounts. Since this data doesn't contain PHI, they would like to use an S3 bucket for the transfer, as they're familiar with this method. Can you help them establish this setup?
+
+3. ETL Role Optimization
+Dave noticed that you created a new IAM role for the ETL team’s tasks, which made him concerned about potential over-permissiveness. He prefers you to use an existing role in the account. Can you create a configuration that meets the ETL team’s needs while adhering to the current role's permissions?
+
+4. WealthStream File Transfer Guidance
+Rakesh has requested your help with copying files using the method you set up for the WealthStream team. Can you show him how to transfer files between the staging and production accounts?
+
+5. ETL Server – S3 Bucket File Transfer Issue
+Michael is trying to copy a folder from the ETL server to an S3 bucket but is encountering an error due to the folder name containing spaces. How would you advise him to resolve this issue?
+
+6. Joseph's Onboarding – IAM Identity Center Setup
+While Dave is on vacation, your manager Pat has asked you to assist with onboarding Joseph, a new cloud engineer. He requires READ-ONLY access to 3 accounts (INT, QA, and Sandbox). Using IAM Identity Center, please provide Joseph with the appropriate access.
+
+7. Post-Build Package Installation Automation
+You have been asked to build several servers, and there's a long list of account-specific packages that need to be installed post-build. Since the server images are shared across the organization, user data is not an option for this. Can you come up with a solution to automate both the installation and validation of these packages based on the OS?
+
+8. DotNet Application Access Issue
+During a team call, a member of the DotNet team mentioned they are no longer able to access the app page. Can you investigate what might be causing this issue? What steps would you take to troubleshoot and resolve it?
+
+9. Cobsine App – Bastion DNS Access Issue
+A team member from the Cobsine app team reported that they can no longer access the Bastion host using the DNS name, although they can still access it using the IP address. Can you investigate and resolve this issue?
+
+10. Disaster Recovery – ALB Setup for Multiple Instances
+For disaster recovery purposes, the team wants to deploy two instances of each application behind an ALB. Using CloudFormation, can you create a second instance for both the Cobsine and DotNet applications and place them behind the ALB?
+
+11. Windows Application – IIS Login Page Issue
+A team member from the Windows application team reported that they can no longer access the IIS login page when browsing the application URL. Can you track down the issue and determine what's happening?
+
+12. File Share for Windows Servers
+The Windows team is requesting a file share for their application, as they need to share data between servers. They prefer not to use S3, as they find it too complicated, and would rather stick with a traditional file share. Can you help set this up?
+
+13. Linux File Share Setup
+The Linux team has also requested a file share for their application and would like your assistance in setting up the appropriate solution. Can you help them implement a reliable file-sharing solution?
+
+14. Server Uptime – Cost Optimization
+Upon reviewing last month’s report, it was found that the company spent around $60k on server costs. The team only works until 5 PM EST, yet servers are being left on 24/7. Can you come up with a solution to reduce costs by shutting down non-essential servers after hours and starting them up during work hours?
+
+15. Server Patching – Automation
+Currently, server patching is done manually by an engineer every 3rd weekend. Dave mentioned that it's been difficult to find coverage when he's unavailable, and manual patching has resulted in errors. Can you develop an automated patching process to ensure timely updates without manual intervention?
+
+16. ALB ip issue 
+The testing team needed IPs for testing the application and they were given the alb ips as all the servers are sitting behind an alb. Today they are not able to reach the application but were able to do so a few days ago.
+Upon review you find out that the IPS that were given to the team has somehow changed. You checked with AWS and they tell you that the ips handed to the team was recycled yesterday and you cant get those back. You propose to give the team the new set 
+of ips but they complain about this happening again in the future. The team is waiting on you to come up with a solution. 
