@@ -351,11 +351,10 @@ Resources:
       Actions: 
         - Type: forward
           TargetGroupArn: !Ref rNestedawxTargetGroup
-      # Conditions: 
-      #   - Field: host-header
-      #     HostHeaderConfig:
-      #       Values:
-      #         - awx.kahbrigthllc.com
+      Conditions: 
+        - Field: path-pattern
+          Values:
+              - "/*"
       ListenerArn: !Ref rNestedAWXALBListener
       Priority: 10
 
@@ -372,7 +371,7 @@ Resources:
         HttpCode: '200,302'
       Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-tg
       Port: '443'
-      Protocol: !Ref pProtocol
+      Protocol: HTTPS
       TargetGroupAttributes: 
         - Key: deregistration_delay.timeout_seconds 
           Value: '20'
