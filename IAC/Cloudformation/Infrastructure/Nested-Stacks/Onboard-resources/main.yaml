@@ -451,7 +451,7 @@ Parameters:
     Type: String
 
   pLinuxTarget3:
-    Description: The ubuntu linux instance ID behind the target group
+    Description: The rhel-9 linux instance ID behind the target group
     Type: String
     Default: i-021a369f2b5591254
   

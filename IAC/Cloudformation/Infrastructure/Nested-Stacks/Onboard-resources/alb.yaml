@@ -351,11 +351,11 @@ Resources:
       Actions: 
         - Type: forward
           TargetGroupArn: !Ref rNestedawxTargetGroup
-      Conditions: 
-        - Field: host-header
-          HostHeaderConfig:
-            Values:
-              - awx.kahbrigthllc.com
+      # Conditions: 
+      #   - Field: host-header
+      #     HostHeaderConfig:
+      #       Values:
+      #         - awx.kahbrigthllc.com
       ListenerArn: !Ref rNestedAWXALBListener
       Priority: 10
 
