@@ -102,7 +102,5 @@ Upon reviewing last month’s report, it was found that the company spent around
 15. Server Patching – Automation
 Currently, server patching is done manually by an engineer every 3rd weekend. Dave mentioned that it's been difficult to find coverage when he's unavailable, and manual patching has resulted in errors. Can you develop an automated patching process to ensure timely updates without manual intervention?
 
-16. ALB ip issue 
-The testing team needed IPs for testing the application and they were given the alb ips as all the servers are sitting behind an alb. Today they are not able to reach the application but were able to do so a few days ago.
-Upon review you find out that the IPS that were given to the team has somehow changed. You checked with AWS and they tell you that the ips handed to the team was recycled yesterday and you cant get those back. You propose to give the team the new set 
-of ips but they complain about this happening again in the future. The team is waiting on you to come up with a solution. 
+16. ALB IP Address Issue – Solution for Testing Team
+The testing team was provided with the ALB’s IP addresses for testing the application. However, the IPs were recycled by AWS, and the team can no longer access the application. Although you propose providing the team with a new set of IPs, they are concerned about this happening again in the future. Can you come up with a more permanent solution that addresses their concerns about IP recycling?
