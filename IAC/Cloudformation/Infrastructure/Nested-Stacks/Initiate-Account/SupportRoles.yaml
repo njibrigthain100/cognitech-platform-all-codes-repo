@@ -116,7 +116,11 @@ Resources:
                 Action: 
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pSharedvpcLoggroup}:*
+                  - logs:CreateLogGroup
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: "*"
+                # !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pSharedvpcLoggroup}:*
 
 #####################################################App Vpc flow log role######################################
   rNestedAppVPCFlowLogRole:
@@ -144,7 +148,11 @@ Resources:
                 Action: 
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pAppvpcLoggroup}:*  
+                  - logs:CreateLogGroup
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: "*"
+                # !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pAppvpcLoggroup}:*  
 
 Outputs:
   oNestedADIAMRoleArn:

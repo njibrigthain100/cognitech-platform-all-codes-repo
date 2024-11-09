@@ -1,0 +1,74 @@
+You opened your email and noticed a message from the company you interviewed with two weeks ago. 
+Dear [Recipient's Name],
+
+I am pleased to formally extend an offer of employment to EffulgenceTech on behalf of [Your Company Name]. We are excited about the prospect of collaborating with a company that shares our values of innovation, integrity, and excellence, and we believe your expertise will contribute greatly to our mutual success.
+
+Position: [Position Title or Service Being Provided]
+Annual Compensation: $175,000
+This offer includes an annual salary of $175,000, paid bi-weekly. In addition to the competitive salary, EffulgenceTech will have access to a comprehensive suite of benefits, designed to support both your professional endeavors and your team’s well-being.
+
+Benefits Package:
+Health Benefits
+We are pleased to offer a robust health benefit plan, which includes:
+
+Comprehensive medical, dental, and vision coverage
+Mental health support services and wellness programs
+Access to telemedicine services
+Life insurance and disability coverage
+Retirement Plan
+We provide access to a [401(k)/Retirement Savings Plan] with employer-matched contributions to help you and your team plan for the future.
+
+Paid Vacation and Time Off
+Your team will enjoy three weeks of paid vacation each year, allowing for well-deserved time off to rest and recharge. In addition to vacation days, you will also have:
+
+Paid holidays in line with national standards
+Sick leave, personal days, and family care leave
+Additional time off may be accrued based on service tenure
+Professional Development
+We are committed to supporting continuous learning and growth. EffulgenceTech will receive opportunities to participate in workshops, conferences, and training programs to foster both individual and organizational development.
+
+Flexible Working Arrangements
+We understand the importance of work-life balance and provide flexible working hours, with the option for remote work when needed.
+
+Other Perks
+
+[Optional: Include any other perks, such as bonuses, stock options, or travel opportunities.]
+Company-sponsored events and outings to build camaraderie and teamwork
+Start Date:
+We are looking forward to initiating our partnership on [Start Date]. Please let us know if this date is suitable for your team or if you require any adjustments.
+
+Next Steps:
+To confirm your acceptance of this offer, please sign and return a copy of this letter by [Acceptance Deadline]. Should you have any questions or wish to discuss any aspect of the offer, feel free to reach out to me directly at [Your Contact Information].
+
+We are confident that EffulgenceTech will be a valuable addition to our operations, and we are excited about the future we can build together. Thank you for considering this opportunity.
+
+Sincerely,
+[Your Full Name]
+[Your Job Title]
+[Your Company Name]
+
+Acceptance of Offer:
+I, [Name], on behalf of EffulgenceTech, accept the terms of this offer as outlined above.
+
+Signature: _________________________
+Date: _____________________________
+
+This offer letter outlines a formal and detailed job offer to EffulgenceTech. Let me know if you need to adjust any details!
+
+Fast forward to your start date, and you're now working with Dave, who has given you a tour of the environment. He expects you to hit the ground running, as the team has experienced several layoffs and is currently facing a backlog of tasks. Here are some of the requests made by your team
+1. The ETL team want a dedicated bucket for their application and does not want any other instance in the account getting access to this bucket. Can you please come up with a setup that can accomplish this?
+2. The WealthStream team is trying to move data from the stage to the prod account and vice versa as this data does not contain PHI. Can you please help them accomplish this? They will like to use an s3 bucket as they are used to this. 
+3. Dave noticed that you had created a new role to accomplish the task for the ETL team and was not too happy about this and will like you to use the current role they have in the account as that role might be overly permissive. Come up with a setup that accomplish the ETL team tasks. 
+4. Rakesh called you requesting your help copying the files using the above method you put together for the WealthStream team. Can you show him how to move files from stage to prod and prod to stage?
+5. Micheal is trying to copy a folder from the ETL server to an s3 bucket but is getting an error and will need your help. Upn looking you noticed that his folder name has spaces. How will you advice him to go about this? 
+6. Dave is currently on vacation and your manager Pat wants you to help with Jospehs onboarding to the account. He is a new cloud engineer who will need access to some accounts. He is still new to the environment and should only get READONLY access to 3 accounts in the organization. 
+Using IAM identity center please provide Joseph with access with all the accounts he needs to have access to (.ie INT, QA and Sandbox)
+7. You were asked to build a few servers and noticed that there is a long list of packages to install post build. These packages cannot be installed via user data as the images used are shared through the org and these packages are account specific. 
+Come up with a solution to automate this process not only for install based on os and also validation of package install. 
+8. During a call one of the team members from the dotnet team complains that he can no longer access the app page and is not sure what is happening. Please investigate and see if something happened?
+what steps will you take to find out what is happening?
+9. During your stand up call one of the team members from the cobsine app complains about being able to access the bastion using the dns name but is no longer able to do so. He says that he tried using the ip and was able to and was wondering if your could look into the issue. 
+10. For distaster recovery purposes the team wants to deploy 2 instances of each application behind the alb. using cloudformation can you create a second instance and place it behind the alb?
+Do this both for cobsine and dotnet. 
+11. One of the team members from the Window application complains that he no longer is able to see the IIS login page when vrowsing the URL. Can you track and find out what is happening? 
+12. 
