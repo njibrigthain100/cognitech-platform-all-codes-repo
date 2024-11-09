@@ -1,9 +1,9 @@
 You opened your email and noticed a message from the company you interviewed with two weeks ago. 
 Dear [Recipient's Name],
 
-I am pleased to formally extend an offer of employment to EffulgenceTech on behalf of [Your Company Name]. We are excited about the prospect of collaborating with a company that shares our values of innovation, integrity, and excellence, and we believe your expertise will contribute greatly to our mutual success.
-
-Position: [Position Title or Service Being Provided]
+I am pleased to formally extend an offer of employment to EffulgenceTech. We are excited about the prospect of collaborating with a company that shares our values of innovation, integrity, and excellence, and we believe your expertise will contribute greatly to our mutual success.
+#############################################################################Offer Letter###########################################################################################################################
+Position: Senior Cloud engineer
 Annual Compensation: $175,000
 This offer includes an annual salary of $175,000, paid bi-weekly. In addition to the competitive salary, EffulgenceTech will have access to a comprehensive suite of benefits, designed to support both your professional endeavors and your team’s well-being.
 
@@ -38,14 +38,14 @@ Start Date:
 We are looking forward to initiating our partnership on [Start Date]. Please let us know if this date is suitable for your team or if you require any adjustments.
 
 Next Steps:
-To confirm your acceptance of this offer, please sign and return a copy of this letter by [Acceptance Deadline]. Should you have any questions or wish to discuss any aspect of the offer, feel free to reach out to me directly at [Your Contact Information].
+To confirm your acceptance of this offer, please sign and return a copy of this letter by 12/20/2024. Should you have any questions or wish to discuss any aspect of the offer, feel free to reach out to me directly at 3472570876.
 
 We are confident that EffulgenceTech will be a valuable addition to our operations, and we are excited about the future we can build together. Thank you for considering this opportunity.
 
 Sincerely,
-[Your Full Name]
-[Your Job Title]
-[Your Company Name]
+Brigthain Kargong
+Senior IT Talent Acquisition Specialist
+EffulgenceTech
 
 Acceptance of Offer:
 I, [Name], on behalf of EffulgenceTech, accept the terms of this offer as outlined above.
@@ -54,6 +54,7 @@ Signature: _________________________
 Date: _____________________________
 
 This offer letter outlines a formal and detailed job offer to EffulgenceTech. Let me know if you need to adjust any details!
+#####################################################################################################################################################################################################################
 Fast Forward to Your Start Date
 You are now working with Dave, who has provided you with a tour of the environment. Due to recent layoffs, the team is facing a significant backlog, and Dave expects you to hit the ground running. Below are some of the key requests and tasks from your team:
 
