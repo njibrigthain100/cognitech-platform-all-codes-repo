@@ -351,32 +351,11 @@ The following preconditions will have to be met for succesfull completion of the
   * One Linux and one windows App server
   * 2 Linux and 2 windows web servers
 
+###### STACK DEPLOYMENT FOR COTS-TOOLS:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* The COTS tool stack is deployed to provide support services for all of our resources. While these resources are not mission-critical, they remain essential for application deployment. The services include:
+  * An EFS for linux file sharing
+  * An FSX for windows file share
+  * Instance scheduler for scheduling our instances
 
 ---

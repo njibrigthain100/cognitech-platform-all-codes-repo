@@ -673,9 +673,9 @@ Resources:
           Fn::GetAtt: 
             - rSupportRoles 
             - Outputs.oNestedAppvpcflowlogRoleArn 
-        
-            
-  
+    DependsOn: 
+    - rSupportRoles
+         
   rSharedServicesVpcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -694,10 +694,12 @@ Resources:
             - ','
             - !Ref pSharedServicesAvailabilityZones
         pAppName: !Ref pAppName
-        pAppvpcLogRoleArn: 
+        pSharedvpcLogRoleArn: 
           Fn::GetAtt: 
             - rSupportRoles 
             - Outputs.oNestedSharedvpcflowlogRoleArn
+    DependsOn: 
+    - rSupportRoles
   
   rTransitGatewayStack:
     Type: AWS::CloudFormation::Stack
@@ -834,6 +836,8 @@ Resources:
       TimeoutInMinutes: 20
       Parameters:
         pAppName: !Ref pAppName
+        pSharedvpcLoggroup: !Ref pSharedvpcLoggroup
+        pAppvpcLoggroup: !Ref pAppvpcLoggroup
 
 ######################################SEcurity Group for Bastion and AD server#####################################################
   rSecurityGroupStack:
