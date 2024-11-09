@@ -16,6 +16,15 @@ Parameters:
     Type: String
     Default: cognitech
 
+  pSharedvpcLoggroup:
+    Description: The log group name for the shared services vpc
+    Type: String
+
+  pAppvpcLoggroup:
+    Description: The log group name for the app vpc
+    Type: String
+
+
 Resources: 
   rNestedADRole:
     Type: AWS::IAM::Role
@@ -80,7 +89,62 @@ Resources:
       Path: /
       Roles: 
         - Ref: rNestedBastionRole
-  
+
+#####################################################Shared Vpc flow log role######################################
+  rNestedSharedServicesVPCFlowLogRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      Comment: This role will be used to create and put log events for vpc flow log
+    Properties: 
+      RoleName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-${pSharedvpcLoggroup}-role
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: 
+              Service:
+                - !Sub vpc-flow-logs.${AWS::URLSuffix}
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-${pSharedvpcLoggroup}-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pSharedvpcLoggroup}:*
+
+#####################################################App Vpc flow log role######################################
+  rNestedAppVPCFlowLogRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      Comment: This role will be used to create and put log events for vpc flow log
+    Properties: 
+      RoleName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-${pAppvpcLoggroup}-role
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: 
+              Service:
+                - !Sub vpc-flow-logs.${AWS::URLSuffix}
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-${pAppvpcLoggroup}-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:${AWS::Partition}:logs:${ AWS::Region}:${AWS::AccountId}:log-group:${pAppvpcLoggroup}:*  
 
 Outputs:
   oNestedADIAMRoleArn:
@@ -118,4 +182,30 @@ Outputs:
     Value: !Ref rNestedBastionProfile
     Export: 
       Name: Nested-bastion-Instance-pfofile-Name
+
+  oNestedSharedvpcflowlogRoleArn:
+    Description: The arn of the shared services vpc role 
+    Value: !GetAtt rNestedSharedServicesVPCFlowLogRole.Arn
+    Export: 
+      Name: Nested-ss-vpc-flowlog-Role-Arn
+    
+  oNestedSharedvpcflowlogRoleName:
+    Description: The name of the shared services IAM role
+    Value: !Ref rNestedSharedServicesVPCFlowLogRole
+    Export: 
+      Name: Nested-ss-vpc-flowlog-Role-Name
+
+  oNestedAppvpcflowlogRoleArn:
+    Description: The arn of the app vpc role 
+    Value: !GetAtt rNestedAppVPCFlowLogRole.Arn
+    Export: 
+      Name: Nested-app-vpc-flowlog-Role-Arn
+    
+  oNestedAppvpcflowlogRoleName:
+    Description: The name of the app vpc role
+    Value: !Ref rNestedAppVPCFlowLogRole
+    Export: 
+      Name: Nested-app-vpc-flowlog-Role-Name  
+
+
   

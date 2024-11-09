@@ -90,6 +90,7 @@ Metadata: # This is putr in an s3 bucket
         - palbDNSName
         - pDomainNLBName
         - pnlbDNSName
+        - pawxalbDNSName
     - Label:
         default: "NLB configuration" 
       Parameters: 
@@ -246,6 +247,8 @@ Metadata: # This is putr in an s3 bucket
         default: pDomainNLBName 
       pnlbDNSName: 
         default: pnlbDNSName
+      pawxalbDNSName:
+        default: pawxalbDNSName
 
 ###########################################NLB###########################################
       pnlbscheme: 
@@ -589,6 +592,10 @@ Parameters:
     Description: The nlb dns name
     Type: String 
 
+  pawxalbDNSName:
+    Description: The  awx alb dns name
+    Type: String 
+
 #############################################NLB##############################################
   pnlbscheme:
     Description: The nlb scheme
@@ -914,6 +921,10 @@ Resources:
           Fn::GetAtt: 
             - rALB
             - Outputs.oalbdnsname
+        pawxalbDNSName:
+          Fn::GetAtt: 
+            - rALB
+            - Outputs.oawxalbdnsname
         pnlbDNSName:
           Fn::GetAtt: 
             - rNLB

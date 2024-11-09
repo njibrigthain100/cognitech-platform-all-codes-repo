@@ -466,11 +466,11 @@ Outputs:
     Export:
       Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-Web-Id-02
 
-  oLinuxawxInstanceId:
-    Description: The Id of the ubuntu server 
-    Value: !Ref rLinuxAWX
-    Export:
-      Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-Id
+  # oLinuxawxInstanceId:
+  #   Description: The Id of the ubuntu server 
+  #   Value: !Ref rLinuxAWX
+  #   Export:
+  #     Name: !Sub ${ pAwsAccount }-${ AWS::Region}-${ pAppName }-Linux-awx-Id
 
   oWindowsWebServerInstanceId01:
     Description: The Id of the windows Web server

@@ -69,6 +69,10 @@ Parameters:
   palbDNSName:
     Description: The alb dns name
     Type: String 
+
+  pawxalbDNSName:
+    Description: The  awx alb dns name
+    Type: String 
   
   pnlbDNSName:
     Description: The nlb dns name
@@ -148,7 +152,7 @@ Resources:
         Type: CNAME
         TTL: '900'
         ResourceRecords:
-          - !Ref palbDNSName
+          - !Ref pawxalbDNSName
 
   rNestedwindowsrecord:
       Type: 'AWS::Route53::RecordSet'

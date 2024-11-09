@@ -26,6 +26,10 @@ Metadata: # This is putr in an s3 bucket
         - pSharedServicesPublicSubnet1CIDR
         - pSharedServicesPublicSubnet2CIDR
         - pSharedServicesAvailabilityZones
+        - pSharedvpcLoggroup
+        - pSharedvpcLogRoleArn
+        - pAppvpcLoggroup
+        - pAppvpcLogRoleArn
     - Label:
         default: "Transit Gateway configurations" 
       Parameters: 
@@ -131,7 +135,11 @@ Metadata: # This is putr in an s3 bucket
       pPublicSubnet2CIDR: 
         default: pPublicSubnet2CIDR 
       pAvailabilityZones: 
-        default: pAvailabilityZones
+        default: pAvailabilityZones 
+      pAppvpcLoggroup:
+        default: pAppvpcLoggroup
+      pAppvpcLogRoleArn:
+        default: pAppvpcLogRoleArn
   ###########################App shared services parameter labels#################################
       pSharedServicesAccount: 
         default: pSharedServicesAccount
@@ -149,6 +157,10 @@ Metadata: # This is putr in an s3 bucket
         default: pSharedServicesAvailabilityZones
       pVpcid: 
         default: pVpcid 
+      pSharedvpcLoggroup:
+        default: pSharedvpcLoggroup
+      pSharedvpcLogRoleArn:
+        default: pSharedvpcLogRoleArn
 #############################Transit gateway parameter labels######################################
       pAmazonAsn: 
         default: pAmazonAsn
@@ -326,6 +338,15 @@ Parameters:
     Type: CommaDelimitedList
     Default: us-east-1a, us-east-1b
 
+  pAppvpcLoggroup:
+    Description: The log group name for the shared services vpc
+    Type: String
+    Default: App1loggroup
+
+  pAppvpcLogRoleArn:
+    Description: The arn of the role needed for vpc flow log access
+    Type: String  
+
 ########################## Shared services VPC parameters ######################################
   pSharedServicesAccount:
     Description: The shared services vpc name
@@ -368,6 +389,15 @@ Parameters:
   # Security Group parameters
   pVpcid:
     Description: The vpc id on which the resources will be created
+    Type: String 
+
+  pSharedvpcLoggroup:
+    Description: The log group name for the shared services vpc
+    Type: String
+    Default: Sharedloggroup
+
+  pSharedvpcLogRoleArn:
+    Description: The arn of the role needed for vpc flow log access
     Type: String 
   
   ################################ Transit Gateway ###############################################
@@ -633,11 +663,18 @@ Resources:
         pPrivateSubnet2CIDR: !Ref pPrivateSubnet2CIDR 
         pPublicSubnet1CIDR: !Ref pPublicSubnet1CIDR 
         pPublicSubnet2CIDR: !Ref pPublicSubnet2CIDR 
+        pAppvpcLoggroup: !Ref pAppvpcLoggroup 
         pAppName: !Ref pAppName
         pAvailabilityZones:
           Fn::Join:
             - ','
             - !Ref pAvailabilityZones
+        pAppvpcLogRoleArn: 
+          Fn::GetAtt: 
+            - rSupportRoles 
+            - Outputs.oNestedAppvpcflowlogRoleArn 
+        
+            
   
   rSharedServicesVpcStack:
     Type: AWS::CloudFormation::Stack
@@ -651,11 +688,16 @@ Resources:
         pSharedServicesPrivateSubnet2CIDR: !Ref pSharedServicesPrivateSubnet2CIDR 
         pSharedServicesPublicSubnet1CIDR: !Ref pSharedServicesPublicSubnet1CIDR 
         pSharedServicesPublicSubnet2CIDR: !Ref pSharedServicesPublicSubnet2CIDR 
+        pSharedvpcLoggroup: !Ref pSharedvpcLoggroup
         pSharedServicesAvailabilityZones:
           Fn::Join:
             - ','
             - !Ref pSharedServicesAvailabilityZones
         pAppName: !Ref pAppName
+        pAppvpcLogRoleArn: 
+          Fn::GetAtt: 
+            - rSupportRoles 
+            - Outputs.oNestedSharedvpcflowlogRoleArn
   
   rTransitGatewayStack:
     Type: AWS::CloudFormation::Stack

@@ -401,6 +401,24 @@ Outputs:
     Value: !GetAtt rNestedALB.DNSName
     Export: 
       Name: !Sub ${ pAwsAccount }-${ pAppName }-alb-dns
+
+  oawxalbname:
+    Description: The awx alb name
+    Value: !Ref rNestedAWXALB
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-name 
+  
+  oawxalbarn:
+    Description: The awx alb arn
+    Value: !GetAtt rNestedAWXALB.LoadBalancerArn
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-arn 
+
+  oawxalbdnsname:
+    Description: The awx alb dns name 
+    Value: !GetAtt rNestedAWXALB.DNSName
+    Export: 
+      Name: !Sub ${ pAwsAccount }-${ pAppName }-awx-alb-dns
   
   ocobsinetgname:
     Description: The cobsine target group name

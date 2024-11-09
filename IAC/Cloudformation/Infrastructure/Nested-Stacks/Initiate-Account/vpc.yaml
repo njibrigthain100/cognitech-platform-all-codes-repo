@@ -48,6 +48,14 @@ Parameters:
     Description: The app cosuming these resources
     Type: String
 
+  pAppvpcLoggroup:
+    Description: The log group name for the shared services vpc
+    Type: String
+
+  pAppvpcLogRoleArn:
+    Description: The arn of the role needed for vpc flow log access
+    Type: String 
+
 Resources: 
   # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc.html#cfn-aws-ec2-vpc-instancetenancy
   rNestedVPC:
@@ -191,6 +199,17 @@ Resources:
       RouteTableId: !Ref rNestedPublicSubnet2RouteTable
       SubnetId: !Ref rNestedPublicSubnet2
    
+###############################################VPC Flow logs##############################################
+#https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-flowlog.html
+  rNestedSharedvpcflowlogs:
+    Type: AWS::EC2::FlowLog
+    Properties: 
+      DeliverLogsPermissionArn: !Ref pAppvpcLogRoleArn
+      LogGroupName: !Ref pAppvpcLoggroup
+      ResourceId: !Ref rNestedVPC
+      ResourceType: VPC
+      TrafficType: ALL
+
 Outputs:
   oVPC:
     Description: The ID of the vpc
