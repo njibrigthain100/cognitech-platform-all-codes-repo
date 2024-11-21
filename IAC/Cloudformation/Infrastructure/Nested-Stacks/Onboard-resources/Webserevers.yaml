@@ -162,7 +162,7 @@ Resources:
     Type: AWS::EC2::Volume
     Properties:
       AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
-      Size: 30
+      Size: 10
       Tags:
         - Key: Backup
           Value: Daily
@@ -246,7 +246,7 @@ Resources:
     Type: AWS::EC2::Volume
     Properties:
       AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
-      Size: 30
+      Size: 10
       Tags:
         - Key: Backup
           Value: Daily
@@ -366,7 +366,7 @@ Resources:
     Type: AWS::EC2::Volume
     Properties:
       AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
-      Size: 30
+      Size: 10
       Tags:
         - Key: Backup
           Value: Daily
@@ -441,7 +441,7 @@ Resources:
     Type: AWS::EC2::Volume
     Properties:
       AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
-      Size: 30
+      Size: 10
       Tags:
         - Key: Backup
           Value: Daily

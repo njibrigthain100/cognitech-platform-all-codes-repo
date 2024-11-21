@@ -1,0 +1,8 @@
+# roles/download_and_extract_zip/meta/main.yml
+---
+galaxy_info:
+  author: Brigthain Kargong
+  description: This playbook is used to deploy webservers to a linux server.
+  company: kahbrigthllc.com 
+  license: license_name
+dependencies: []

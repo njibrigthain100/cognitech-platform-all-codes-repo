@@ -1,0 +1,5 @@
+# roles/download_and_extract_zip/vars/main.yml
+url: "https://www.free-css.com/assets/files/free-css-templates/download/page286/cobsine.zip"
+zip_file: "cobine.zip"  # The name of the zip file
+home_path: "/var/www/html"
+temp_dir: "/tmp/temp"

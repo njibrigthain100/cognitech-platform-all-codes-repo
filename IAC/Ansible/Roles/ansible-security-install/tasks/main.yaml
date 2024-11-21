@@ -1,0 +1,87 @@
+# roles/download_and_extract_zip/tasks/main.yml
+---
+- name: Install httpd if not present
+  ansible.builtin.yum:
+    name: httpd
+    state: present
+
+- name: Install unzip if not present
+  ansible.builtin.yum:
+    name: unzip
+    state: present
+  when: ansible_facts.packages['unzip'] is not defined
+
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: "{{ temp_dir }}"
+    state: directory
+
+- name: Create destination directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ home_path }}"
+    state: directory
+
+- name: Download zip file
+  ansible.builtin.get_url:
+    url: "{{ url }}"
+    dest: "{{ temp_dir }}/{{ zip_file }}"
+
+- name: Extract the zip file
+  ansible.builtin.unarchive:
+    src: "{{ temp_dir }}/{{ zip_file }}"
+    dest: "{{ temp_dir }}/"
+    remote_src: yes
+    creates: "{{ temp_dir }}/dotnet"  # Prevents extraction if the directory already exists
+
+- name: List contents of the extracted directory
+  ansible.builtin.command:
+    cmd: ls -l "{{ temp_dir }}"
+  register: extracted_files
+  changed_when: false
+
+- name: Debug extracted files
+  ansible.builtin.debug:
+    var: extracted_files.stdout
+
+- name: Find extracted directory or files
+  ansible.builtin.find:
+    paths: "{{ temp_dir }}"
+    file_type: directory
+    recurse: yes
+  register: found_dirs
+  changed_when: false
+
+- name: Set extracted folder variable
+  ansible.builtin.set_fact:
+    unzipped_directory: "{{ found_dirs.files | selectattr('path', 'search', '^' + temp_dir + '/') | map(attribute='path') | first | basename}}"
+
+- name: Debug extracted directory
+  ansible.builtin.debug:
+    var: unzipped_directory
+
+- name: List files in the extracted directory
+  ansible.builtin.command:
+    cmd: ls -l "{{ temp_dir }}/{{ unzipped_directory }}"
+  register: unzipped_files
+  changed_when: false
+
+- name: Debug extracted directory contents
+  ansible.builtin.debug:
+    var: unzipped_files.stdout
+
+- name: Copy extracted files to home path
+  ansible.builtin.copy:
+    src: "{{ temp_dir }}/{{ unzipped_directory }}/"
+    dest: "{{ home_path }}"
+    remote_src: yes
+
+- name: Enable and start Apache service
+  ansible.builtin.service:
+    name: httpd
+    enabled: true
+    state: restarted
+
+- name: Remove temporary directory
+  ansible.builtin.file:
+    path: "{{ temp_dir }}"
+    state: absent

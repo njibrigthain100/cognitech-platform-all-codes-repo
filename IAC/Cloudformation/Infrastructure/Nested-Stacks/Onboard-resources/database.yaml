@@ -128,21 +128,21 @@ Resources:
         - Key: Schedule 
           Value: !Sub ${ pAwsAccount }-${ pAppName }-App
    
-  rWindowsDBserverVolume:
-    Type: AWS::EC2::Volume
-    Properties:
-      AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
-      Size: 100
-      Tags:
-        - Key: Backup
-          Value: Daily
+  # rWindowsDBserverVolume:
+  #   Type: AWS::EC2::Volume
+  #   Properties:
+  #     AvailabilityZone: !Select [ 0, !Ref pAvailabilityZones ]
+  #     Size: 100
+  #     Tags:
+  #       - Key: Backup
+  #         Value: Daily
 
-  rWindowsDBserverVolumeAttachment:
-    Type: AWS::EC2::VolumeAttachment
-    Properties: 
-      Device: /dev/sdf
-      InstanceId: !Ref rWindowsDBserver
-      VolumeId: !Ref rWindowsDBserverVolume
+  # rWindowsDBserverVolumeAttachment:
+  #   Type: AWS::EC2::VolumeAttachment
+  #   Properties: 
+  #     Device: /dev/sdf
+  #     InstanceId: !Ref rWindowsDBserver
+  #     VolumeId: !Ref rWindowsDBserverVolume
       
 Outputs:
   oWindowsDBServerInstanceId:
