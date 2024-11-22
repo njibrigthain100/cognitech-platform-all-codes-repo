@@ -1,5 +1,5 @@
 ---
- name: Installing and configuring web server on selected servers 
- hosts: all 
- roles:
-  - ansible-webserver
+ - name: Installing and configuring web server on selected servers 
+   hosts: all 
+   roles:
+    - ansible-webserver
