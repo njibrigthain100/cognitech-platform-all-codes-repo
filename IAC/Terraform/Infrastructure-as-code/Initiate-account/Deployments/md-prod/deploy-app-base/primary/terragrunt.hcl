@@ -20,7 +20,7 @@ locals {
   deploy_globally = "true"
   region          = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
   deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
-  cidr_blocks = local.region_context == "primary" ? include.cloud.cidr_block_use1 : include.cloud.cidr_block_usw2
+  cidr_blocks = local.region_context == "primary" ? include.cloud.locals.cidr_block_use1 : include.cloud.locals.cidr_block_usw2
 
   # Composite variables 
   tags = merge(
@@ -38,14 +38,14 @@ locals {
 inputs = {
   common = {
     global        = local.deploy_globally
-    account_name  = include.cloud.locals.account_name.kah.name
-    region_prefix = include.cloud.loacls.region_prefix.primary
+    account_name  = include.cloud.locals.account_name.Kah.name
+    region_prefix = include.cloud.locals.region_prefix.primary
     tags          = local.tags
   }
 
   vpc = {
     name = include.env.locals.environment
-    cidr_block = local.cidr_block
+    cidr_block = local.cidr_blocks[include.env.locals.name_abr].segments.sit.vpc
   }
 }
 
@@ -69,7 +69,7 @@ inputs = {
 #-------------------------------------------------------
 generate "aws-providers" {
   path      = "aws-provider.tf"
-  if_exists = "overwite"
+  if_exists = "overwrite"
   contents  = <<-EOF
   provider "aws" {
     region = "${local.region}"
