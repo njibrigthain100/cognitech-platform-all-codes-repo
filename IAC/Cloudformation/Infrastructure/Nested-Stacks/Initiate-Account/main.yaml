@@ -307,19 +307,19 @@ Parameters:
   pVPCCidr:
     Description: The app vpc cidr range
     Type: String
-    Default: 10.1.1.0/24
+    Default: 
   
   pPrivateSubnet1CIDR:
     Description: The first private subnet cidr range.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.0/27
+    Default: 
   
   pPrivateSubnet2CIDR:
     Description: The second private subnet cidr range
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-    Default: 10.1.1.32/27
+    Default: 
   
   pPublicSubnet1CIDR:
     Description: The first public subnet cidr range
