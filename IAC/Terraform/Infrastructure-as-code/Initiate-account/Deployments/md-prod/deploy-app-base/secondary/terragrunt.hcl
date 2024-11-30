@@ -16,9 +16,9 @@ include "env" {
 # Locals 
 #-------------------------------------------------------
 locals {
-  region_context = "primary"
+  region_context = "secondary"
   region = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
-  deployment_name = "terraform-${include.env.locals.name_abr}-deploy-shared-base-${local.region_context}"
+  deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
 
   # Composite variables 
   tags = merge(
@@ -27,4 +27,42 @@ locals {
       ManagedBy = "terraform"
     }
   )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------
+# Providers 
+#-------------------------------------------------------
+generate "aws-providers" {
+  path      = "aws-provider.tf"
+  if_exists = "overwite"
+  contents  = <<-EOF
+  provider "aws" {
+    region = "${local.region}"
+  }
+  EOF
+}
+
+
+
+#-------------------------------------------------------
+# Source  
+#-------------------------------------------------------
+terraform {
+    source = "../../../..//Formation/Create-vpc"
 }

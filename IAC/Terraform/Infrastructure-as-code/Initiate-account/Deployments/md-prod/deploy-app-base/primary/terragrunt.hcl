@@ -18,7 +18,7 @@ include "env" {
 locals {
   region_context = "primary"
   region = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
-  deployment_name = "terraform-${include.}"
+  deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
 
   # Composite variables 
   tags = merge(
@@ -64,5 +64,5 @@ generate "aws-providers" {
 # Source  
 #-------------------------------------------------------
 terraform {
-    source = "../../..//Formation/Create-vpc"
+    source = "../../../..//Formation/Create-vpc"
 }
