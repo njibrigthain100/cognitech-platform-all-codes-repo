@@ -30,5 +30,8 @@ locals {
     primary   = "use1"
     secondary = "usw2"
   }
-
+  region = {
+    primary   = "us-east-1"
+    secondary = "us-west-2"
+  }
 }

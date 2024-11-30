@@ -12,6 +12,13 @@ include "env" {
   expose = true
 }
 
+#-------------------------------------------------------
+# Locals 
+#-------------------------------------------------------
+locals {
+  region_context = "primary"
+  region = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
+}
 
 
 
