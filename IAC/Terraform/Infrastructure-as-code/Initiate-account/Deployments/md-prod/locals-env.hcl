@@ -10,6 +10,11 @@ locals {
   environment = "sit"
   owner       = "kbrigthain@gmail.com"
 
+  remote_state_bucket = {
+    primary = "terragruntuse1"
+    secondary = "terragruntusw2"
+  }
+
   # account_name   = local.cloud.locals.account_name.kah.name
   # account_number = local.cloud.locals.account_name.kah.number
   # billing_code   = local.cloud.locals.billing_code_number.kah

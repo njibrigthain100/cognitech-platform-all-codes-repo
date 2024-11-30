@@ -21,6 +21,7 @@ locals {
   region          = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
   deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
   cidr_blocks = local.region_context == "primary" ? include.cloud.locals.cidr_block_use1 : include.cloud.locals.cidr_block_usw2
+  state_bucket = local.region_context == "primary" ? includ.env.locals.remote_state_bucket.primary : include.env.locals.remote_state_bucket.secondary
 
   # Composite variables 
   tags = merge(
@@ -55,8 +56,19 @@ inputs = {
 
 
 
-
-
+#-------------------------------------------------------
+# State Configuration
+#-------------------------------------------------------
+remote_state {
+  backend = "s3"
+  generate = {
+    path = "backend.tf"
+    if_exists = "overwrite"
+  }
+  config = {
+    bucket = local.state_bucket
+  }
+}
 
 
 
