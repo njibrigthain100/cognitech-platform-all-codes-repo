@@ -16,12 +16,13 @@ include "env" {
 # Locals 
 #-------------------------------------------------------
 locals {
-  region_context  = "primary"
-  deploy_globally = "true"
-  region          = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
-  deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
-  cidr_blocks = local.region_context == "primary" ? include.cloud.locals.cidr_block_use1 : include.cloud.locals.cidr_block_usw2
-  state_bucket = local.region_context == "primary" ? includ.env.locals.remote_state_bucket.primary : include.env.locals.remote_state_bucket.secondary
+  region_context   = "primary"
+  deploy_globally  = "true"
+  region           = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
+  deployment_name  = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
+  cidr_blocks      = local.region_context == "primary" ? include.cloud.locals.cidr_block_use1 : include.cloud.locals.cidr_block_usw2
+  state_bucket     = local.region_context == "primary" ? include.env.locals.remote_state_bucket.primary : include.env.locals.remote_state_bucket.secondary
+  state_lock_table = include.env.locals.remote_dynamodb_table
 
   # Composite variables 
   tags = merge(
@@ -45,7 +46,7 @@ inputs = {
   }
 
   vpc = {
-    name = include.env.locals.environment
+    name       = include.env.locals.environment
     cidr_block = local.cidr_blocks[include.env.locals.name_abr].segments.sit.vpc
   }
 }
@@ -62,11 +63,16 @@ inputs = {
 remote_state {
   backend = "s3"
   generate = {
-    path = "backend.tf"
+    path      = "backend.tf"
     if_exists = "overwrite"
   }
   config = {
-    bucket = local.state_bucket
+    bucket               = local.state_bucket
+    bucket_sse_algorithm = "AES256"
+    dynamodb_table       = local.state_lock_table
+    encrypt              = true
+    key                  = "${local.deployment_name}/terraform.tfstate"
+    region               = local.region
   }
 }
 
