@@ -2,6 +2,12 @@
 # Cloud variables 
 #-------------------------------------------------------
 locals {
+  cidr_block_imp_use1 = read_terragrunt_config("${path_relative_from_include()}/locals-cidr-range-use1.hcl")
+  cidr_block_imp_usw2 = read_terragrunt_config("${path_relative_from_include()}/locals-cidr-range-usw2.hcl")
+
+  cidr_block_use1 = local.cidr_block_imp_use1.locals.cidr_blocks
+  cidr_block_usw2 = local.cidr_block_imp_use1.locals.cidr_blocks
+
   account_name = {
     Kah = {
       name   = "prod"

@@ -16,19 +16,37 @@ include "env" {
 # Locals 
 #-------------------------------------------------------
 locals {
-  region_context = "primary"
-  region = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
+  region_context  = "primary"
+  deploy_globally = "true"
+  region          = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
   deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
 
   # Composite variables 
   tags = merge(
     include.env.locals.tags,
     {
-      ManagedBy = "terraform"
+      ManagedBy = "terraform:${local.deployment_name}"
     }
   )
 }
 
+
+#-------------------------------------------------------
+# Inputs 
+#-------------------------------------------------------
+inputs = {
+  common = {
+    global        = local.deploy_globally
+    account_name  = include.cloud.locals.account_name.kah.name
+    region_prefix = include.cloud.loacls.region_prefix.primary
+    tags          = local.tags
+  }
+
+  vpc = {
+    name = include.env.locals.environment
+    cidr_block = 
+  }
+}
 
 
 
@@ -64,5 +82,5 @@ generate "aws-providers" {
 # Source  
 #-------------------------------------------------------
 terraform {
-    source = "../../../..//Formation/Create-vpc"
+  source = "../../../..//Formation/Create-vpc"
 }

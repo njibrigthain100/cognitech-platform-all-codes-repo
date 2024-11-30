@@ -10,9 +10,9 @@ locals {
   environment = "sit"
   owner       = "kbrigthain@gmail.com"
 
-  account_name   = local.cloud.locals.account_name.kah.name
-  account_number = local.cloud.locals.account_name.kah.number
-  billing_code   = local.cloud.locals.billing_code_number.kah
+  # account_name   = local.cloud.locals.account_name.kah.name
+  # account_number = local.cloud.locals.account_name.kah.number
+  # billing_code   = local.cloud.locals.billing_code_number.kah
   tags = {
     Environment  = local.environment
     Owner        = local.owner
