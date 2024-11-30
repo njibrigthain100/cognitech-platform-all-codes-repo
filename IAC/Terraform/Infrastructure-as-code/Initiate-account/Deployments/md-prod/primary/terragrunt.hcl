@@ -48,5 +48,5 @@ generate "aws-providers" {
 # Source  
 #-------------------------------------------------------
 terraform {
-    source = "../../"
+    source = "../../..//Formation/Create-vpc"
 }
