@@ -20,6 +20,12 @@ locals {
       number = "271457809232"
     }
   }
+  billing_code_number = {
+    kah = "90471"
+    int = "TBD"
+    dev = "TBD"
+    qa  = "TBD"
+  }
   region_prefix = {
     primary   = "use1"
     secondary = "usw2"
