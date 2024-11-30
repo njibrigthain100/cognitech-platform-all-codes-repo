@@ -45,7 +45,7 @@ inputs = {
 
   vpc = {
     name = include.env.locals.environment
-    cidr_block = 
+    cidr_block = local.cidr_block
   }
 }
 

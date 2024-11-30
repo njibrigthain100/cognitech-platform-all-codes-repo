@@ -1,6 +1,6 @@
 locals {
   cidr_blocks = {
-    kah = {
+    mdp = {
       segments = {
         shared_services = {
           vpc = "10.1.2.0/24"
