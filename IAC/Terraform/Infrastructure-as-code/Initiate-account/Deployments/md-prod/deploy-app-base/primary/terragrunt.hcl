@@ -20,6 +20,7 @@ locals {
   deploy_globally = "true"
   region          = local.region_context == "primary" ? include.cloud.locals.region.primary : include.cloud.locals.region.secondary
   deployment_name = "terraform-${include.env.locals.name_abr}-deploy-app-base-${local.region_context}"
+  cidr_blocks = local.region_context == "primary" ? include.cloud.cidr_block_use1 : include.cloud.cidr_block_usw2
 
   # Composite variables 
   tags = merge(
