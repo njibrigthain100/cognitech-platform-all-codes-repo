@@ -20,7 +20,7 @@ Parameters:
   ServiceInstanceScheduleServiceTokenARN:
     Description: (Required) service token arn taken from InstanceScheduler outputs
     Type: String
-    Default: arn:aws:lambda:us-east-1:485147667400:function:Instance-Scheduler-newest-version-InstanceSchedulerMain 
+    Default: arn:aws:lambda:us-east-1:485147667400:function:Scheduler-InstanceSchedulerMain 
 
 
 Resources: 
