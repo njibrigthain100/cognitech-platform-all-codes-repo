@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This creates the policy for the user role with only SSM permissions
+Parameters: 
+  pEntityType:
+    Description: The name of the entity being created
+    Type: String
+    Default: Admins
+
+Resources: 
+  rUserPolicy:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      PolicyName: !Sub aws-${pEntityType}-policy
+      RoleName: !Sub aws-${pEntityType}-Role
+      PolicyDocument: 
+        Version: 2012-10-17 
+        Statement:
+          - Action:
+              - ssm:*
+              - ssmmessages:*
+              - ec2:DescribeInstanceInformation
+            Effect: Allow 
+            Resource: "*"
+          - Action:
+              - cloudwatch:PutMetricData
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogStreams
+            Effect: Allow
+            Resource: "*"
+Outputs:
+  oUserPolicy:
+    Description: The name of the policy to output 
+    Value: !Ref rUserPolicy
+    Export: 
+      Name: !Sub aws-${pEntityType}-policy
