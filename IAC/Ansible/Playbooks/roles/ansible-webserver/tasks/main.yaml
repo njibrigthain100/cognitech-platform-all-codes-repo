@@ -87,11 +87,10 @@
   notify:
     - restart apache
 
-# - name: Enable and start Apache service
-#   ansible.builtin.service:
-#     name: httpd
-#     enabled: true
-#     state: restarted
+- name: Enable Apache service
+  ansible.builtin.service:
+    name: httpd
+    enabled: true
 
 - name: Remove temporary directory
   ansible.builtin.file:

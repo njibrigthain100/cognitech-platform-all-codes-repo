@@ -10,7 +10,7 @@ Resources:
   rUserPolicy:
     Type: AWS::IAM::RolePolicy
     Properties:
-      PolicyName: !Sub aws-${pEntityType}-policy
+      PolicyName: !Sub aws-${pEntityType}-ssm-policy
       RoleName: !Sub aws-${pEntityType}-Role
       PolicyDocument: 
         Version: 2012-10-17 
@@ -33,4 +33,4 @@ Outputs:
     Description: The name of the policy to output 
     Value: !Ref rUserPolicy
     Export: 
-      Name: !Sub aws-${pEntityType}-policy
+      Name: !Sub aws-${pEntityType}-ssm-policy
