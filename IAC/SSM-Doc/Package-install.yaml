@@ -3,7 +3,7 @@ description: "Document to install security and software-related packages"
 parameters: 
   additionalPackages:
     type: String
-    default: "httpd mysql-server vim git iptables"
+    default: "{{ssm:packages-to-install}}"
     description: "List of additional packages to install"
 
 mainSteps:
