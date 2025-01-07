@@ -21,6 +21,11 @@ parameters:
       type: String
       default: "{{ssm:/standard/ansible/password}}"
 
+    pAnsibleRpmFile:
+      descrpition: The version of ansible to be installed 
+      type: String 
+      default: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
 mainSteps:
           - action: aws:runShellScript
             name: CreateandConfigureUser
@@ -76,7 +81,7 @@ mainSteps:
                         ###############################################
                         echo "Updating system and installing Ansible..."
                             sudo yum update -y
-                            sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+                            sudo yum install -y "{{ pAnsibleRpmFile}}"
                             sudo yum install -y ansible
 
                         echo "SSM document execution complete!"
