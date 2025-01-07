@@ -22,7 +22,7 @@ parameters:
       default: "{{ssm:/standard/ansible/password}}"
 
     pAnsibleRpmFile:
-      descrpition: The version of ansible to be installed 
+      description: The version of ansible to be installed 
       type: String 
       default: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
