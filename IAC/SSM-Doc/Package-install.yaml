@@ -1,0 +1,78 @@
+schemaVersion: '2.2'
+description: "Document to install security and software-related packages"
+parameters: 
+  additionalPackages:
+    type: String
+    default: "httpd mysql-server vim git iptables"
+    description: "List of additional packages to install"
+
+mainSteps:
+  - action: aws:runShellScript
+    name: InstallLinuxPackages
+    description: |
+      Installs various Linux packages based on OS type
+    inputs:
+      runCommand:
+        - |
+          #!/bin/bash -xe
+          ##############################################################
+          #  INSTALLING AND CONFIGURING VARIOUS LINUX PACKAGES TOOLS  #
+          ##############################################################
+
+          # Function to install amazon-efs-utils and additional packages based on the OS type
+          install_packages() {
+              local os_type=$1
+              local packages=$2
+
+              echo "Updating system and installing packages on $os_type"
+
+              if [[ "$os_type" == "RHEL" || "$os_type" == "AmazonLinux2" ]]; then
+                  # Update system and install packages for RHEL or Amazon Linux 2
+                  sudo yum update -y
+                  sudo yum install -y amazon-efs-utils $packages
+
+              elif [[ "$os_type" == "Ubuntu" ]]; then
+                  # Update system and install packages for Ubuntu
+                  sudo apt-get update -y
+                  sudo apt-get upgrade -y
+                  sudo apt-get install -y amazon-efs-utils $packages
+
+              else
+                  echo "Unsupported OS"
+                  exit 1
+              fi
+          }
+
+          # Function to check the Linux OS
+          check_os() {
+              if [ -f /etc/os-release ]; then
+                  . /etc/os-release
+                  if [[ "$ID" == "rhel" ]]; then
+                      echo "RHEL"
+                  elif [[ "$ID" == "amzn" ]]; then
+                      echo "AmazonLinux2"
+                  elif [[ "$ID" == "ubuntu" ]]; then
+                      echo "Ubuntu"
+                  else
+                      echo "Unsupported OS"
+                  fi
+              else
+                  echo "Unsupported OS"
+                  exit 1
+              fi
+          }
+
+          # Main script execution
+          os_type=$(check_os)
+
+          # Create EFS directory
+          mkdir -p /mnt/efs
+          echo "Created directory /mnt/efs"
+
+          # Define the additional packages to install
+          additional_packages="{{ additionalPackages }}"
+
+          # Update system and install amazon-efs-utils and additional packages based on detected OS
+          install_packages "$os_type" "$additional_packages"
+
+          echo "Script completed."
