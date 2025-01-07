@@ -1,0 +1,82 @@
+schemaVersion: '2.2'
+description: "Document to create ansible master on instances"
+parameters: 
+    pSSHDConfigFilePath:
+      description: Path to the sshd_config file
+      type: String
+      default: "/etc/ssh/sshd_config"
+
+    pSudoersFilePath:
+      description: Path to the sudoers file
+      type: String
+      default: "/etc/sudoers"
+    
+    pUserName:
+      description: The User to be created
+      type: String
+      default: "ansible"
+   
+    pPassword:
+      description: The password for the created user
+      type: String
+      default: "{{ssm:/standard/ansible/password}}"
+
+mainSteps:
+          - action: aws:runShellScript
+            name: CreateandConfigureUser
+            description:  |
+              Creates a user and adds the user to the sudoers file
+            inputs:
+              runCommand:
+                  - |
+                       #!/bin/bash -xe
+                        ##########################################
+                        # CREATE USER AND ADD TO SUDOERS FILE  #
+                        ##########################################
+                        # Create new linux user
+                        if id -u "{{ pUserName }}" >/dev/null 2>&1; then
+                            echo "User \"{{ pUserName }}\" already exists."
+                        else
+                            echo "Creating user \"{{ pUserName }}\"..."
+                            sudo useradd -m "{{ pUserName }}"
+                            echo "{{ pUserName }}:{{ pPassword }}" | sudo chpasswd
+                            echo "User \"{{ pUserName }}\" has been created with the specified password."
+                        fi
+
+                       # Add the user directly to the sudoers file
+                        if sudo grep -q "^{{ pUserName }}" "{{ pSudoersFilePath }}"; then
+                            echo "User '{{ pUserName }}' already has sudo privileges."
+                        else
+                            echo "Granting '{{ pUserName }}' NOPASSWD privileges..."
+                            echo "{{ pUserName }} ALL=(ALL) NOPASSWD:ALL" | sudo tee -a "{{ pSudoersFilePath }}" > /dev/null
+                        fi
+                        ###############################################
+                        # UPDATE THE SSHD CONFIG FILE #
+                        ###############################################
+                        # Step 1: Enable PasswordAuthentication if not already enabled
+                        if sudo grep -q "^PasswordAuthentication yes" "${{ pSSHDConfigFilePath }}"; then
+                            echo "PasswordAuthentication is already set to yes."
+                        else
+                            echo "Setting PasswordAuthentication to yes..."
+                            sudo sed -i 's/^#PasswordAuthentication no/PasswordAuthentication yes/' "{{ pSSHDConfigFilePath }}"
+                            sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' "{{ pSSHDConfigFilePath }}"
+                            echo "PasswordAuthentication has been set to yes."
+                            # Restart SSH service to apply changes
+                            sudo systemctl restart sshd
+                        fi
+                        # Step 2: Enable PermitRootLogin if not already enabled
+                        if sudo grep -q "^#PermitRootLogin" "{{ pSSHDConfigFilePath }}" || sudo grep -q "^PermitRootLogin no" "{{ pSSHDConfigFilePath }}"; then
+                            echo "Enabling PermitRootLogin..."
+                            sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' "{{ pSSHDConfigFilePath }}"
+                            sudo sed -i 's/^PermitRootLogin no/PermitRootLogin yes/' "{{ pSSHDConfigFilePath }}"
+                            echo "PermitRootLogin has been set to yes."
+                        fi
+                        ###############################################
+                        # INSTALL ANSIBLE #
+                        ###############################################
+                        echo "Updating system and installing Ansible..."
+                        sudo yum update -y
+                        sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+                        sudo yum install -y ansible
+
+                        echo "SSM document execution complete!"
