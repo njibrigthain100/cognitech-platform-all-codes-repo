@@ -29,6 +29,10 @@ parameters:
     type: String
     description: "Filename for Nessus RPM package for Ubuntu"
     default: Nessus-10.8.3-ubuntu1604_amd64.deb
+  NessusWindowsMSI:
+    type: String
+    description: "Filename for Nessus RPM package for Windows"
+    default: Nessus-10.8.3-x64.msi
 
 
 mainSteps:
