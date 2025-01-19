@@ -1,0 +1,405 @@
+---
+description: An example of an Automation runbook that patches groups of Amazon EC2 instances in stages.
+schemaVersion: '0.3'
+assumeRole: '{{AutomationAssumeRole}}'
+parameters:
+  AutomationAssumeRole:
+    type: String
+    description: '(Required) The Amazon Resource Name (ARN) of the IAM role that allows Automation to perform the actions on your behalf. If no role is specified, Systems Manager Automation uses your IAM permissions to operate this runbook.'
+    default: arn:aws:iam::485147667400:role/SSMAutomationRole
+  PrimaryPatchGroupTag:
+    type: StringMap
+    description: '(Required) The tag for the primary group of instances you want to patch. Specify a key-value pair. Example: {"key" : "value"}'
+    default: {"primaryTag": "True"}
+  SecondaryPatchGroupTag:
+    type: StringMap
+    description: '(Required) The tag for the secondary group of instances you want to patch. Specify a key-value pair. Example: {"key" : "value"}'
+    default: {"secondaryTag": "True"} 
+  SnapshotId:
+    type: String
+    description: '(Optional) The snapshot ID to use to retrieve a patch baseline snapshot.'
+    default: ''
+  RebootOption:
+    type: String
+    description: '(Optional) Reboot behavior after a patch Install operation. If you choose NoReboot and patches are installed, the instance is marked as non-compliant until a subsequent reboot and scan.'
+    allowedValues:
+      - NoReboot
+      - RebootIfNeeded
+    default: RebootIfNeeded
+  Operation:
+    type: String
+    description: '(Optional) The update or configuration to perform on the instance. The system checks if patches specified in the patch baseline are installed on the instance. The install operation installs patches missing from the baseline.'
+    allowedValues:
+      - Install
+      - Scan
+    default: Install
+mainSteps:
+  - name: getPrimaryInstanceState
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: getInstanceStates
+      InputPayload:
+        primaryTag: '{{PrimaryPatchGroupTag}}'
+      Script: |-
+        def getInstanceStates(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          tag = events['primaryTag']
+          tagKey, tagValue = list(tag.items())[0]
+          instanceQuery = ec2.describe_instances(
+          Filters=[
+              {
+                  "Name": "tag:" + tagKey,
+                  "Values": [tagValue]
+              }]
+          )
+          if not instanceQuery['Reservations']:
+              noInstancesForTagString = "No instances found for specified tag."
+              return({ 'noInstancesFound' : noInstancesForTagString })
+          else:
+              queryResponse = instanceQuery['Reservations']
+              originalInstanceStates = {}
+              for results in queryResponse:
+                  instanceSet = results['Instances']
+                  for instance in instanceSet:
+                      instanceId = instance['InstanceId']
+                      originalInstanceStates[instanceId] = instance['State']['Name']
+              return originalInstanceStates
+    outputs:
+      - Name: originalInstanceStates
+        Selector: $.Payload
+        Type: StringMap
+    nextStep: verifyPrimaryInstancesRunning
+  - name: verifyPrimaryInstancesRunning
+    action: 'aws:executeScript'
+    timeoutSeconds: 600
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: verifyInstancesRunning
+      InputPayload:
+        targetInstances: '{{getPrimaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def verifyInstancesRunning(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+            if instanceDict[instance] == 'stopped':
+                print("The target instance " + instance + " is stopped. The instance will now be started.")
+                ec2.start_instances(
+                    InstanceIds=[instance]
+                    )
+            elif instanceDict[instance] == 'stopping':
+                print("The target instance " + instance + " is stopping. Polling for instance to reach stopped state.")
+                while instanceDict[instance] != 'stopped':
+                    poll = ec2.get_waiter('instance_stopped')
+                    poll.wait(
+                        InstanceIds=[instance]
+                    )
+                ec2.start_instances(
+                    InstanceIds=[instance]
+                )
+            else:
+              pass
+    nextStep: waitForPrimaryRunningInstances
+  - name: waitForPrimaryRunningInstances
+    action: 'aws:executeScript'
+    timeoutSeconds: 300
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: waitForRunningInstances
+      InputPayload:
+        targetInstances: '{{getPrimaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def waitForRunningInstances(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+              poll = ec2.get_waiter('instance_running')
+              poll.wait(
+                  InstanceIds=[instance]
+              )
+    nextStep: returnPrimaryTagKey
+  - name: returnPrimaryTagKey
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnTagValues
+      InputPayload:
+        primaryTag: '{{PrimaryPatchGroupTag}}'
+      Script: |-
+        def returnTagValues(events,context):
+          tag = events['primaryTag']
+          tagKey = list(tag)[0]
+          stringKey = "tag:" + tagKey
+          return {'tagKey' : stringKey}
+    outputs:
+      - Name: Payload
+        Selector: $.Payload
+        Type: StringMap
+      - Name: primaryPatchGroupKey
+        Selector: $.Payload.tagKey
+        Type: String
+    nextStep: returnPrimaryTagValue
+  - name: returnPrimaryTagValue
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnTagValues
+      InputPayload:
+        primaryTag: '{{PrimaryPatchGroupTag}}'
+      Script: |-
+        def returnTagValues(events,context):
+          tag = events['primaryTag']
+          tagKey = list(tag)[0]
+          tagValue = tag[tagKey]
+          return {'tagValue' : tagValue}
+    outputs:
+      - Name: Payload
+        Selector: $.Payload
+        Type: StringMap
+      - Name: primaryPatchGroupValue
+        Selector: $.Payload.tagValue
+        Type: String
+    nextStep: patchPrimaryInstances
+  - name: patchPrimaryInstances
+    action: 'aws:runCommand'
+    onFailure: Abort
+    timeoutSeconds: 7200
+    inputs:
+      DocumentName: AWS-RunPatchBaseline
+      Parameters:
+        SnapshotId: '{{SnapshotId}}'
+        RebootOption: '{{RebootOption}}'
+        Operation: '{{Operation}}'
+      Targets:
+        - Key: '{{returnPrimaryTagKey.primaryPatchGroupKey}}'
+          Values:
+            - '{{returnPrimaryTagValue.primaryPatchGroupValue}}'
+      MaxConcurrency: 10%
+      MaxErrors: 10%
+    nextStep: returnPrimaryToOriginalState
+  - name: returnPrimaryToOriginalState
+    action: 'aws:executeScript'
+    timeoutSeconds: 600
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnToOriginalState
+      InputPayload:
+        targetInstances: '{{getPrimaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def returnToOriginalState(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+            if instanceDict[instance] == 'stopped' or instanceDict[instance] == 'stopping':
+                ec2.stop_instances(
+                    InstanceIds=[instance]
+                    )
+            else:
+              pass
+    nextStep: getSecondaryInstanceState
+  - name: getSecondaryInstanceState
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: getInstanceStates
+      InputPayload:
+        secondaryTag: '{{SecondaryPatchGroupTag}}'
+      Script: |-
+        def getInstanceStates(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          tag = events['secondaryTag']
+          tagKey, tagValue = list(tag.items())[0]
+          instanceQuery = ec2.describe_instances(
+          Filters=[
+              {
+                  "Name": "tag:" + tagKey,
+                  "Values": [tagValue]
+              }]
+          )
+          if not instanceQuery['Reservations']:
+              noInstancesForTagString = "No instances found for specified tag."
+              return({ 'noInstancesFound' : noInstancesForTagString })
+          else:
+              queryResponse = instanceQuery['Reservations']
+              originalInstanceStates = {}
+              for results in queryResponse:
+                  instanceSet = results['Instances']
+                  for instance in instanceSet:
+                      instanceId = instance['InstanceId']
+                      originalInstanceStates[instanceId] = instance['State']['Name']
+              return originalInstanceStates
+    outputs:
+      - Name: originalInstanceStates
+        Selector: $.Payload
+        Type: StringMap
+    nextStep: verifySecondaryInstancesRunning
+  - name: verifySecondaryInstancesRunning
+    action: 'aws:executeScript'
+    timeoutSeconds: 600
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: verifyInstancesRunning
+      InputPayload:
+        targetInstances: '{{getSecondaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def verifyInstancesRunning(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+            if instanceDict[instance] == 'stopped':
+                print("The target instance " + instance + " is stopped. The instance will now be started.")
+                ec2.start_instances(
+                    InstanceIds=[instance]
+                    )
+            elif instanceDict[instance] == 'stopping':
+                print("The target instance " + instance + " is stopping. Polling for instance to reach stopped state.")
+                while instanceDict[instance] != 'stopped':
+                    poll = ec2.get_waiter('instance_stopped')
+                    poll.wait(
+                        InstanceIds=[instance]
+                    )
+                ec2.start_instances(
+                    InstanceIds=[instance]
+                )
+            else:
+              pass
+    nextStep: waitForSecondaryRunningInstances
+  - name: waitForSecondaryRunningInstances
+    action: 'aws:executeScript'
+    timeoutSeconds: 300
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: waitForRunningInstances
+      InputPayload:
+        targetInstances: '{{getSecondaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def waitForRunningInstances(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+              poll = ec2.get_waiter('instance_running')
+              poll.wait(
+                  InstanceIds=[instance]
+              )
+    nextStep: returnSecondaryTagKey
+  - name: returnSecondaryTagKey
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnTagValues
+      InputPayload:
+        secondaryTag: '{{SecondaryPatchGroupTag}}'
+      Script: |-
+        def returnTagValues(events,context):
+          tag = events['secondaryTag']
+          tagKey = list(tag)[0]
+          stringKey = "tag:" + tagKey
+          return {'tagKey' : stringKey}
+    outputs:
+      - Name: Payload
+        Selector: $.Payload
+        Type: StringMap
+      - Name: secondaryPatchGroupKey
+        Selector: $.Payload.tagKey
+        Type: String
+    nextStep: returnSecondaryTagValue
+  - name: returnSecondaryTagValue
+    action: 'aws:executeScript'
+    timeoutSeconds: 120
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnTagValues
+      InputPayload:
+        secondaryTag: '{{SecondaryPatchGroupTag}}'
+      Script: |-
+        def returnTagValues(events,context):
+          tag = events['secondaryTag']
+          tagKey = list(tag)[0]
+          tagValue = tag[tagKey]
+          return {'tagValue' : tagValue}
+    outputs:
+      - Name: Payload
+        Selector: $.Payload
+        Type: StringMap
+      - Name: secondaryPatchGroupValue
+        Selector: $.Payload.tagValue
+        Type: String
+    nextStep: patchSecondaryInstances
+  - name: patchSecondaryInstances
+    action: 'aws:runCommand'
+    onFailure: Abort
+    timeoutSeconds: 7200
+    inputs:
+      DocumentName: AWS-RunPatchBaseline
+      Parameters:
+        SnapshotId: '{{SnapshotId}}'
+        RebootOption: '{{RebootOption}}'
+        Operation: '{{Operation}}'
+      Targets:
+        - Key: '{{returnSecondaryTagKey.secondaryPatchGroupKey}}'
+          Values:
+          - '{{returnSecondaryTagValue.secondaryPatchGroupValue}}'
+      MaxConcurrency: 10%
+      MaxErrors: 10%
+    nextStep: returnSecondaryToOriginalState
+  - name: returnSecondaryToOriginalState
+    action: 'aws:executeScript'
+    timeoutSeconds: 600
+    onFailure: Abort
+    inputs:
+      Runtime: python3.9
+      Handler: returnToOriginalState
+      InputPayload:
+        targetInstances: '{{getSecondaryInstanceState.originalInstanceStates}}'
+      Script: |-
+        def returnToOriginalState(events,context):
+          import boto3
+
+          #Initialize client
+          ec2 = boto3.client('ec2')
+          instanceDict = events['targetInstances']
+          for instance in instanceDict:
+            if instanceDict[instance] == 'stopped' or instanceDict[instance] == 'stopping':
+                ec2.stop_instances(
+                    InstanceIds=[instance]
+                    )
+            else:
+              pass
