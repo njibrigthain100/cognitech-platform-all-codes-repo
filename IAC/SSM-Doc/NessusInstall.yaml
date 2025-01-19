@@ -1,0 +1,72 @@
+schemaVersion: '2.2'
+description: "Document to install Nessus agent on different operating systems"
+parameters: 
+  additionalPackages:
+    type: String
+    default: "{{ssm:packages-to-install}}"
+    description: "List of additional packages to install"
+
+mainSteps:
+  - action: aws:runShellScript
+    name: InstallNessusAgentLinux
+    description: |
+      Installs Nessus agent on Linux servers
+    inputs:
+      runCommand:
+        - |
+          #!/bin/bash -xe
+          ##############################################################
+          #  INSTALLING AND CONFIGURING NESSUS AGENT  #
+          ##############################################################
+          OS_TYPE=$(cat /etc/os-release | grep ^ID= | cut -d '=' -f 2 | tr -d '"')
+          
+          case "$OS_TYPE" in
+            "amzn")
+              echo "Detected Amazon Linux 2"
+              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm .
+              rpm -ivh Nessus-10.8.3-amzn2.x86_64.rpm
+              ;;
+            "rhel"|"centos")
+              echo "Detected RHEL/CentOS"
+              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Nessus-10.8.3-el7.x86_64.rpm .
+              rpm -ivh Nessus-10.8.3-el7.x86_64.rpm
+              ;;
+            "ubuntu")
+              echo "Detected Ubuntu"
+              snap install aws-cli --classic
+              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb .
+              dpkg -i Nessus-10.8.3-ubuntu1604_amd64.deb
+              ;;
+            *)
+              echo "Unsupported Linux distribution"
+              exit 1
+              ;;
+          esac
+          
+          /bin/systemctl start nessusd.service
+          /bin/systemctl enable nessusd.service
+
+  - action: aws:runPowerShellScript
+    name: InstallNessusAgentWindows
+    description: |
+      Installs Nessus agent on Windows servers
+    inputs:
+      runCommand:
+        - |
+          # PowerShell Script to Install Nessus Agent on Windows
+          # Define the S3 path for Nessus and destination path on C drive
+            $S3Path = "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
+            $DestPath = "C:\Nessus-10.8.3-x64.msi"  # Change destination path to C drive
+
+            # Download Nessus MSI file from S3
+            Write-Host "Downloading Nessus from S3..."
+            aws s3 cp $S3Path $DestPath
+
+            # Install Nessus silently
+            Write-Host "Installing Nessus..."
+            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $DestPath /quiet /norestart" -Wait
+
+            # Start Nessus service and set it to automatic
+            Start-Service -Name "Tenable Nessus"
+            Set-Service -Name "Tenable Nessus" -StartupType Automatic
+
