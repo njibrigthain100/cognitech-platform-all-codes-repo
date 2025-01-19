@@ -1,11 +1,6 @@
 schemaVersion: '2.2'
 description: "Document to install Nessus agent on different operating systems"
 parameters: 
-  additionalPackages:
-    type: String
-    default: "{{ssm:packages-to-install}}"
-    description: "List of additional packages to install"
-
 mainSteps:
   - action: aws:runShellScript
     name: InstallNessusAgentLinux
