@@ -4,22 +4,22 @@ parameters:
   NessusLinuxAmazonURI:
     type: String
     description: "S3 URI for Nessus agent on Amazon Linux"
-    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm"
+    default: s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm
   NessusLinuxRHELCentOSURI:
     type: String
     description: "S3 URI for Nessus agent on RHEL/CentOS"
-    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Rhel9/Nessus-10.8.3-el9.x86_64.rpm"
+    default: s3://effulgencesoftwareinstall/Nessus/Linux/Rhel9/Nessus-10.8.3-el9.x86_64.rpm
   NessusLinuxUbuntuURI:
     type: String
     description: "S3 URI for Nessus agent on Ubuntu"
-    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb"
+    default: s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb
   NessusWindowsURI:
     type: String
     description: "S3 URI for Nessus agent on Windows"
-    default: "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
+    default: s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi
   NessusAmznLnxLinuxRPM:
     type: String
-    description: "Filename for Nessus RPM package for amazon linux 2"
+    description: Filename for Nessus RPM package for amazon linux 2
     default: Nessus-10.8.3-amzn2.x86_64.rpm
   NessusRhel9LinuxRPM:
     type: String
