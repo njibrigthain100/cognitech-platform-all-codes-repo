@@ -1,6 +1,6 @@
 schemaVersion: '2.2'
 description: "Document to install Nessus agent on different operating systems"
-parameters: 
+parameters: {}
 mainSteps:
   - action: aws:runShellScript
     name: InstallNessusAgentLinux
@@ -18,19 +18,31 @@ mainSteps:
           case "$OS_TYPE" in
             "amzn")
               echo "Detected Amazon Linux 2"
-              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm .
-              rpm -ivh Nessus-10.8.3-amzn2.x86_64.rpm
+              if rpm -q Nessus; then
+                echo "Nessus is already installed. Skipping installation."
+              else
+                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm .
+                rpm -ivh Nessus-10.8.3-amzn2.x86_64.rpm
+              fi
               ;;
             "rhel"|"centos")
               echo "Detected RHEL/CentOS"
-              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Nessus-10.8.3-el7.x86_64.rpm .
-              rpm -ivh Nessus-10.8.3-el7.x86_64.rpm
+              if rpm -q Nessus; then
+                echo "Nessus is already installed. Skipping installation."
+              else
+                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Nessus-10.8.3-el7.x86_64.rpm .
+                rpm -ivh Nessus-10.8.3-el7.x86_64.rpm
+              fi
               ;;
             "ubuntu")
               echo "Detected Ubuntu"
-              snap install aws-cli --classic
-              aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb .
-              dpkg -i Nessus-10.8.3-ubuntu1604_amd64.deb
+              if dpkg -l | grep -q nessus; then
+                echo "Nessus is already installed. Skipping installation."
+              else
+                snap install aws-cli --classic
+                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb .
+                dpkg -i Nessus-10.8.3-ubuntu1604_amd64.deb
+              fi
               ;;
             *)
               echo "Unsupported Linux distribution"
@@ -40,6 +52,10 @@ mainSteps:
           
           /bin/systemctl start nessusd.service
           /bin/systemctl enable nessusd.service
+    precondition:
+      StringEquals:
+        - platformType
+        - Linux
 
   - action: aws:runPowerShellScript
     name: InstallNessusAgentWindows
@@ -49,19 +65,22 @@ mainSteps:
       runCommand:
         - |
           # PowerShell Script to Install Nessus Agent on Windows
-          # Define the S3 path for Nessus and destination path on C drive
-            $S3Path = "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
-            $DestPath = "C:\Nessus-10.8.3-x64.msi"  # Change destination path to C drive
+          $S3Path = "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
+          $DestPath = "C:\Nessus-10.8.3-x64.msi"
 
-            # Download Nessus MSI file from S3
-            Write-Host "Downloading Nessus from S3..."
-            aws s3 cp $S3Path $DestPath
+          if (Get-Service -Name "Tenable Nessus" -ErrorAction SilentlyContinue) {
+              Write-Host "Nessus is already installed. Skipping installation."
+          } else {
+              Write-Host "Downloading Nessus from S3..."
+              aws s3 cp $S3Path $DestPath
 
-            # Install Nessus silently
-            Write-Host "Installing Nessus..."
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $DestPath /quiet /norestart" -Wait
-
-            # Start Nessus service and set it to automatic
-            Start-Service -Name "Tenable Nessus"
-            Set-Service -Name "Tenable Nessus" -StartupType Automatic
-
+              Write-Host "Installing Nessus..."
+              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $DestPath /quiet /norestart" -Wait
+          }
+          
+          Start-Service -Name "Tenable Nessus"
+          Set-Service -Name "Tenable Nessus" -StartupType Automatic
+    precondition:
+      StringEquals:
+        - platformType
+        - Windows
