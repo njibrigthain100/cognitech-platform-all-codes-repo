@@ -1,6 +1,36 @@
 schemaVersion: '2.2'
 description: "Document to install Nessus agent on different operating systems"
-parameters: {}
+parameters:
+  NessusLinuxAmazonURI:
+    type: String
+    description: "S3 URI for Nessus agent on Amazon Linux"
+    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm"
+  NessusLinuxRHELCentOSURI:
+    type: String
+    description: "S3 URI for Nessus agent on RHEL/CentOS"
+    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Rhel9/Nessus-10.8.3-el9.x86_64.rpm"
+  NessusLinuxUbuntuURI:
+    type: String
+    description: "S3 URI for Nessus agent on Ubuntu"
+    default: "s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb"
+  NessusWindowsURI:
+    type: String
+    description: "S3 URI for Nessus agent on Windows"
+    default: "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
+  NessusAmznLnxLinuxRPM:
+    type: String
+    description: "Filename for Nessus RPM package for amazon linux 2"
+    default: Nessus-10.8.3-amzn2.x86_64.rpm
+  NessusRhel9LinuxRPM:
+    type: String
+    description: "Filename for Nessus RPM package for Rhel 9"
+    default: Nessus-10.8.3-el9.x86_64.rpm
+  NessusUbuntuLinuxRPM:
+    type: String
+    description: "Filename for Nessus RPM package for Ubuntu"
+    default: Nessus-10.8.3-ubuntu1604_amd64.deb
+
+
 mainSteps:
   - action: aws:runShellScript
     name: InstallNessusAgentLinux
@@ -21,8 +51,8 @@ mainSteps:
               if rpm -q Nessus; then
                 echo "Nessus is already installed. Skipping installation."
               else
-                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Amazon-Linux-2/Nessus-10.8.3-amzn2.x86_64.rpm .
-                rpm -ivh Nessus-10.8.3-amzn2.x86_64.rpm
+                aws s3 cp {{ NessusLinuxAmazonURI }} .
+                rpm -ivh {{ NessusAmznLnxLinuxRPM }}
               fi
               ;;
             "rhel"|"centos")
@@ -30,8 +60,8 @@ mainSteps:
               if rpm -q Nessus; then
                 echo "Nessus is already installed. Skipping installation."
               else
-                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Nessus-10.8.3-el7.x86_64.rpm .
-                rpm -ivh Nessus-10.8.3-el7.x86_64.rpm
+                aws s3 cp {{ NessusLinuxRHELCentOSURI }} .
+                rpm -ivh {{ NessusRhel9LinuxRPM }}
               fi
               ;;
             "ubuntu")
@@ -40,8 +70,8 @@ mainSteps:
                 echo "Nessus is already installed. Skipping installation."
               else
                 snap install aws-cli --classic
-                aws s3 cp s3://effulgencesoftwareinstall/Nessus/Linux/Ubuntu/Nessus-10.8.3-ubuntu1604_amd64.deb .
-                dpkg -i Nessus-10.8.3-ubuntu1604_amd64.deb
+                aws s3 cp {{ NessusLinuxUbuntuURI }} .
+                dpkg -i {{ NessusUbuntuLinuxRPM }}
               fi
               ;;
             *)
@@ -65,8 +95,8 @@ mainSteps:
       runCommand:
         - |
           # PowerShell Script to Install Nessus Agent on Windows
-          $S3Path = "s3://effulgencesoftwareinstall/Nessus/Windows/Nessus-10.8.3-x64.msi"
-          $DestPath = "C:\Nessus-10.8.3-x64.msi"
+          $S3Path = "{{ NessusWindowsURI }}"
+          $DestPath = "C:\{{ NessusWindowsMSI }}"
 
           if (Get-Service -Name "Tenable Nessus" -ErrorAction SilentlyContinue) {
               Write-Host "Nessus is already installed. Skipping installation."
