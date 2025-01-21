@@ -102,6 +102,7 @@ mainSteps:
            if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
               Write-Host "AWS CLI is not installed. Exiting..."
               exit 1
+            }    
           $S3Path = "{{ NessusWindowsURI }}"
           $DestPath = "C:\{{ NessusWindowsMSI }}"
 
