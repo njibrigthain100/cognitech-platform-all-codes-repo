@@ -99,6 +99,9 @@ mainSteps:
       runCommand:
         - |
           # PowerShell Script to Install Nessus Agent on Windows
+           if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
+              Write-Host "AWS CLI is not installed. Exiting..."
+              exit 1
           $S3Path = "{{ NessusWindowsURI }}"
           $DestPath = "C:\{{ NessusWindowsMSI }}"
 
