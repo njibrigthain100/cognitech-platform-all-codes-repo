@@ -76,12 +76,11 @@ mainSteps:
                             # Restart SSH service to apply changes
                             sudo systemctl restart sshd
                         fi
-                        # ###############################################
-                        # # INSTALL ANSIBLE #
-                        # ###############################################
-                        # echo "Updating system and installing Ansible..."
-                        #     sudo yum update -y
-                        #     sudo yum install -y "{{ pAnsibleRpmFile }}"
-                        #     sudo yum install -y ansible
-
-                        # echo "SSM document execution complete!"
+                        ###############################################
+                        # INSTALL ANSIBLE #
+                        ###############################################
+                        echo "Updating system and installing Ansible..."
+                            sudo yum update -y
+                            sudo amazon-linux-extras enable ansible2
+                            sudo yum install -y ansible
+                        echo "SSM document execution complete!"
