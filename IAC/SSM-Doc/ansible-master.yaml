@@ -21,10 +21,10 @@ parameters:
       type: String
       default: "{{ssm:/standard/ansible/password}}"
 
-    pAnsibleRpmFile:
-      description: The version of ansible to be installed 
-      type: String 
-      default: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    # pAnsibleRpmFile:
+    #   description: The version of ansible to be installed 
+    #   type: String 
+    #   default: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 mainSteps:
           - action: aws:runShellScript

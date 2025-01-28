@@ -1,6 +1,5 @@
-
 schemaVersion: '2.2'
-description: "Document to create ansible user on instances"
+description: "Document to create ansible master on instances"
 parameters: 
     pSSHDConfigFilePath:
       description: Path to the sshd_config file
@@ -22,6 +21,11 @@ parameters:
       type: String
       default: "{{ssm:/standard/ansible/password}}"
 
+    # pAnsibleRpmFile:
+    #   description: The version of ansible to be installed 
+    #   type: String 
+    #   default: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
 mainSteps:
           - action: aws:runShellScript
             name: CreateandConfigureUser
@@ -36,12 +40,12 @@ mainSteps:
                         ##########################################
                         # Create new linux user
                         if id -u "{{ pUserName }}" >/dev/null 2>&1; then
-                            echo "User "{{ pUserName }}" already exists."
+                            echo "User \"{{ pUserName }}\" already exists."
                         else
-                            echo "Creating user "{{ pUserName }}"..."
+                            echo "Creating user \"{{ pUserName }}\"..."
                             sudo useradd -m "{{ pUserName }}"
-                            echo "{{ pUserName }}:{{ pPassword}" | sudo chpasswd
-                            echo "User "{{ pUserName }}" has been created with the specified password."
+                            echo "{{ pUserName }}:{{ pPassword }}" | sudo chpasswd
+                            echo "User \"{{ pUserName }}\" has been created with the specified password."
                         fi
 
                        # Add the user directly to the sudoers file
@@ -72,4 +76,3 @@ mainSteps:
                             # Restart SSH service to apply changes
                             sudo systemctl restart sshd
                         fi
-                        echo "SSM document execution complete!"
