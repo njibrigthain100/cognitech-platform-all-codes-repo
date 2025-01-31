@@ -2,7 +2,7 @@
 
 - name: Check for Amazon Linux 2 or 2023
   ansible.builtin.debug:
-      msg: "Plybook is running against the correct operating system: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+      msg: "Playbook is running against the correct operating system: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
   when: ansible_facts['distribution'] == "Amazon" and (ansible_facts['distribution_version'] == "2" or ansible_facts['distribution_version'] == "2023")
 
 - name: Warn if not the correct OS
