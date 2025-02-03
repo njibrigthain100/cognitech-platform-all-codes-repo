@@ -1,0 +1,145 @@
+schemaVersion: '2.2'
+description: "Document to create ansible master on instances"
+parameters: 
+    pSSHDConfigFilePath:
+      description: Path to the sshd_config file
+      type: String
+      default: "/etc/ssh/sshd_config"
+
+    pSudoersFilePath:
+      description: Path to the sudoers file
+      type: String
+      default: "/etc/sudoers"
+    
+    pUserName:
+      description: The User to be created
+      type: String
+      default: "ec2-user"
+
+    pS3ConfigFileUrl:
+      description: The path to the ansible config file in S3
+      type: String
+      default: "{{ssm:/standard/ansible/configfile}}"
+
+    pS3HostFileUrl:
+      description: The path to the ansible host file in S3
+      type: String
+      default: "{{ssm:/standard/ansible/hostfile}}"
+
+    pS3DynamicHostFileUrl:
+      description: The path to the ansible dynamic host file in S3
+      type: String
+      default: "{{ssm:/standard/ansible/dynamichostfile}}"
+
+    pAnsibleConfigPath:
+      description: The ansible configuration file path 
+      type: String
+      default: "/etc/ansible/"
+
+    pAWSRegion:
+      description: The region where the S3 bucket is located 
+      type: String
+      default: "us-east-1"
+
+
+mainSteps:
+          - action: aws:runShellScript
+            name: CreateandConfigureUser
+            description:  |
+              Creates a user and adds the user to the sudoers file
+            inputs:
+              runCommand:
+                  - |
+                        #!/bin/bash -xe
+                        ####################################################
+                        # DETECT OPERATING SYSTEM AND USER TO BE CONFIGURED
+                        ####################################################
+                        OS_NAME=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2 | tr -d '"')
+                        OS_VERSION=$(cat /etc/os-release | grep ^VERSION_ID | cut -d'=' -f2 | tr -d '"')
+
+                        case "$OS_NAME" in
+                            "amzn")
+                                if [[ "$OS_VERSION" == "2" ]]; then
+                                    echo "Amazon Linux 2 has been detected. Configuring ec2-user..."
+                                else
+                                    echo "Amazon Linux 2023 has been detected. Configuring ec2-user..."
+                                fi
+                                DEFAULT_USER="ec2-user"
+                                ;;
+                            "ubuntu")
+                                echo "Ubuntu has been detected. Configuring ubuntu user..."
+                                DEFAULT_USER="ubuntu"
+                                ;;
+                            "rhel"|"centos")
+                                echo "RHEL/CentOS has been detected. Configuring default user..."
+                                DEFAULT_USER="root"
+                                ;;
+                            *)
+                                echo "Unsupported OS detected. Exiting..."
+                                exit 1
+                                ;;
+                        esac
+                        ###############################################
+                        # INSTALL ANSIBLE AND BOTO3 BASED ON OS VERSION #
+                        ###############################################
+                        if [[ "$OS_NAME" == "amzn" && "$OS_VERSION" == "2" ]]; then
+                            echo "Installing Ansible and Boto3 on Amazon Linux 2..."
+                            sudo yum update -y
+                            sudo amazon-linux-extras enable ansible2
+                            sudo yum install -y ansible python3-pip
+                            pip3 install boto3 botocore
+                        elif [[ "$OS_NAME" == "amzn" && "$OS_VERSION" == "2023" ]]; then
+                            echo "Installing Ansible and Boto3 on Amazon Linux 2023..."
+                            sudo dnf update -y
+                            sudo dnf install -y ansible python3-pip
+                            pip3 install boto3 botocore
+                        elif [[ "$OS_NAME" == "rhel" || "$OS_NAME" == "centos" ]]; then
+                            echo "Installing Ansible and Boto3 on RHEL/CentOS..."
+                            sudo yum update -y
+                            sudo yum install -y ansible python3-pip
+                            pip3 install boto3 botocore
+                        elif [[ "$OS_NAME" == "ubuntu" ]]; then
+                            echo "Installing Ansible and Boto3 on Ubuntu..."
+                            sudo apt update -y
+                            sudo apt install -y ansible python3-pip
+                            pip3 install boto3 botocore
+                        fi
+
+                        sleep 10
+                        if ansible --version >/dev/null 2>&1; then
+                            echo "Ansible installed successfully!"
+                        else
+                            echo "Ansible installation failed! Exiting..."
+                            exit 1
+                        fi
+
+                        #############################################################
+                        # UPDATE DEFAULT ANSIBLE DIRECTORY OWNERSHIP TO DETECTED USER #
+                        #############################################################
+                        sudo -u {{ pUserName }} sudo chown -R {{ pUserName }}:{{ pUserName }} /etc/ansible/ 
+
+                        ######################################################
+                        # DOWNLOAD CONFIGURATION, DYNAMIC INVENTORY FILE & PRIVATE KEY #
+                        ######################################################
+                        # Copy Ansible config file from S3 as ec2-user
+                        sudo -u {{ pUserName }} aws s3 cp "{{ pS3ConfigFileUrl }}" "{{ pAnsibleConfigPath }}" --region {{ pAWSRegion }}
+
+                        # Copy Ansible hosts file from S3 as ec2-user
+                        sudo -u {{ pUserName }} aws s3 cp "{{ pS3HostFileUrl }}" "{{ pAnsibleConfigPath }}" --region {{ pAWSRegion }}
+
+                         # Copy Ansible dynamic hosts file from S3 as ec2-user
+                        sudo -u {{ pUserName }} aws s3 cp "{{ pS3DynamicHostFileUrl }}" "{{ pAnsibleConfigPath }}" --region {{ pAWSRegion }}
+
+                        # Retrieve private key from AWS Secrets Manager as ansible user
+                        sudo -u {{ pUserName }} aws secretsmanager get-secret-value --secret-id privatekeypair --query SecretString --output text > /home/{{ pUserName }}/.ssh/id_rsa
+                        sudo -u {{ pUserName }} sudo chmod 600 /home/{{ pUserName }}/.ssh/id_rsa
+                        sudo -u {{ pUserName }} sudo chown {{ pUserName }}:{{ pUserName }} /home/{{ pUserName }}/.ssh/id_rsa
+                       
+                        #############################################################
+                            # CONFIGURE DYNAMIC INVENTORY REQUIREMENTS#
+                        #############################################################
+                        if [ -f "/etc/ansible/ansible.cfg" ]; then
+                            sudo -u {{ pUserName }} sed -i 's/^#host_key_checking = False/host_key_checking = False/' "{{ pAnsibleConfigPath }}/ansible.cfg"
+                            sudo -u {{ pUserName }} sed -i '/\[inventory\]/a enable_plugins = aws_ec2' "{{ pAnsibleConfigPath }}/ansible.cfg"
+                        fi
+                        echo "SSM document execution complete!"
