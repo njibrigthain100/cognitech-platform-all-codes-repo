@@ -13,7 +13,7 @@ Parameters:
   pGitHubOrg:
     Type: String
     Description: "The GitHub organization or user (e.g., my-org or my-user)"
-    Default: njibrigthain100
+    Default: KahBrightTech
   pAppName:
     Description: The application for which the role will be created for 
     Type: String
